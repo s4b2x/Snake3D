@@ -1,0 +1,51 @@
+<head>
+    <title>Snake 3D</title>
+
+    <script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
+    <script type="text/javascript" src="webgl-utils.js"></script>
+    
+    <script type="text/javascript">
+
+        var gl;
+
+        function initGL(canvas) {
+            try {
+                gl = canvas.getContext("experimental-webgl");
+                gl.viewportWidth = canvas.width;
+                gl.viewportHeight = canvas.height;
+            } catch (e) {
+            }
+            
+            // Wenn wir keinen WebGl Kontext haben
+              
+            if (!gl) {
+                alert("WebGL konnte nicht initialisiert werden.");
+            }
+        }
+
+        function start() {
+            var canvas = document.getElementById("snakecanvas");
+            initGL(canvas);                  // Initialisierung des WebGL Kontextes
+            
+ 
+            // Es geht nur weiter, wenn WebGl verfügbar ist.
+            if (gl) {
+              gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Setzt die Farbe auf Schwarz, vollständig sichtbar
+              gl.clearDepth(1.0);                 // Lösche alles, um die neue Farbe sichtbar zu machen
+              gl.enable(gl.DEPTH_TEST);           // Aktiviere Tiefentest
+              gl.depthFunc(gl.LEQUAL);            // Nähere Objekte verdecken entferntere Objekte
+            }
+        }
+
+    </script>
+
+
+</head>
+
+    <body onload="start()">
+
+        <canvas id="snakecanvas" width="800" height="800"></canvas>
+        
+    </body>
+
+</html>
