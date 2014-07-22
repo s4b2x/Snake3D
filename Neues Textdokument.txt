@@ -1,8 +1,0 @@
-guten tag
-blah 
-blah 
-<<<<<<< HEAD
-blihdvfllsdfikSEBI_IST_DER_GEILSTE!h
-=======
-möööööp
->>>>>>> origin/master
