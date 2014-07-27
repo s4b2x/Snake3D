@@ -40,7 +40,12 @@
             this.kopf = k;
             this.ende = e;         
 
-            function versetzen(x, y, z){}
+            /* versetzt Wuerfel innerhalb des Spielfeldes um x, y, z */
+            function versetzen(x, y, z){
+                this.posX = (this.posX + x + spielfeldGroesse) % spielfeldGroesse;
+                this.posY = (this.posY + y + spielfeldGroesse) % spielfeldGroesse;
+                this.posZ = (this.posZ + z + spielfeldGroesse) % spielfeldGroesse;
+            }
         }
         
             /* fuegt die anfaengliche Snake ein, die 3 Felder gross ist */
@@ -54,24 +59,20 @@
         function snakeEinfuegen() {
 
             schlange = new Array(schlangenMaxLaenge);
-                  
-            head = new wuerfel(-4, 0, 0, true,  false);
-            body = new wuerfel(-3, 0, 0, false, false);
-            tail = new wuerfel(-2, 0, 0, false, true);
             
             aktLaengeSchlange = 3;
-            
-            //schlange[2]=head;
-            //schlange[1]=body;
-            //schlange[0]=tail;
-            
-            //Das Folgende ersetzt die oberen 3 Zeilen
+    
             headPos = aktLaengeSchlange - 1;
             tailPos = aktLaengeSchlange - aktLaengeSchlange;
-            beforTailPos = tailPos + 1;
+            //beforTailPos = tailPos + 1;
+                  
+            var head = new wuerfel(3, 0, 0, true,  false);
+            var body = new wuerfel(2, 0, 0, false, false);
+            var tail = new wuerfel(1, 0, 0, false, true);
             
             schlange[headPos]       = head;
-            schlange[beforTailPos]  = body;
+            //schlange[beforTailPos]  = body;
+            schlange[tailPos+1]  = body;
             schlange[tailPos]       = tail;
             
         }
@@ -106,27 +107,33 @@
                 
             else{*/
             
-            var x = 1;     // Bewegung auf der X-Achse nach rechts
+            var moveX = 1;     // Bewegung auf der X-Achse nach rechts(1) oder links(-1)
+            var moveY = 0;     // Bewegung auf der Y-Achse nach oben(1
+            var moveZ = 0;     // Bewegung auf der Z-Achse nach rechts
             
             if(schlange[tailPos].kopf == true)
             {
-                schlange[beforTailPos].posX = (schlange[tailPos].posX + x) % spielfeldGroesse;
+                schlange[tailPos+1].posX = (schlange[tailPos].posX + moveX) % spielfeldGroesse;
+                //schlange[tailPos+1].versetzen(moveX, moveY, moveZ);
                 schlange[tailPos].kopf = false;
-                schlange[beforTailPos].kopf = true;
+                //schlange[beforTailPos].kopf = true;
+                schlange[tailPos+1].kopf = true;
                 return 0;
             } 
             
-            if (schlange[beforTailPos].kopf == true)
+            if (schlange[tailPos+1].kopf == true)
             {
-                schlange[headPos].posX = (schlange[beforTailPos].posX + x) % spielfeldGroesse;
-                schlange[beforTailPos].kopf = false;
+                schlange[headPos].posX = (schlange[tailPos+1].posX + moveX) % spielfeldGroesse;
+                //schlange[headPos].versetzen(moveX, moveY, moveZ);
+                //schlange[beforTailPos].kopf = false;
+                schlange[tailPos+1].kopf = false;
                 schlange[headPos].kopf = true;
                 return 0;
             }  
 
             if(schlange[headPos].kopf == true)
             {
-                schlange[tailPos].posX = (schlange[headPos].posX + x) % spielfeldGroesse;
+                schlange[tailPos].posX = (schlange[headPos].posX + moveX) % spielfeldGroesse;
                 schlange[headPos].kopf = false;
                 schlange[tailPos].kopf = true;
                 return 0;
@@ -185,7 +192,7 @@
             
                 // Kompiliere das Shaderprogramm
                 gl.compileShader(shader);
-                // Überprüfe, ob die Kompilierung erfolgreich war
+                // Ueberpruefe, ob die Kompilierung erfolgreich war
                 if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
                     alert("Es ist ein Fehler beim Kompilieren der Shader aufgetaucht: " + gl.getShaderInfoLog(shader));
                     return null;
@@ -208,11 +215,11 @@
             gl.attachShader(shaderProgram, fragmentShader);
             gl.linkProgram(shaderProgram);
             
-            // Wenn die das Aufrufen der Shader fehlschlägt,
+            // Wenn die das Aufrufen der Shader fehlschlaegt,
             // gib eine Fehlermeldung aus:
 
             if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-                alert("Initialisierung des Shaderprogramms nicht möglich.");
+                alert("Initialisierung des Shaderprogramms nicht moeglich.");
             }
 
             gl.useProgram(shaderProgram);
@@ -259,7 +266,10 @@
         }
 
         var cubeVertexPositionBuffer;                               
-        var cubeVertexColorBuffer;                                          //Farbpuffer für das Quadrat
+        var cubeVertexColorBuffer;              //Farbpuffer fuer den HG
+        var snakeVertexColorBuffer;              //Farbpuffer fuer die Schlange
+        var headVertexColorBuffer;              //Farbpuffer fuer den Kopf
+        var futterVertexColorBuffer;              //Farbpuffer fuer das Futter
         var cubeVertexIndexBuffer;
 
         function initBuffers() {
@@ -310,7 +320,7 @@
             cubeVertexPositionBuffer.itemSize = 3;
             cubeVertexPositionBuffer.numItems = 24;
             
-/* ANFANG Farben fuer Grundfläche */
+/* ANFANG Farben fuer Grundflaeche */
 
             cubeVertexColorBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexColorBuffer);
@@ -335,7 +345,7 @@
             cubeVertexColorBuffer.itemSize = 4;
             cubeVertexColorBuffer.numItems = 24;
             
-            /* ENDE Farben fuer Grundfläche */
+            /* ENDE Farben fuer Grundflaeche */
 
             /* ANFANG Farben fuer Schlange */
 
@@ -343,7 +353,7 @@
             gl.bindBuffer(gl.ARRAY_BUFFER, snakeVertexColorBuffer);
             snakeColors = [
                 [1.0, 0.0, 0.0, 0.2],   // Front face             // Rot, Gruen, Blau, Alpha (Transparenz [durchsichtig 0.0 - 1.0 sichtbar])
-                [1.0, 0.0, 0.0, 0.2],   // Back face              // Braun: [0.6, 0.3, 0.0, 1.0]
+                [1.0, 0.0, 0.0, 0.2],   // Back face             
                 [1.0, 0.0, 0.0, 0.5],   // Top face
                 [1.0, 0.0, 0.0, 0.5],   // Bottom face
                 [1.0, 0.0, 0.0, 0.5],   // Right face
@@ -362,9 +372,36 @@
             snakeVertexColorBuffer.itemSize = 4;
             snakeVertexColorBuffer.numItems = 24;
             
-            /* ENDE Farben fuer Futter */
+            /* ENDE Farben fuer Schlange */
+
+            /* ANFANG Farben fuer Schlangenkopf */
+
+            headVertexColorBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, headVertexColorBuffer);
+            headColors = [
+                [0.0, 0.0, 0.0, 0.7],   // Front face             // Rot, Gruen, Blau, Alpha (Transparenz [durchsichtig 0.0 - 1.0 sichtbar])
+                [0.0, 0.0, 0.0, 0.7],   // Back face              
+                [0.0, 0.0, 0.0, 1],   // Top face
+                [0.0, 0.0, 0.0, 1],   // Bottom face
+                [0.0, 0.0, 0.0, 1],   // Right face
+                [0.0, 0.0, 0.0, 1]    // Left face
+            ];
+
+            var headUnpackedColors = [];
+            for (var i in headColors) {
+                var color = headColors[i];
+                for (var j = 0; j < 4; j++) {
+                    headUnpackedColors = headUnpackedColors.concat(color);
+                }
+            }
+
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(headUnpackedColors), gl.STATIC_DRAW);
+            headVertexColorBuffer.itemSize = 4;
+            headVertexColorBuffer.numItems = 24;
             
-            /* ANFANG Farben fuer Schlange */
+            /* ENDE Farben fuer Schlangenkopf */
+            
+            /* ANFANG Farben fuer Futter */
 
             futterVertexColorBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, futterVertexColorBuffer);
@@ -394,7 +431,7 @@
             cubeVertexIndexBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer);
             
-            // Dieser Array definiert jede Fläche als zwei Dreiecke über die Indizes
+            // Dieser Array definiert jede Flaeche als zwei Dreiecke ueber die Indizes
             // im Vertex-Array, um die Position jedes Dreiecks festzulegen.
   
             var cubeVertexIndices = [
@@ -415,6 +452,11 @@
 
 
         var rCube = 0;
+        
+        
+        ////////////////////////////////////////////////////////////////////////
+        /*                          drawScene()                               */
+        ////////////////////////////////////////////////////////////////////////
 
         function drawScene() {
             gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
@@ -440,57 +482,68 @@
 
             /* Gesamtbild */
 
-            mat4.translate(mvMatrix, [0.0, 0.0, -40.0]);                 // Verschiebung des Gesamtbildes (x, y, z) Achse
-            //mat4.rotate(mvMatrix, degToRad(rCube), [0, 1, 0]);            // Roatation des Gesamtbildes um die Y-Achse
+            mat4.translate(mvMatrix, [0.0, 0.0, -40.0]);          // Verschiebung des Gesamtbildes (x, y, z) Achse
+            //mat4.rotate(mvMatrix, degToRad(rCube), [0, 1, 0]);  // st�ndige Rotation des Gesamtbildes um die Y-Achse
+            /* Coole Perspektive: (Rotation des Gesamtbildes um die x-Achse) */
+            mat4.rotate(mvMatrix, degToRad(-45), [1, 0, 0]);    
 
-            /*Grundfläche (ist grau)*/
-                                    /*mitte*/
+            /*Grundflaeche (ist grau)*/
             
             mvPushMatrix();
-                mat4.translate(mvMatrix, [body.posX, body.posY, body.posZ]);  
-                setMatrixUniforms();
-                gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-            mvPopMatrix();
-            
-            /*mvPushMatrix();
-                mat4.translate(mvMatrix, [-0.5, -0.5, 0.0]);
-                mat4.scale(mvMatrix, [10.0, 10.0, 1.0]);
-                setMatrixUniforms();
-                gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-            mvPopMatrix();*/
-
-            /* Farb Puffer für kopf fängt an*/
-            gl.bindBuffer(gl.ARRAY_BUFFER, snakeVertexColorBuffer);
-            gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, snakeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-            /*Wuerfel für kopf*/
-            mvPushMatrix();
-                mat4.translate(mvMatrix, [head.posX, head.posY, head.posZ]);  
-                setMatrixUniforms();
-                gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-            mvPopMatrix();
-            
-            mvPushMatrix();
-                mat4.translate(mvMatrix, [tail.posX, tail.posY, tail.posZ]);  
-                setMatrixUniforms();
-                gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-            mvPopMatrix();
-            
-
-            
-            /* Farb Puffer für den futter fängt an*/
-            gl.bindBuffer(gl.ARRAY_BUFFER, futterVertexColorBuffer);
-            gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, futterVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
-            
-            /*arsch*/
-            
-            mvPushMatrix();
-                mat4.translate(mvMatrix, [futter.posX, futter.posY, futter.posZ]);  
+                mat4.translate(mvMatrix, [-0.5, -0.5, -1.0]);
+                mat4.scale(mvMatrix, [spielfeldGroesse, spielfeldGroesse, 1.0]);
                 setMatrixUniforms();
                 gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
             mvPopMatrix();
 
+            /* Gesamten Rest nach links verschieben */
+            mvPushMatrix();
+                mat4.translate(mvMatrix, [-5, 0, 0]);
             
+            
+                /* Farb Puffer fuer kopf faengt an*/
+                gl.bindBuffer(gl.ARRAY_BUFFER, headVertexColorBuffer);
+                gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, headVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+                /*Wuerfel fuer kopf*/
+                mvPushMatrix();
+                    mat4.translate(mvMatrix, [schlange[headPos].posX, schlange[headPos].posY, schlange[headPos].posZ]);  
+                    setMatrixUniforms();
+                    gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                mvPopMatrix();
+            
+                /* Farb Puffer fuer Rest faengt an*/
+                gl.bindBuffer(gl.ARRAY_BUFFER, snakeVertexColorBuffer);
+                gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, snakeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+                /*mitte*/
+                mvPushMatrix();
+                    mat4.translate(mvMatrix, [schlange[tailPos+1].posX, schlange[tailPos+1].posY, schlange[tailPos+1].posZ]);  
+                    setMatrixUniforms();
+                    gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                mvPopMatrix();
+
+                /*arsch*/
+                mvPushMatrix();
+                    mat4.translate(mvMatrix, [schlange[tailPos].posX, schlange[tailPos].posY, schlange[tailPos].posZ]);  
+                    setMatrixUniforms();
+                    gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                mvPopMatrix();
+
+
+
+                /* Farb Puffer fuer den futter faengt an*/
+                gl.bindBuffer(gl.ARRAY_BUFFER, futterVertexColorBuffer);
+                gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, futterVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+
+                mvPushMatrix();
+                    mat4.translate(mvMatrix, [futter.posX, futter.posY, futter.posZ]);  
+                    setMatrixUniforms();
+                    gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                mvPopMatrix();
+
+            mvPopMatrix();
 
 
         }
@@ -506,7 +559,7 @@
                 rCube -= (75 * elapsed) / 1000.0;
             }
             
-            gehen();
+            //gehen();
             lastTime = timeNow;
         }
 
@@ -514,9 +567,10 @@
         function tick() {
             requestAnimFrame(tick);
             drawScene();
-            if(framecounter % 10 == 0){
-                animate();             
-            }       // Drehung
+            if(framecounter % 30 == 0){
+                gehen();             
+            }
+            animate(); // Drehung
             framecounter++;        
         }
 
@@ -529,12 +583,12 @@
             initBuffers();
 
 
-            // Es geht nur weiter, wenn WebGl verfügbar ist.
+            // Es geht nur weiter, wenn WebGl verfuegbar ist.
             if (gl) {
-              gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Setzt die Farbe auf Schwarz, vollständig sichtbar
-              gl.clearDepth(1.0);                 // Lösche alles, um die neue Farbe sichtbar zu machen
+              gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Setzt die Farbe auf Schwarz, vollstaendig sichtbar
+              gl.clearDepth(1.0);                 // Loesche alles, um die neue Farbe sichtbar zu machen
               gl.enable(gl.DEPTH_TEST);           // Aktiviere Tiefentest
-              gl.depthFunc(gl.LEQUAL);            // Nähere Objekte verdecken entferntere Objekte
+              gl.depthFunc(gl.LEQUAL);            // Naehere Objekte verdecken entferntere Objekte
             }
 
             tick();
