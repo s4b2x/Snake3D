@@ -43,91 +43,102 @@
             function versetzen(x, y, z){}
         }
         
-        snakeEinfuegen(10);
+            /* fuegt die anfaengliche Snake ein, die 3 Felder gross ist */
         
-        function snakeEinfuegen(maxLaenge) {
+        var spielfeldGroesse = 10;
+        var schlangenMaxLaenge = spielfeldGroesse * spielfeldGroesse; //Spielfelddurchmesser*Spielfelddurchmesser, 
+        var aktLaengeSchlange = null;
+    
+        snakeEinfuegen();
         
-        schlangenMaxLaenge = maxLaenge;
-        schlange = new Array(schlangenMaxLaenge);
-        schlageLaenge = 3;
-        headPos = schlageLaenge - schlageLaenge;
-        endePos = schlageLaenge;
-            
-        head = new wuerfel(headPos,              0, 0, true,  false);
-        for (bodyPos = headPos-1; bodyPos < endePos; bodyPos++) 
-        {
-            body = new wuerfel(bodyPos,       0, 0, false, false);
-            body[bodyPos] = new wuerfel(bodyPos,       0, 0, false, false);
-        }
-        tail = new wuerfel(endePos,              0, 0, false, true);
+        function snakeEinfuegen() {
 
+            schlange = new Array(schlangenMaxLaenge);
+                  
+            head = new wuerfel(-4, 0, 0, true,  false);
+            body = new wuerfel(-3, 0, 0, false, false);
+            tail = new wuerfel(-2, 0, 0, false, true);
+            
+            aktLaengeSchlange = 3;
+            
+            //schlange[2]=head;
+            //schlange[1]=body;
+            //schlange[0]=tail;
+            
+            //Das Folgende ersetzt die oberen 3 Zeilen
+            headPos = aktLaengeSchlange - 1;
+            tailPos = aktLaengeSchlange - aktLaengeSchlange;
+            beforTailPos = tailPos + 1;
+            
+            schlange[headPos]       = head;
+            schlange[beforTailPos]  = body;
+            schlange[tailPos]       = tail;
+            
+        }
+
+        futterEinfuegen();
+        
+        function futterEinfuegen() {
+            futter = new wuerfel(4, 0, 0, false, false);
+        }
+        
+        
+        
+        
+        function fressen() {
+            /*In der fressen methode wird der futter wuerfel in das array uebernommen
+             * und der Wert fuer Kopf des Futter wuerfels wird auf true gesetzt
+             * 
+             */ 
+            
+            //aktLaengeSchlange++;
+            
         }
         
         function gehen(){
-            //alert();
             
-            var xr = 1;     // X-Achse rechts
-            //var xl = -1;    // X-Achse links
-           
-            if(tail.kopf == true)
-            {
-                body.posX = (tail.posX + xr) % schlangenMaxLaenge;
-                tail.kopf = false;
-                body.kopf = true;
-                return 0;
-            } 
-            for (bodyPos = headPos -1; bodyPos <= endePos; bodyPos++) 
-            {
-                if (body.kopf == true)
-                {
-                    head.posX = (body.posX + xr) % schlangenMaxLaenge;
-                    body.kopf = false;
-                    head.kopf = true;
-                    return 0;
-                }  
+            /*if(head.posX === futter.posX &&
+               head.posY === futter.posY &&
+               head.posZ === futter.posZ )
+                //alert("Futter");
+                fressen();    
             }
-
-            if(head.kopf == true)
+                
+            else{*/
+            
+            var x = 1;     // Bewegung auf der X-Achse nach rechts
+            
+            if(schlange[tailPos].kopf == true)
             {
-                tail.posX = (head.posX + xr) % schlangenMaxLaenge;
-                head.kopf = false;
-                tail.kopf = true;
+                schlange[beforTailPos].posX = (schlange[tailPos].posX + x) % spielfeldGroesse;
+                schlange[tailPos].kopf = false;
+                schlange[beforTailPos].kopf = true;
                 return 0;
             } 
-
-
-        }
-/*            
-        if(tail.kopf==true)
+            
+            if (schlange[beforTailPos].kopf == true)
             {
-                body.posX = body.posX + o;
-                tail.kopf = false;
-                body.kopf = true;
-                return 0;
-            } 
-
-            if (body.kopf==true)
-            {
-                head.posX = head.posX + o;
-                body.kopf = false;
-                head.kopf = true;
+                schlange[headPos].posX = (schlange[beforTailPos].posX + x) % spielfeldGroesse;
+                schlange[beforTailPos].kopf = false;
+                schlange[headPos].kopf = true;
                 return 0;
             }  
 
-            if(head.kopf==true)
+            if(schlange[headPos].kopf == true)
             {
-                tail.posX = tail.posX + o;
-                head.kopf = false;
-                tail.kopf = true;
+                schlange[tailPos].posX = (schlange[headPos].posX + x) % spielfeldGroesse;
+                schlange[headPos].kopf = false;
+                schlange[tailPos].kopf = true;
                 return 0;
             } 
-
-
+            
+            
+//            schlange[tailPos].posX = (schlange[headPos].posX +1) % spielfeldgroese;
+//            schlange[headPos] = schlange[tailPos];
         }
-     */
+     
 
-
-        var gl;
+  var gl;
 
         function initGL(canvas) {
             try {
@@ -452,25 +463,33 @@
             gl.bindBuffer(gl.ARRAY_BUFFER, snakeVertexColorBuffer);
             gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, snakeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-            /*Würfel für kopf*/
+            /*Wuerfel für kopf*/
             mvPushMatrix();
                 mat4.translate(mvMatrix, [head.posX, head.posY, head.posZ]);  
                 setMatrixUniforms();
                 gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
             mvPopMatrix();
             
-
-            
-            /* Farb Puffer für den arsch fängt an*/
-            gl.bindBuffer(gl.ARRAY_BUFFER, futterVertexColorBuffer);
-            gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, futterVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
-            
-            /*arsch*/
             mvPushMatrix();
                 mat4.translate(mvMatrix, [tail.posX, tail.posY, tail.posZ]);  
                 setMatrixUniforms();
                 gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
             mvPopMatrix();
+            
+
+            
+            /* Farb Puffer für den futter fängt an*/
+            gl.bindBuffer(gl.ARRAY_BUFFER, futterVertexColorBuffer);
+            gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, futterVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            
+            /*arsch*/
+            
+            mvPushMatrix();
+                mat4.translate(mvMatrix, [futter.posX, futter.posY, futter.posZ]);  
+                setMatrixUniforms();
+                gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+            mvPopMatrix();
+
             
 
 
