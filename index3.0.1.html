@@ -32,6 +32,14 @@
     <!-- Nicht bearbeiten - ENDE Initialisierung der Shader -->
 
     <script type="text/javascript">
+
+        var rotationDegree = 0;
+        var rotationAxis = 0;
+        
+        var spielfeldGroesse = 10;
+        var schlangenMaxLaenge = spielfeldGroesse * spielfeldGroesse; //Spielfelddurchmesser*Spielfelddurchmesser, 
+        var aktLaengeSchlange = null;
+        
         function wuerfel(x, y, z, k, e) {
             this.posX = x;
             this.posY = y;
@@ -49,10 +57,6 @@
         }
         
             /* fuegt die anfaengliche Snake ein, die 3 Felder gross ist */
-        
-        var spielfeldGroesse = 10;
-        var schlangenMaxLaenge = spielfeldGroesse * spielfeldGroesse; //Spielfelddurchmesser*Spielfelddurchmesser, 
-        var aktLaengeSchlange = null;
     
         snakeEinfuegen();
         
@@ -325,12 +329,12 @@
             cubeVertexColorBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexColorBuffer);
             colors = [
-                [0.0, 0.0, 0.0, 0.2],   // Front face             // Rot, Gruen, Blau, Alpha (Transparenz [durchsichtig 0.0 - 1.0 sichtbar])
+                [0.0, 0.0, 0.0, 0.1],   // Front face             // Rot, Gruen, Blau, Alpha (Transparenz [durchsichtig 0.0 - 1.0 sichtbar])
                 [0.0, 0.0, 0.0, 0.2],   // Back face
-                [0.0, 0.0, 0.0, 0.5],   // Top face
-                [0.0, 0.0, 0.0, 0.5],   // Bottom face
+                [0.0, 0.0, 0.0, 0.3],   // Top face
+                [0.0, 0.0, 0.0, 0.4],   // Bottom face
                 [0.0, 0.0, 0.0, 0.5],   // Right face
-                [0.0, 0.0, 0.0, 0.5]    // Left face
+                [0.0, 0.0, 0.0, 0.6]    // Left face
             ];
 
             var unpackedColors = [];
@@ -352,12 +356,12 @@
             snakeVertexColorBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, snakeVertexColorBuffer);
             snakeColors = [
-                [1.0, 0.0, 0.0, 0.2],   // Front face             // Rot, Gruen, Blau, Alpha (Transparenz [durchsichtig 0.0 - 1.0 sichtbar])
+                [1.0, 0.0, 0.0, 0.1],   // Front face             // Rot, Gruen, Blau, Alpha (Transparenz [durchsichtig 0.0 - 1.0 sichtbar])
                 [1.0, 0.0, 0.0, 0.2],   // Back face             
-                [1.0, 0.0, 0.0, 0.5],   // Top face
-                [1.0, 0.0, 0.0, 0.5],   // Bottom face
+                [1.0, 0.0, 0.0, 0.3],   // Top face
+                [1.0, 0.0, 0.0, 0.4],   // Bottom face
                 [1.0, 0.0, 0.0, 0.5],   // Right face
-                [1.0, 0.0, 0.0, 0.5]    // Left face
+                [1.0, 0.0, 0.0, 0.6]    // Left face
             ];
 
             var snakeUnpackedColors = [];
@@ -379,12 +383,12 @@
             headVertexColorBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, headVertexColorBuffer);
             headColors = [
-                [0.0, 0.0, 0.0, 0.7],   // Front face             // Rot, Gruen, Blau, Alpha (Transparenz [durchsichtig 0.0 - 1.0 sichtbar])
-                [0.0, 0.0, 0.0, 0.7],   // Back face              
-                [0.0, 0.0, 0.0, 1],   // Top face
-                [0.0, 0.0, 0.0, 1],   // Bottom face
-                [0.0, 0.0, 0.0, 1],   // Right face
-                [0.0, 0.0, 0.0, 1]    // Left face
+                [0.0, 0.0, 0.0, 0.5],   // Front face             // Rot, Gruen, Blau, Alpha (Transparenz [durchsichtig 0.0 - 1.0 sichtbar])
+                [0.0, 0.0, 0.0, 0.6],   // Back face              
+                [0.0, 0.0, 0.0, 0.7],   // Top face
+                [0.0, 0.0, 0.0, 0.8],   // Bottom face
+                [0.0, 0.0, 0.0, 0.9],   // Right face
+                [0.0, 0.0, 0.0, 1.0]    // Left face
             ];
 
             var headUnpackedColors = [];
@@ -406,12 +410,12 @@
             futterVertexColorBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, futterVertexColorBuffer);
             futterColors = [
-                [0.0, 1.0, 0.0, 0.2],   // Front face             // Rot, Gruen, Blau, Alpha (Transparenz [durchsichtig 0.0 - 1.0 sichtbar])
+                [0.0, 1.0, 0.0, 0.1],   // Front face             // Rot, Gruen, Blau, Alpha (Transparenz [durchsichtig 0.0 - 1.0 sichtbar])
                 [0.0, 1.0, 0.0, 0.2],   // Back face
-                [0.0, 1.0, 0.0, 0.5],   // Top face
-                [0.0, 1.0, 0.0, 0.5],   // Bottom face
+                [0.0, 1.0, 0.0, 0.3],   // Top face
+                [0.0, 1.0, 0.0, 0.4],   // Bottom face
                 [0.0, 1.0, 0.0, 0.5],   // Right face
-                [0.0, 1.0, 0.0, 0.5]    // Left face
+                [0.0, 1.0, 0.0, 0.6]    // Left face
             ];
 
             var futterUnpackedColors = [];
@@ -450,9 +454,6 @@
             cubeVertexIndexBuffer.numItems = 36;
         }
 
-
-        var rCube = 0;
-        
         
         ////////////////////////////////////////////////////////////////////////
         /*                          drawScene()                               */
@@ -483,15 +484,38 @@
             /* Gesamtbild */
 
             mat4.translate(mvMatrix, [0.0, 0.0, -40.0]);          // Verschiebung des Gesamtbildes (x, y, z) Achse
-            //mat4.rotate(mvMatrix, degToRad(rCube), [0, 1, 0]);  // ständige Rotation des Gesamtbildes um die Y-Achse
+            //mat4.rotate(mvMatrix, degToRad(rotationDegree), [0, 1, 0]);  // ständige Rotation des Gesamtbildes um die Y-Achse
+            
             /* Coole Perspektive: (Rotation des Gesamtbildes um die x-Achse) */
             mat4.rotate(mvMatrix, degToRad(-45), [1, 0, 0]);    
 
-            /*Grundflaeche (ist grau)*/
+            /* Spielfeld-Rahmen (ist grau)*/
             
+            /* Linie rechts */
             mvPushMatrix();
-                mat4.translate(mvMatrix, [-0.5, -0.5, -1.0]);
-                mat4.scale(mvMatrix, [spielfeldGroesse, spielfeldGroesse, 1.0]);
+                mat4.translate(mvMatrix, [4.5, -0.5, 0.0]);
+                mat4.scale(mvMatrix, [0.1, spielfeldGroesse, 0.1]);
+                setMatrixUniforms();
+                gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+            mvPopMatrix();
+            /* Linie links */
+            mvPushMatrix();
+                mat4.translate(mvMatrix, [-5.5, -0.5, 0.0]);
+                mat4.scale(mvMatrix, [0.1, spielfeldGroesse, 0.1]);
+                setMatrixUniforms();
+                gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+            mvPopMatrix();
+            /* Linie oben */
+            mvPushMatrix();
+                mat4.translate(mvMatrix, [-0.5, 4.5, 0.0]);
+                mat4.scale(mvMatrix, [spielfeldGroesse, 0.1, 0.1]);
+                setMatrixUniforms();
+                gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+            mvPopMatrix();
+            /* Linie unten */
+            mvPushMatrix();
+                mat4.translate(mvMatrix, [-0.5, -5.5, 0.0]);
+                mat4.scale(mvMatrix, [spielfeldGroesse, 0.1, 0.1]);
                 setMatrixUniforms();
                 gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
             mvPopMatrix();
@@ -508,6 +532,7 @@
                 /*Wuerfel fuer kopf*/
                 mvPushMatrix();
                     mat4.translate(mvMatrix, [schlange[headPos].posX, schlange[headPos].posY, schlange[headPos].posZ]);  
+                    mat4.rotate(mvMatrix, degToRad(rotationDegree), [Math.sin(degToRad(rotationAxis)), Math.sin(degToRad(0.9*rotationAxis+120)), Math.sin(degToRad(1.1*rotationAxis-120))]);  // ständige Rotation des Gesamtbildes um die Y-Achse
                     setMatrixUniforms();
                     gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
                 mvPopMatrix();
@@ -519,6 +544,7 @@
                 /*mitte*/
                 mvPushMatrix();
                     mat4.translate(mvMatrix, [schlange[tailPos+1].posX, schlange[tailPos+1].posY, schlange[tailPos+1].posZ]);  
+                    mat4.rotate(mvMatrix, degToRad(rotationDegree), [Math.sin(degToRad(rotationAxis)), Math.sin(degToRad(0.9*rotationAxis+120)), Math.sin(degToRad(1.1*rotationAxis-120))]);  // ständige Rotation des Gesamtbildes um die Y-Achse
                     setMatrixUniforms();
                     gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
                 mvPopMatrix();
@@ -526,6 +552,7 @@
                 /*arsch*/
                 mvPushMatrix();
                     mat4.translate(mvMatrix, [schlange[tailPos].posX, schlange[tailPos].posY, schlange[tailPos].posZ]);  
+                    mat4.rotate(mvMatrix, degToRad(rotationDegree), [Math.sin(degToRad(rotationAxis)), Math.sin(degToRad(0.9*rotationAxis+120)), Math.sin(degToRad(1.1*rotationAxis-120))]);  // ständige Rotation des Gesamtbildes um die Y-Achse
                     setMatrixUniforms();
                     gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
                 mvPopMatrix();
@@ -556,7 +583,8 @@
             if (lastTime != 0) {
                 var elapsed = timeNow - lastTime;
 
-                rCube -= (75 * elapsed) / 1000.0;
+                rotationDegree = (rotationDegree + ((75 * elapsed) / 1000.0)) % 360;
+                rotationAxis = (rotationAxis + ((25 * elapsed) / 1000.0)) % 360;
             }
             
             //gehen();
