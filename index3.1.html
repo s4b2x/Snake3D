@@ -39,6 +39,7 @@
         var spielfeldGroesse = {x : 10, y : 10, z : 1};
         var schlangenMaxLaenge = spielfeldGroesse.x * spielfeldGroesse.y * spielfeldGroesse.z; //Spielfelddurchmesser*Spielfelddurchmesser, 
         var aktLaengeSchlange = null;
+        var richtung = "rechts";    // Startrichtung
         
         function wuerfel(x, y, z, k, e) {
             this.posX = x;
@@ -65,8 +66,7 @@
             }
         }
         
-            /* fuegt die anfaengliche Snake ein, die 3 Felder gross ist */
-    
+        /* fuegt die anfaengliche Snake ein, die 3 Felder gross ist */
         snakeEinfuegen();
         
         function snakeEinfuegen() {
@@ -102,25 +102,28 @@
              * 
              */ 
             
-            //aktLaengeSchlange++;
-            
+            //aktLaengeSchlange++;         
         }
         
-        function gehen(){
+        function gehen(moveX, moveY, moveZ){
             
-            /*if(head.posX === futter.posX &&
-               head.posY === futter.posY &&
-               head.posZ === futter.posZ )
-                //alert("Futter");
-                fressen();    
+            /* if([headPos].posX === futter.posX &&
+               [headPos].posY === futter.posY &&
+               [headPos].posZ === futter.posZ ) {
+               alert("Kollision")
+               }
+               fressen();    
             }
                 
             else{*/
-            
-            var moveX = 1;     // Bewegung auf der X-Achse nach rechts(1) oder links(-1)
-            var moveY = 0;     // Bewegung auf der Y-Achse nach oben(1
-            var moveZ = 0;     // Bewegung auf der Z-Achse nach rechts
-            
+       
+
+//            /* Standard-Bewegung nach vorne 
+//             * MUSS NOCH UEBERARBEITET WERDEN (zur Zeit nur nach rechts */
+//            var moveX = 1;     // Bewegung auf der X-Achse nach rechts(1) oder links(-1)
+//            var moveY = 0;     // Bewegung auf der Y-Achse nach oben(1) oder unten (-1)
+//            var moveZ = 0;     // Bewegung auf der Z-Achse
+
             if(schlange[tailPos].kopf == true)
             {
                 //schlange[tailPos+1].posX = (schlange[tailPos].posX + moveX + spielfeldGroesse) % spielfeldGroesse;
@@ -131,7 +134,7 @@
                 schlange[tailPos+1].kopf = true;
                 return 0;
             } 
-            
+
             if (schlange[tailPos+1].kopf == true)
             {
                 //schlange[headPos].posX = (schlange[tailPos+1].posX + moveX + spielfeldGroesse) % spielfeldGroesse;
@@ -153,9 +156,100 @@
                 return 0;
             } 
         }
+        
+    /* ANFANG Steuerung */
+    /* Java Key Code: http://www.mediaevent.de/javascript/Extras-Javascript-Keycodes.html */
+
+        function keyDown(event) 
+        {
+           switch (event.keyCode) 
+           {
+                case 39: /* rechts */
+                case 68: /* D */
+//                    alert("rechts");
+                    moveX = 1;
+                    moveY = 0;
+                    moveZ = 0;
+                    richtung = "rechts";
+                    gehen(moveX, moveY, moveZ);
+                    break;
+
+                case 37: /* links */
+                case 65: /* A */
+//                    alert("links");
+                    moveX = -1;
+                    moveY = 0;
+                    moveZ = 0;
+                    richtung = "links";
+                    gehen(moveX, moveY, moveZ);
+                    break;
+
+                case 38: /* oben */
+                case 87: /* W */
+//                    alert("oben");
+                    moveX = 0;
+                    moveY = 1;
+                    moveZ = 0;  
+                    richtung = "oben";
+                    gehen(moveX, moveY, moveZ);
+                    break;   
+
+                case 40: /* unten */
+                case 83: /* S */
+//                    alert("unten");
+                    moveX = 0;
+                    moveY = -1;
+                    moveZ = 0; 
+                    richtung = "unten";
+                    gehen(moveX, moveY, moveZ);
+                    break;      
+           }
+       };
+
+//       this.onKeyUp = function (event) 
+//       {
+//           switch (event.keyCode) 
+//           {
+//               case 37: /* links */
+//               case 65: /* A */
+//                   alert("links");
+//                    moveX = -1;
+//                    moveY = 0;
+//                    moveZ = 0;
+//                   break;
+//
+//               case 39: /* rechts */
+//               case 68: /* D */
+//                    moveX = 1;
+//                    moveY = 0;
+//                    moveZ = 0;
+//                   break;
+//                  
+//               case 38: /* oben */
+//               case 87: /* W */
+//                    moveX = 0;
+//                    moveY = 1;
+//                    moveZ = 0;  
+//                   break;   
+//                   
+//               case 40: /* unten */
+//               case 83: /* S */
+//                    moveX = 0;
+//                    moveY = -1;
+//                    moveZ = 0;  
+//                   break;       
+//           }
+//       };
+
+        /* Die Taste wird gerade gedrueckt */
+        document.addEventListener("keydown", keyDown, false);
+        
+//        document.addEventListener("keyup",onKeyUp(), false);
+
+    /* ENDE Steuerung */
      
 
-  var gl;
+    var gl;
 
         function initGL(canvas) {
             try {
@@ -171,7 +265,6 @@
                 alert("WebGL konnte nicht initialisiert werden.");
             }
         }
-
 
         function getShader(gl, id) {
             
@@ -211,7 +304,6 @@
             return shader;
         }
 
-
         var shaderProgram;
 
         function initShaders() {
@@ -246,7 +338,6 @@
             shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
         }
 
-
         var mvMatrix = mat4.create();
         var mvMatrixStack = [];
         var pMatrix = mat4.create();
@@ -264,12 +355,10 @@
             mvMatrix = mvMatrixStack.pop();
         }
 
-
         function setMatrixUniforms() {
             gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
             gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
         }
-
 
         function degToRad(degrees) {
             return degrees * Math.PI / 180;
@@ -323,8 +412,6 @@
                 -0.5, 0.5, 0.5,
                 -0.5, 0.5, -0.5
             ];
-
-
 
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
             cubeVertexPositionBuffer.itemSize = 3;
@@ -473,7 +560,6 @@
             mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix);
 
             mat4.identity(mvMatrix);
-
             
             /* Puffer des Quadrats wird mit dem Kontext verbunden */
             gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexPositionBuffer);
@@ -485,7 +571,6 @@
 
             /* Element Puffer */
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer);
-
 
             /* Gesamtbild */
 
@@ -635,12 +720,9 @@
                         gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
                     mvPopMatrix();
 
-
-
                     /* Farb Puffer fuer den futter faengt an*/
                     gl.bindBuffer(gl.ARRAY_BUFFER, futterVertexColorBuffer);
                     gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, futterVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
 
                     mvPushMatrix();
                         mat4.translate(mvMatrix, [futter.posX, futter.posY, futter.posZ]);  
@@ -673,10 +755,36 @@
 
         framecounter = 0;
         function tick() {
+            
+            /* Die Schlange schlaengelt sich in die Richtung weiter, 
+             * in die der letzte Tastendruck erfolgte */
+            if(richtung == "rechts") {
+                var moveX = 1;     // Bewegung auf der X-Achse nach rechts(1) oder links(-1)
+                var moveY = 0;     // Bewegung auf der Y-Achse nach oben(1) oder unten (-1)
+                var moveZ = 0;     // Bewegung auf der Z-Achse
+            }
+            
+            if(richtung == "links") {
+                var moveX = -1;
+                var moveY = 0;
+                var moveZ = 0;
+            }
+
+            if(richtung == "oben") {
+                var moveX = 0;
+                var moveY = 1;
+                var moveZ = 0;
+            }
+            
+            if(richtung == "unten") {
+                var moveX = 0;
+                var moveY = -1;
+                var moveZ = 0;
+            }
             requestAnimFrame(tick);
             drawScene();
             if(framecounter % 30 == 0){
-                gehen();             
+                gehen(moveX, moveY, moveZ);             
             }
             animate(); // Drehung
             framecounter++;        
