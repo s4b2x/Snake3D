@@ -11,15 +11,15 @@
                                     TODO
            
         -   Korrekte Umsetzung des zyklischen Arrays (zu 3)
-        -   Auf Stelle Wenden verhindern (x)
-        -   Beschleunigung verhindern (x)
-        -   Bewegung im Takt (x)
+        x   Auf Stelle Wenden verhindern
+        x   Beschleunigung verhindern
+        x   Bewegung im Takt
        (-   fliessende Bewegung als Bonus)
-        -   Bewegegung in Z-Richtung
-        -   Drehung des Level-Wuerfels
-        -   Seitenwaende des Level-Wuerfels (von innen sichtbar von aussen transparent)
-        -   nach dem Fressen wird die Schlange schneller
-        -   Drehung beenden, wenn Maus Canvas verlaesst
+        x   Bewegegung in Z-Richtung
+        x   Drehung des Level-Wuerfels
+        x   Seitenwaende des Level-Wuerfels (von innen sichtbar von aussen transparent)
+        -   nach dem Fressen wird die Schlange laenger
+        x   Drehung beenden, wenn Maus Canvas verlaesst
     
     --------------------------------------------------------------------------->
     
@@ -52,6 +52,9 @@
     <!-- Nicht bearbeiten - ENDE Initialisierung der Shader -->
 
     <script type="text/javascript">
+        
+        var canvas;
+
         function mausPunkt(x, y) {
             this.x = x;
             this.y = y;
@@ -704,6 +707,7 @@
         function drawScene() {
             gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
             gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            
             //  Aktivieren von Backface-Culling (von http://www.html5rocks.com/en/tutorials/webgl/webgl_orthographic_3d/)
             gl.enable(gl.CULL_FACE);
             
@@ -923,7 +927,7 @@
                     /*Wuerfel fuer kopf*/
                     mvPushMatrix();
                         mat4.translate(mvMatrix, [schlange[headPos].posX, schlange[headPos].posY, schlange[headPos].posZ]);  
-                        //mat4.rotate(mvMatrix, degToRad(rotationDegree), [Math.sin(degToRad(rotationAxis)), Math.sin(degToRad(0.9*rotationAxis+120)), Math.sin(degToRad(1.1*rotationAxis-120))]);  // staedige Rotation des Gesamtbildes um die Y-Achse
+                        mat4.rotate(mvMatrix, degToRad(rotationDegree), [Math.sin(degToRad(rotationAxis)), Math.sin(degToRad(0.9*rotationAxis+120)), Math.sin(degToRad(1.1*rotationAxis-120))]);  // staedige Rotation des Gesamtbildes um die Y-Achse
                         setMatrixUniforms();
                         gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
                     mvPopMatrix();
@@ -1006,7 +1010,7 @@
 
 
         function webGLStart() {
-            var canvas = document.getElementById("snakecanvas");
+            canvas = document.getElementById("snakecanvas");
             initGL(canvas);                  // Initialisierung des WebGL Kontextes
             
             initShaders();
@@ -1036,13 +1040,19 @@
 
 
         function mouseMove(einEvent)  {
-            //alert('mouseMove');
-              
-          
-            if(istMouseDown == true)    {
-              //drehungX = (drehungX + (einEvent.clientY - letzterMausPunkt.y) + 360) % 360;
-              drehungX = Math.max(Math.min((drehungX + (einEvent.clientY - letzterMausPunkt.y)), 90) , -90);
-              drehungY = (drehungY + (einEvent.clientX - letzterMausPunkt.x) + 360) % 360;
+            if(einEvent.clientX > canvas.getAttribute('width')  ||
+               einEvent.clientX < 0                             ||
+               einEvent.clientY > canvas.getAttribute('height') ||
+               einEvent.clientY < 0)
+            {
+                istMouseDown = false;
+            }
+            
+            if(istMouseDown == true)
+            {
+                //drehungX = (drehungX + (einEvent.clientY - letzterMausPunkt.y) + 360) % 360;
+                drehungX = Math.max(Math.min((drehungX + (einEvent.clientY - letzterMausPunkt.y)), 90) , -90);
+                drehungY = (drehungY + (einEvent.clientX - letzterMausPunkt.x) + 360) % 360;
                   //drawScene();
             }  
             
