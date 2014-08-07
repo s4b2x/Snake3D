@@ -476,6 +476,9 @@
             return degrees * Math.PI / 180;
         }
         
+        var faceVertexPositionBuffer;                               
+        var faceVertexColorBuffer;              //Farbpuffer fuer die Levelwuerfelflaechen
+
         var cubeVertexPositionBuffer;                               
         var cubeVertexColorBuffer;              //Farbpuffer fuer den Levelwuerfel
         var snakeVertexColorBuffer;              //Farbpuffer fuer die Schlange
@@ -484,6 +487,39 @@
         var cubeVertexIndexBuffer;
 
         function initBuffers() {
+            //  Quadrat-Flaeche
+            faceVertexPositionBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, faceVertexPositionBuffer);
+            vertices = [
+                 0.5,  0.5, 0.0,
+                -0.5,  0.5, 0.0,
+                 0.5, -0.5, 0.0,
+                -0.5, -0.5, 0.0,
+            ];
+
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+            faceVertexPositionBuffer.itemSize = 3;
+            faceVertexPositionBuffer.numItems = 4;
+            
+        /* ANFANG Farben fuer Grundflaeche */
+
+            faceVertexColorBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, faceVertexColorBuffer);
+            colors =                    //  AI-Blau
+                [0.0, 0.29, 0.5, 1];   // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
+            
+
+            var unpackedColors = [];
+            for (var j = 0; j < 4; j++) {
+                unpackedColors = unpackedColors.concat(colors);
+            }
+
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(unpackedColors), gl.STATIC_DRAW);
+            faceVertexColorBuffer.itemSize = 4;
+            faceVertexColorBuffer.numItems = 4;
+            
+            /* ENDE Farben fuer Grundflaeche */
+
             //  Wuerfel
             cubeVertexPositionBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexPositionBuffer);
@@ -668,6 +704,8 @@
         function drawScene() {
             gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
             gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            //  Aktivieren von Backface-Culling (von http://www.html5rocks.com/en/tutorials/webgl/webgl_orthographic_3d/)
+            gl.enable(gl.CULL_FACE);
             
 
             /* Blickwinkel, Hoehen-/Breitenverhaeltnis, Objekte wird zwischen 0.1 und 100 Einheiten gerendert */
@@ -688,7 +726,76 @@
             /* Drehung des Wuerfels um die Y-Achse */
             mat4.rotate(mvMatrix, degToRad(drehungY),  [0, 1, 0]);
 
+            ////////  FLAECHEN
+            /* Puffer des Quadrats wird mit dem Kontext verbunden */
+            gl.bindBuffer(gl.ARRAY_BUFFER, faceVertexPositionBuffer);
+            gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, faceVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+            /* Farb Puffer */
+            gl.bindBuffer(gl.ARRAY_BUFFER, faceVertexColorBuffer);
+            gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, faceVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            
         
+            mvPushMatrix();
+                mat4.translate(mvMatrix, [0, 0, -spielfeldGroesse.z/2]);
+                mat4.scale(mvMatrix, [spielfeldGroesse.x, spielfeldGroesse.y, 1]);
+                setMatrixUniforms();
+                gl.drawArrays(gl.TRIANGLE_STRIP, 0, faceVertexPositionBuffer.numItems);
+            mvPopMatrix();
+            
+            mvPushMatrix();
+                mat4.rotate(mvMatrix, degToRad(90),  [0, 1, 0]);
+                mvPushMatrix();
+                    mat4.translate(mvMatrix, [0, 0, -spielfeldGroesse.z/2]);
+                    mat4.scale(mvMatrix, [spielfeldGroesse.x, spielfeldGroesse.y, 1]);
+                    setMatrixUniforms();
+                    gl.drawArrays(gl.TRIANGLE_STRIP, 0, faceVertexPositionBuffer.numItems);
+                mvPopMatrix();
+            mvPopMatrix();
+            
+            mvPushMatrix();
+                mat4.rotate(mvMatrix, degToRad(90),  [1, 0, 0]);
+                mvPushMatrix();
+                    mat4.translate(mvMatrix, [0, 0, -spielfeldGroesse.z/2]);
+                    mat4.scale(mvMatrix, [spielfeldGroesse.x, spielfeldGroesse.y, 1]);
+                    setMatrixUniforms();
+                    gl.drawArrays(gl.TRIANGLE_STRIP, 0, faceVertexPositionBuffer.numItems);
+                mvPopMatrix();
+            mvPopMatrix();
+            
+            mvPushMatrix();
+                mat4.rotate(mvMatrix, degToRad(-90),  [0, 1, 0]);
+                mvPushMatrix();
+                    mat4.translate(mvMatrix, [0, 0, -spielfeldGroesse.z/2]);
+                    mat4.scale(mvMatrix, [spielfeldGroesse.x, spielfeldGroesse.y, 1]);
+                    setMatrixUniforms();
+                    gl.drawArrays(gl.TRIANGLE_STRIP, 0, faceVertexPositionBuffer.numItems);
+                mvPopMatrix();
+            mvPopMatrix();
+            
+            mvPushMatrix();
+                mat4.rotate(mvMatrix, degToRad(-90),  [1, 0, 0]);
+                mvPushMatrix();
+                    mat4.translate(mvMatrix, [0, 0, -spielfeldGroesse.z/2]);
+                    mat4.scale(mvMatrix, [spielfeldGroesse.x, spielfeldGroesse.y, 1]);
+                    setMatrixUniforms();
+                    gl.drawArrays(gl.TRIANGLE_STRIP, 0, faceVertexPositionBuffer.numItems);
+                mvPopMatrix();
+            mvPopMatrix();
+            
+            mvPushMatrix();
+                mat4.rotate(mvMatrix, degToRad(180),  [1, 0, 0]);
+                mvPushMatrix();
+                    mat4.translate(mvMatrix, [0, 0, -spielfeldGroesse.z/2]);
+                    mat4.scale(mvMatrix, [spielfeldGroesse.x, spielfeldGroesse.y, 1]);
+                    setMatrixUniforms();
+                    gl.drawArrays(gl.TRIANGLE_STRIP, 0, faceVertexPositionBuffer.numItems);
+                mvPopMatrix();
+            mvPopMatrix();
+            
+            
+            
+            
             ////////  WUERFEL
             
             /* Puffer des Wuerfels wird mit dem Kontext verbunden */
