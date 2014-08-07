@@ -17,8 +17,9 @@
        (-   fliessende Bewegung als Bonus)
         -   Bewegegung in Z-Richtung
         -   Drehung des Level-Wuerfels
-        -   Seitenwaende des Level-Wuerfels (von innen sichtbar von außen transparent)
+        -   Seitenwaende des Level-Wuerfels (von innen sichtbar von aussen transparent)
         -   nach dem Fressen wird die Schlange schneller
+        -   Drehung beenden, wenn Maus Canvas verlaesst
     
     --------------------------------------------------------------------------->
     
@@ -41,7 +42,8 @@
         uniform mat4 uPMatrix;
 
         varying vec4 vColor;
-
+        
+        
         void main(void) {
             gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
             vColor = aVertexColor;
@@ -59,6 +61,7 @@
         var istMouseDown = false;
 
         var drehungX = 0, drehungY = 0;
+        var kameraAbstand = 25.0;
 
         var rotationDegree = 0;
         var rotationAxis = 0;
@@ -66,6 +69,8 @@
         var spielfeldGroesse = {x : 10, y : 10, z : 10};
         var schlangenMaxLaenge = spielfeldGroesse.x * spielfeldGroesse.y * spielfeldGroesse.z; //Spielfelddurchmesser*Spielfelddurchmesser, 
         var aktLaengeSchlange = null;
+        
+        var darfLenken = true;
         
         var rechts = 0;
         var links = 1;
@@ -164,9 +169,9 @@
              * MUSS NOCH UEBERARBEITET WERDEN (zur Zeit nur nach rechts */
             
             //        wenn Richtung rechts, dann 1, sonst wenn links -1, sonst 0
-            var moveX = (richtung === rechts) ? 1 : (richtung === links) ? -1 : 0;     // Bewegung auf der X-Achse nach rechts(1) oder links(-1)
-            var moveY = (richtung === oben) ? 1 : (richtung === unten) ? -1 : 0;     // Bewegung auf der Y-Achse nach oben(1) oder unten (-1)
-            var moveZ = (richtung === vorne) ? 1 : (richtung === hinten) ? -1 : 0;     // Bewegung auf der Z-Achse
+            var moveX = (richtung === 0) ? 1 : (richtung === 1) ? -1 : 0;     // Bewegung auf der X-Achse nach rechts = 0 (1) oder links = 1 (-1)
+            var moveY = (richtung === 2) ? 1 : (richtung === 3) ? -1 : 0;     // Bewegung auf der Y-Achse nach oben = 2 (1) oder unten = 3 (-1)
+            var moveZ = (richtung === 4) ? 1 : (richtung === 5) ? -1 : 0;     // Bewegung auf der Z-Achse nach vorne = 4 (1) oder hinten = 5 (-1)
 
             if(schlange[tailPos].kopf == true)
             {
@@ -207,62 +212,74 @@
 
         function keyDown(event) 
         {
-           switch (event.keyCode) 
-           {
-                case 39: /* rechts */
-                case 68: /* D */
+            if(darfLenken)
+            {
+               switch (event.keyCode) 
+               {
+                    case 39: /* rechts */
+                    case 68: /* D */
 //                    alert("rechts");
-                    if(richtung !== links)
-                    {
-                        richtung = rechts;
-                    }
-                    break;
-
-                case 37: /* links */
-                case 65: /* A */
-//                    alert("links");
-                    if(richtung !== rechts)
-                    {
-                        richtung = links;
-                    }
-                    break;
-
-                case 38: /* oben */
-                case 87: /* W */
-//                    alert("oben");
-                    if(richtung !== unten)
-                    {
-                        richtung = oben;
-                    }
-                    break;   
-
-                case 40: /* unten */
-                case 83: /* S */
-//                    alert("unten");
-                    if(richtung !== oben)
-                    { 
-                        richtung = unten;
-                    }
-                    break; 
-
-                case 34: /* Bild Ab */
-                case 88: /* X */
-//                    alert("vorne");
-                    if(richtung !== hinten)
-                    { 
-                        richtung = vorne;
-                    }
-                    break;      
-
-                case 33: /* Bild Auf */
-                case 69: /* E */
-//                    alert("hinten");
-                    if(richtung !== vorne)
-                    { 
-                        richtung = hinten;
-                    }
-                    break;      
-                    
+                        if(richtung !== links && richtung !== rechts)
+                        {
+                            richtung = rechts;
+                            darfLenken = false;
+                        }
+                        break;
+    
+                    case 37: /* links */
+                    case 65: /* A */
+    //                    alert("links");
+                        if(richtung !== rechts && richtung !== links)
+                        {
+                            richtung = links;
+                            darfLenken = false;
+                        }
+                        break;
+    
+                    case 38: /* oben */
+                    case 87: /* W */
+    //                    alert("oben");
+                        if(richtung !== unten && richtung !== oben)
+                        {
+                            richtung = oben;
+                            darfLenken = false;
+                        }
+                        break;   
+    
+                    case 40: /* unten */
+                    case 83: /* S */
+    //                    alert("unten");
+                        if(richtung !== oben && richtung !== unten)
+                        { 
+                            richtung = unten;
+                            darfLenken = false;
+                        }
+                        break; 
+    
+                    case 34: /* Bild Ab */
+                    case 88: /* X */
+    //                    alert("vorne");
+                        if(richtung !== hinten && richtung !== vorne)
+                        { 
+                            richtung = vorne;
+                            darfLenken = false;
+                        }
+                        break;      
+    
+                    case 33: /* Bild Auf */
+                    case 69: /* E */
+    //                    alert("hinten");
+                        if(richtung !== vorne && richtung !== hinten)
+                        { 
+                            richtung = hinten;
+                            darfLenken = false;
+                        }
+                        break;      
+               }
+            }
+            
+            switch (event.keyCode) 
+               {
                 case 49: /*1 in Leiste*/
                 case 97: /*1 Numpad*/
                     drehungX = 0;
@@ -458,16 +475,16 @@
         function degToRad(degrees) {
             return degrees * Math.PI / 180;
         }
-
+        
         var cubeVertexPositionBuffer;                               
-        var cubeVertexColorBuffer;              //Farbpuffer fuer den HG
+        var cubeVertexColorBuffer;              //Farbpuffer fuer den Levelwuerfel
         var snakeVertexColorBuffer;              //Farbpuffer fuer die Schlange
         var headVertexColorBuffer;              //Farbpuffer fuer den Kopf
         var futterVertexColorBuffer;              //Farbpuffer fuer das Futter
         var cubeVertexIndexBuffer;
 
         function initBuffers() {
-
+            //  Wuerfel
             cubeVertexPositionBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexPositionBuffer);
             vertices = [
@@ -512,12 +529,13 @@
             cubeVertexPositionBuffer.itemSize = 3;
             cubeVertexPositionBuffer.numItems = 24;
             
-        /* ANFANG Farben fuer Grundflaeche */
+            
+        /* ANFANG Farben fuer Grundwuerfel */
 
             cubeVertexColorBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexColorBuffer);
             colors = [
-                [0.0, 0.0, 0.0, 0.1],   // Front face             // Rot, Gruen, Blau, Alpha (Transparenz [durchsichtig 0.0 - 1.0 sichtbar])
+                [0.0, 0.0, 0.0, 0.1],   // Front face             // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
                 [0.0, 0.0, 0.0, 0.2],   // Back face
                 [0.0, 0.0, 0.0, 0.3],   // Top face
                 [0.0, 0.0, 0.0, 0.4],   // Bottom face
@@ -537,19 +555,19 @@
             cubeVertexColorBuffer.itemSize = 4;
             cubeVertexColorBuffer.numItems = 24;
             
-            /* ENDE Farben fuer Grundflaeche */
+            /* ENDE Farben fuer Grundwuerfel */
 
             /* ANFANG Farben fuer Schlange */
 
             snakeVertexColorBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, snakeVertexColorBuffer);
-            snakeColors = [
-                [1.0, 0.0, 0.0, 0.1],   // Front face             // Rot, Gruen, Blau, Alpha (Transparenz [durchsichtig 0.0 - 1.0 sichtbar])
-                [1.0, 0.0, 0.0, 0.2],   // Back face             
-                [1.0, 0.0, 0.0, 0.3],   // Top face
-                [1.0, 0.0, 0.0, 0.4],   // Bottom face
-                [1.0, 0.0, 0.0, 0.5],   // Right face
-                [1.0, 0.0, 0.0, 0.6]    // Left face
+            snakeColors = [             //  Hochschul-Gruen
+                [0.4, 0.8, 0.2, 0.5],   // Front face             // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
+                [0.4, 0.8, 0.2, 0.6],   // Back face
+                [0.4, 0.8, 0.2, 0.7],   // Top face
+                [0.4, 0.8, 0.2, 0.8],   // Bottom face
+                [0.4, 0.8, 0.2, 0.9],   // Right face
+                [0.4, 0.8, 0.2, 1.0]    // Left face
             ];
 
             var snakeUnpackedColors = [];
@@ -571,7 +589,7 @@
             headVertexColorBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, headVertexColorBuffer);
             headColors = [
-                [0.0, 0.0, 0.0, 0.5],   // Front face             // Rot, Gruen, Blau, Alpha (Transparenz [durchsichtig 0.0 - 1.0 sichtbar])
+                [0.0, 0.0, 0.0, 0.5],   // Front face             // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
                 [0.0, 0.0, 0.0, 0.6],   // Back face              
                 [0.0, 0.0, 0.0, 0.7],   // Top face
                 [0.0, 0.0, 0.0, 0.8],   // Bottom face
@@ -598,12 +616,12 @@
             futterVertexColorBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, futterVertexColorBuffer);
             futterColors = [
-                [0.0, 1.0, 0.0, 0.1],   // Front face             // Rot, Gruen, Blau, Alpha (Transparenz [durchsichtig 0.0 - 1.0 sichtbar])
-                [0.0, 1.0, 0.0, 0.2],   // Back face
-                [0.0, 1.0, 0.0, 0.3],   // Top face
-                [0.0, 1.0, 0.0, 0.4],   // Bottom face
-                [0.0, 1.0, 0.0, 0.5],   // Right face
-                [0.0, 1.0, 0.0, 0.6]    // Left face
+                [1.0, 0.0, 0.0, 0.1],   // Front face             // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
+                [1.0, 0.0, 0.0, 0.2],   // Back face             
+                [1.0, 0.0, 0.0, 0.3],   // Top face
+                [1.0, 0.0, 0.0, 0.4],   // Bottom face
+                [1.0, 0.0, 0.0, 0.5],   // Right face
+                [1.0, 0.0, 0.0, 0.6]    // Left face
             ];
 
             var futterUnpackedColors = [];
@@ -650,26 +668,17 @@
         function drawScene() {
             gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
             gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            
 
             /* Blickwinkel, Hoehen-/Breitenverhaeltnis, Objekte wird zwischen 0.1 und 100 Einheiten gerendert */
             mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix);
 
             mat4.identity(mvMatrix);
             
-            /* Puffer des Quadrats wird mit dem Kontext verbunden */
-            gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexPositionBuffer);
-            gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, cubeVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-            /* Farb Puffer */
-            gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexColorBuffer);
-            gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, cubeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-            /* Element Puffer */
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer);
 
             /* Gesamtbild */
 
-            mat4.translate(mvMatrix, [0.0, 0.0, -25.0]);          // Verschiebung des Gesamtbildes (x, y, z) Achse
+            mat4.translate(mvMatrix, [0.0, 0.0, -kameraAbstand]);          // Verschiebung des Gesamtbildes (x, y, z) Achse
             
             /* Coole Perspektive: (Rotation des Gesamtbildes um die x-Achse) */
             //mat4.rotate(mvMatrix, degToRad(10), [1, 0, 0]);    
@@ -679,6 +688,19 @@
             /* Drehung des Wuerfels um die Y-Achse */
             mat4.rotate(mvMatrix, degToRad(drehungY),  [0, 1, 0]);
 
+        
+            ////////  WUERFEL
+            
+            /* Puffer des Wuerfels wird mit dem Kontext verbunden */
+            gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexPositionBuffer);
+            gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, cubeVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+            /* Farb Puffer */
+            gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexColorBuffer);
+            gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, cubeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+            /* Element Puffer */
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer);
 
             /* Gesamten Rest in den Spielfeldursprung verschieben */
             mvPushMatrix();
@@ -794,7 +816,7 @@
                     /*Wuerfel fuer kopf*/
                     mvPushMatrix();
                         mat4.translate(mvMatrix, [schlange[headPos].posX, schlange[headPos].posY, schlange[headPos].posZ]);  
-                        //mat4.rotate(mvMatrix, degToRad(rotationDegree), [Math.sin(degToRad(rotationAxis)), Math.sin(degToRad(0.9*rotationAxis+120)), Math.sin(degToRad(1.1*rotationAxis-120))]);  // stï¿½ndige Rotation des Gesamtbildes um die Y-Achse
+                        //mat4.rotate(mvMatrix, degToRad(rotationDegree), [Math.sin(degToRad(rotationAxis)), Math.sin(degToRad(0.9*rotationAxis+120)), Math.sin(degToRad(1.1*rotationAxis-120))]);  // staedige Rotation des Gesamtbildes um die Y-Achse
                         setMatrixUniforms();
                         gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
                     mvPopMatrix();
@@ -806,7 +828,7 @@
                     /*mitte*/
                     mvPushMatrix();
                         mat4.translate(mvMatrix, [schlange[tailPos+1].posX, schlange[tailPos+1].posY, schlange[tailPos+1].posZ]);  
-                        //mat4.rotate(mvMatrix, degToRad(rotationDegree), [Math.sin(degToRad(rotationAxis)), Math.sin(degToRad(0.9*rotationAxis+120)), Math.sin(degToRad(1.1*rotationAxis-120))]);  // stï¿½ndige Rotation des Gesamtbildes um die Y-Achse
+                        //mat4.rotate(mvMatrix, degToRad(rotationDegree), [Math.sin(degToRad(rotationAxis)), Math.sin(degToRad(0.9*rotationAxis+120)), Math.sin(degToRad(1.1*rotationAxis-120))]);  // staendige Rotation des Gesamtbildes um die Y-Achse
                         setMatrixUniforms();
                         gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
                     mvPopMatrix();
@@ -814,7 +836,7 @@
                     /*arsch*/
                     mvPushMatrix();
                         mat4.translate(mvMatrix, [schlange[tailPos].posX, schlange[tailPos].posY, schlange[tailPos].posZ]);  
-                        //mat4.rotate(mvMatrix, degToRad(rotationDegree), [Math.sin(degToRad(rotationAxis)), Math.sin(degToRad(0.9*rotationAxis+120)), Math.sin(degToRad(1.1*rotationAxis-120))]);  // stï¿½ndige Rotation des Gesamtbildes um die Y-Achse
+                        //mat4.rotate(mvMatrix, degToRad(rotationDegree), [Math.sin(degToRad(rotationAxis)), Math.sin(degToRad(0.9*rotationAxis+120)), Math.sin(degToRad(1.1*rotationAxis-120))]);  // staedige Rotation des Gesamtbildes um die Y-Achse
                         setMatrixUniforms();
                         gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
                     mvPopMatrix();
@@ -856,38 +878,21 @@
         }
 
         framecounter = 0;
+        
         function tick() {
             
-            /* Die Schlange schlaengelt sich in die Richtung weiter, 
-             * in die der letzte Tastendruck erfolgte */
-            if(richtung == "rechts") {
-                var moveX = 1;     // Bewegung auf der X-Achse nach rechts(1) oder links(-1)
-                var moveY = 0;     // Bewegung auf der Y-Achse nach oben(1) oder unten (-1)
-                var moveZ = 0;     // Bewegung auf der Z-Achse
-            }
             
-            if(richtung == "links") {
-                var moveX = -1;
-                var moveY = 0;
-                var moveZ = 0;
-            }
-
-            if(richtung == "oben") {
-                var moveX = 0;
-                var moveY = 1;
-                var moveZ = 0;
-            }
-            
-            if(richtung == "unten") {
-                var moveX = 0;
-                var moveY = -1;
-                var moveZ = 0;
-            }
             requestAnimFrame(tick);
             drawScene();
             if(framecounter % 30 == 0){
-                gehen(moveX, moveY, moveZ);             
+                gehen(); 
+                darfLenken = true;
             }
+            
+            document.getElementById('info').innerHTML = "drehungX: " + drehungX + "<br />" + 
+                                                        "drehungY: " + drehungY + "<br />" + 
+                                                        "richtung: " + richtung + "<br />";
+                                                        
             animate(); // Drehung
             framecounter++;        
         }
@@ -910,11 +915,11 @@
             }
             
             //  Maussteuerung
-            /*
+            
             canvas.onmousedown = mouseDown;
             canvas.onmouseup = mouseUp;
             canvas.onmousemove = mouseMove;
-            */
+            
 
 
 
@@ -923,16 +928,18 @@
         }
 
 
-       
         function mouseMove(einEvent)  {
             //alert('mouseMove');
               
           
             if(istMouseDown == true)    {
+              //drehungX = (drehungX + (einEvent.clientY - letzterMausPunkt.y) + 360) % 360;
               drehungX = Math.max(Math.min((drehungX + (einEvent.clientY - letzterMausPunkt.y)), 90) , -90);
-              drehungY += (einEvent.clientX - letzterMausPunkt.x);
+              drehungY = (drehungY + (einEvent.clientX - letzterMausPunkt.x) + 360) % 360;
                   //drawScene();
             }  
+            
+            drehen();
 
             letzterMausPunkt.x=einEvent.clientX;
             letzterMausPunkt.y=einEvent.clientY;
@@ -948,17 +955,121 @@
 
         function drehen()   //(drehRichtung)
         {
-            
+            if (drehungY > 315 || drehungY <= 45)
+            {
+                rechts = 0;
+                links = 1;
+                if(drehungX > 45)       //  Wuerfel von oben betrachtet
+                {
+                    oben = 5;
+                    unten = 4;
+                    vorne = 2;
+                    hinten = 3;
+                }
+                else if(drehungX < -45)  //  Wuerfel von unten betrachtet
+                {
+                    oben = 4;
+                    unten = 5;
+                    vorne = 3;
+                    hinten = 2;
+                }
+                else                    //  Wuerfel von vorne betrachtet
+                {
+                    oben = 2;
+                    unten = 3;
+                    vorne = 4;
+                    hinten = 5;
+                }
+            }
+            else if (drehungY > 45 && drehungY <= 135)
+            {
+                rechts = 4;
+                links = 5;
+                if(drehungX > 45)       //  Wuerfel von oben betrachtet
+                {
+                    oben = 0;
+                    unten = 1;
+                    vorne = 2;
+                    hinten = 3;
+                }
+                else if(drehungX < -45)  //  Wuerfel von unten betrachtet
+                {
+                    oben = 1;
+                    unten = 0;
+                    vorne = 3;
+                    hinten = 2;
+                }
+                else                    //  Wuerfel von vorne betrachtet
+                {
+                    oben = 2;
+                    unten = 3;
+                    vorne = 1;
+                    hinten = 0;
+                }
+            } 
+            else if (drehungY > 135 && drehungY <= 225)
+            {
+                rechts = 1;
+                links = 0;
+                if(drehungX > 45)       //  Wuerfel von oben betrachtet
+                {
+                    oben = 4;
+                    unten = 5;
+                    vorne = 2;
+                    hinten = 3;
+                }
+                else if(drehungX < -45)  //  Wuerfel von unten betrachtet
+                {
+                    oben = 5;
+                    unten = 4;
+                    vorne = 3;
+                    hinten = 2;
+                }
+                else                    //  Wuerfel von vorne betrachtet
+                {
+                    oben = 2;
+                    unten = 3;
+                    vorne = 5;
+                    hinten = 4;
+                }
+            }
+            else if (drehungY > 225 && drehungY <= 315)
+            {
+                rechts = 5;
+                links = 4;
+                if(drehungX > 45)       //  Wuerfel von oben betrachtet
+                {
+                    oben = 1;
+                    unten = 0;
+                    vorne = 2;
+                    hinten = 3;
+                }
+                else if(drehungX < -45)  //  Wuerfel von unten betrachtet
+                {
+                    oben = 0;
+                    unten = 1;
+                    vorne = 3;
+                    hinten = 2;
+                }
+                else                    //  Wuerfel von vorne betrachtet
+                {
+                    oben = 2;
+                    unten = 3;
+                    vorne = 0;
+                    hinten = 1;
+                }
+            }
         }
         
-
-      </script>
-</head>
+        </script>
+    </head>
 
     <body onload="webGLStart();">
 
         <canvas id="snakecanvas" width="450" height="450"></canvas>
+        <br /><br />Infoleiste
+        <p id="info"></p>
 
-    </body>
+   </body>
 
 </html>
