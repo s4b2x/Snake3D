@@ -20,11 +20,14 @@
         x   nach dem Fressen wird die Schlange laenger
         x   Drehung beenden, wenn Maus Canvas verlaesst
         -   Bildhoehe und Breite dynamisch an Browserfenster anpassen
-        -   Schlangenbewegung abh‰ngig von Zeit, nicht Frames
-        -   Animation im Sterbefall
+            -> Geschieht "halb" automatisch, dass heisst, erst nach neu laden der Seite
+        -   Schlangenbewegung abhaengig von Zeit, nicht Frames
+        x   Animation im Sterbefall (unuebersichtlich und vielleicht nicht ganz performant)
         -   Laserpointer in Laufrichtung
         -   HUD (Tastenbelegung, FPS, Score, einschaltbare Debug-Infos)
-        -   Pause-Taste
+        x   Pause-Taste
+        -   Bug "Neues Spiel", wenn der Button gedrueckt wird und eine andere Ansicht 
+            wie die Startansicht gewaehlt ist bleibt die Schlange stehen
        (-   fliessende Bewegung als Bonus)
        (-   Effekt beim Essen)
        (-   Highscore (AJAX, SQL) )
@@ -35,6 +38,7 @@
        (-   Cheat-Modus)
        (-   Kuhlevel)
        (-   Futter = Hochschullogo)
+       (-   Touch-Bedienung fuer Handy einfuegen)
     
     --------------------------------------------------------------------------->
     
@@ -96,6 +100,7 @@
         
         var darfLenken = true;
         var verloren;
+        var pause = false;
         
         var rechts = 0;
         var links = 1;
@@ -116,7 +121,7 @@
         neuesSpiel();
         
         function neuesSpiel()
-        {
+        {   
             welt = new Array();
             for (var dimX = 0; dimX < spielfeldGroesse.x; dimX++) {
                 welt[dimX] = new Array();
@@ -160,7 +165,7 @@
         function fressen() {
             if (welt[futterPos.x][futterPos.y][futterPos.z] === schlange)
             {
-                //  Irgendein zuf‰lliger Ort in der Welt wird als Futter registriert.
+                //  Irgendein zufaelliger Ort in der Welt wird als Futter registriert.
                 while(true)
                 {
                     futterPos = {x : Math.floor(Math.random()*spielfeldGroesse.x),
@@ -177,39 +182,118 @@
             else return false;
         }
         
+        function stop(){
+        
+            if(pause) {
+                pause = false;
+            }
+            else {
+                pause = true;
+            }   
+        }  
+        
         function gehen(){
-            // Schlange versetzen
-            // wenn Richtung rechts, dann 1, sonst wenn links -1, sonst 0
-            var moveX = (richtung === 0) ? 1 : (richtung === 1) ? -1 : 0;     // Bewegung auf der X-Achse nach rechts = 0 (1) oder links = 1 (-1)
-            var moveY = (richtung === 2) ? 1 : (richtung === 3) ? -1 : 0;     // Bewegung auf der Y-Achse nach oben = 2 (1) oder unten = 3 (-1)
-            var moveZ = (richtung === 4) ? 1 : (richtung === 5) ? -1 : 0;     // Bewegung auf der Z-Achse nach vorne = 4 (1) oder hinten = 5 (-1)
-            
-            //  Umsetzung des Kopfzeigers auf die neue Position
-            headPos++;
-            //  Erzeugung einer neuen Koordinate an der neuen Kopfposition
-            schlangenKoordinaten[headPos] = 
-                new koordinate ((schlangenKoordinaten[headPos-1].x + moveX + spielfeldGroesse.x) % spielfeldGroesse.x,
-                                (schlangenKoordinaten[headPos-1].y + moveY + spielfeldGroesse.y) % spielfeldGroesse.y,
-                                (schlangenKoordinaten[headPos-1].z + moveZ + spielfeldGroesse.z) % spielfeldGroesse.z);
-            //  Neue Kopfkoordinate wird auf schlange gesetzt, wenn sie nicht schon schlange ist
-            if(welt[schlangenKoordinaten[headPos].x][schlangenKoordinaten[headPos].y][schlangenKoordinaten[headPos].z] === schlange)
-                verloren = true;
-            else
-            {
-                welt[schlangenKoordinaten[headPos].x][schlangenKoordinaten[headPos].y][schlangenKoordinaten[headPos].z] = schlange;
+          if(!pause){
+                // Schlange versetzen
+                // wenn Richtung rechts, dann 1, sonst wenn links -1, sonst 0
+                var moveX = (richtung === 0) ? 1 : (richtung === 1) ? -1 : 0;     // Bewegung auf der X-Achse nach rechts = 0 (1) oder links = 1 (-1)
+                var moveY = (richtung === 2) ? 1 : (richtung === 3) ? -1 : 0;     // Bewegung auf der Y-Achse nach oben = 2 (1) oder unten = 3 (-1)
+                var moveZ = (richtung === 4) ? 1 : (richtung === 5) ? -1 : 0;     // Bewegung auf der Z-Achse nach vorne = 4 (1) oder hinten = 5 (-1)
 
+                //  Umsetzung des Kopfzeigers auf die neue Position
+                headPos++;
+                //  Erzeugung einer neuen Koordinate an der neuen Kopfposition
+                schlangenKoordinaten[headPos] = 
+                    new koordinate ((schlangenKoordinaten[headPos-1].x + moveX + spielfeldGroesse.x) % spielfeldGroesse.x,
+                                    (schlangenKoordinaten[headPos-1].y + moveY + spielfeldGroesse.y) % spielfeldGroesse.y,
+                                    (schlangenKoordinaten[headPos-1].z + moveZ + spielfeldGroesse.z) % spielfeldGroesse.z);
+                //  Neue Kopfkoordinate wird auf schlange gesetzt, wenn sie nicht schon schlange ist
+                if(welt[schlangenKoordinaten[headPos].x][schlangenKoordinaten[headPos].y][schlangenKoordinaten[headPos].z] === schlange) {
+                    verloren = true;
+                    
+                    // Sterbeanimation   
+                    // Farben fuer Grundflaeche im Sterbefall     
+                        faceVertexColorBuffer = gl.createBuffer();
+                        gl.bindBuffer(gl.ARRAY_BUFFER, faceVertexColorBuffer);
+                        colors =                    //  Rot
+                            [0.9, 0.2, 0.0, 1];   // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
 
-                // Schlange wurde versetzt, jetzt wird gegessen!
-                if(!fressen())
+                        var unpackedColors = [];
+                        for (var j = 0; j < 4; j++) {
+                            unpackedColors = unpackedColors.concat(colors);
+                        }
+
+                        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(unpackedColors), gl.STATIC_DRAW);
+                        faceVertexColorBuffer.itemSize = 4;
+                        faceVertexColorBuffer.numItems = 4;
+
+                    // Farben fuer Schlange im Sterbefall 
+                        snakeVertexColorBuffer = gl.createBuffer();
+                        gl.bindBuffer(gl.ARRAY_BUFFER, snakeVertexColorBuffer);
+                        snakeColors = [             //  Schwarz
+                            [0.0, 0.0, 0.0, 1.0],   // Front face             // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
+                            [0.0, 0.0, 0.0, 1.0],   // Back face
+                            [0.0, 0.0, 0.0, 1.0],   // Top face
+                            [0.0, 0.0, 0.0, 1.0],   // Bottom face
+                            [0.0, 0.0, 0.0, 1.0],   // Right face
+                            [0.0, 0.0, 0.0, 1.0]    // Left face
+                        ];
+
+                        var snakeUnpackedColors = [];
+                        for (var i in snakeColors) {
+                            var color = snakeColors[i];
+                            for (var j = 0; j < 4; j++) {
+                                snakeUnpackedColors = snakeUnpackedColors.concat(color);
+                            }
+                        }
+
+                        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(snakeUnpackedColors), gl.STATIC_DRAW);
+                        snakeVertexColorBuffer.itemSize = 4;
+                        snakeVertexColorBuffer.numItems = 24;
+
+                    // Farben fuer Futter im Sterbefall 
+                        futterVertexColorBuffer = gl.createBuffer();
+                        gl.bindBuffer(gl.ARRAY_BUFFER, futterVertexColorBuffer);
+                        futterColors = [            // Weiss
+                            [0.0, 0.0, 0.0, 0.0],   // Front face             // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
+                            [0.0, 0.0, 0.0, 0.0],   // Back face             
+                            [0.0, 0.0, 0.0, 0.0],   // Top face
+                            [0.0, 0.0, 0.0, 0.0],   // Bottom face
+                            [0.0, 0.0, 0.0, 0.0],   // Right face
+                            [0.0, 0.0, 0.0, 0.0]    // Left face
+                        ];
+
+                        var futterUnpackedColors = [];
+                        for (var i in futterColors) {
+                            var color = futterColors[i];
+                            for (var j = 0; j < 4; j++) {
+                                futterUnpackedColors = futterUnpackedColors.concat(color);
+                            }
+                        }
+
+                        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(futterUnpackedColors), gl.STATIC_DRAW);
+                        futterVertexColorBuffer.itemSize = 4;
+                        futterVertexColorBuffer.numItems = 24;
+                    
+                }
+                else
                 {
-                    //  Ohne Folgendes wird die Schlange mit jedem Schritt laenger
-                    //  Neue Tailkoordinate wird auf leer gesetzt
-                    welt[schlangenKoordinaten[tailPos].x][schlangenKoordinaten[tailPos].y][schlangenKoordinaten[tailPos].z] = leer;
-                    //  Umsetzung des Hinterteilzeigers auf die neue Position
-                    tailPos++;
+                    welt[schlangenKoordinaten[headPos].x][schlangenKoordinaten[headPos].y][schlangenKoordinaten[headPos].z] = schlange;
+
+
+                    // Schlange wurde versetzt, jetzt wird gegessen!
+                    if(!fressen())
+                    {
+                        //  Ohne Folgendes wird die Schlange mit jedem Schritt laenger
+                        //  Neue Tailkoordinate wird auf leer gesetzt
+                        welt[schlangenKoordinaten[tailPos].x][schlangenKoordinaten[tailPos].y][schlangenKoordinaten[tailPos].z] = leer;
+                        //  Umsetzung des Hinterteilzeigers auf die neue Position
+                        tailPos++;
+                    }
                 }
             }
         }
+           
         
     /* ANFANG Steuerung */
     /* Java Key Code: http://www.mediaevent.de/javascript/Extras-Javascript-Keycodes.html */
@@ -505,13 +589,12 @@
             faceVertexPositionBuffer.itemSize = 3;
             faceVertexPositionBuffer.numItems = 4;
             
-        /* ANFANG Farben fuer Grundflaeche */
-
+        
+            /* ANFANG Farben fuer Grundflaeche */
             faceVertexColorBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, faceVertexColorBuffer);
             colors =                    //  AI-Blau
                 [0.0, 0.29, 0.5, 1];   // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
-            
 
             var unpackedColors = [];
             for (var j = 0; j < 4; j++) {
@@ -520,8 +603,7 @@
 
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(unpackedColors), gl.STATIC_DRAW);
             faceVertexColorBuffer.itemSize = 4;
-            faceVertexColorBuffer.numItems = 4;
-            
+            faceVertexColorBuffer.numItems = 4;     
             /* ENDE Farben fuer Grundflaeche */
 
             //  Wuerfel
@@ -992,7 +1074,9 @@
                                                         "schlangenKoordinaten[headPos].x: " + schlangenKoordinaten[headPos].x + "<br />" + 
                                                         "schlangenKoordinaten[headPos].y: " + schlangenKoordinaten[headPos].y + "<br />" + 
                                                         "schlangenKoordinaten[headPos].z: " + schlangenKoordinaten[headPos].z + "<br />" + 
-                                                        "aktLaengeSchlange: " + aktLaengeSchlange + "<br />";
+                                                        "aktLaengeSchlange: " + aktLaengeSchlange + "<br />" +
+                                                        "verloren: " + verloren + "<br />" +
+                                                        "pause: " + pause + "<br />";
                                                         
             animate(); // Drehung
             framecounter++;        
@@ -1001,6 +1085,13 @@
 
         function webGLStart() {
             canvas = document.getElementById("snakecanvas");
+            
+            /* Passt die Groesse des Canvas dynamisch an die Groe√üe des Browserfensters an,
+             * leider muss zur Aktuallisierung die Seite neugeladen werden 
+             * /1.05 waer nur die erste Zeile, also die zwei Buttons, sichtbar */
+            canvas.height = window.innerHeight/1.55;
+            canvas.width = window.innerWidth/1.55;
+            
             initGL(canvas);                  // Initialisierung des WebGL Kontextes
             
             initShaders();
@@ -1167,17 +1258,21 @@
                 }
             }
         }
-        
-        </script>
+             
+         </script>
     </head>
 
     <body onload="webGLStart();">
 
-        <canvas id="snakecanvas" width="450" height="450"></canvas>
-        <button onclick="neuesSpiel();">Neues Spiel!</button>
-        <br /><br />Infoleiste
+        <!-- <canvas id="snakecanvas" width="450" height="450"></canvas> -->
+        <canvas id="snakecanvas"></canvas>
+        <div style='float: outside;'>
+            <button onclick="neuesSpiel();">Neues Spiel!</button>
+            <button onclick="stop();">Pause</button>
+        </div>    
+        <br />Infoleiste
         <p id="info"></p>
-
+        
    </body>
 
 </html>
