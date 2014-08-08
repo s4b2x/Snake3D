@@ -22,7 +22,10 @@
         -   Bildhoehe und Breite dynamisch an Browserfenster anpassen
             -> Geschieht "halb" automatisch, dass heisst, erst nach neu laden der Seite
         -   Schlangenbewegung abhaengig von Zeit, nicht Frames
-        x   Animation im Sterbefall (unuebersichtlich und vielleicht nicht ganz performant)
+        o   Animation im Sterbefall 
+            -> viel Quellcode, daher sehr unuebersichtlich
+            -> Farbe aenderte setzt sich nach Sterbefall nicht zurueck
+            -> Farbe wird in gehen() immer wieder aktuallisiert, sehr unperformant
         -   Laserpointer in Laufrichtung
         -   HUD (Tastenbelegung, FPS, Score, einschaltbare Debug-Infos)
         x   Pause-Taste
@@ -141,6 +144,8 @@
             futterEinfuegen();
             verloren = false;
             richtung = rechts;
+            
+                    
         }    
         
         /* fuegt die anfaengliche Snake ein, die 3 Felder gross ist */
@@ -193,7 +198,8 @@
         }  
         
         function gehen(){
-          if(!pause){
+               
+        if(!pause){
                 // Schlange versetzen
                 // wenn Richtung rechts, dann 1, sonst wenn links -1, sonst 0
                 var moveX = (richtung === 0) ? 1 : (richtung === 1) ? -1 : 0;     // Bewegung auf der X-Achse nach rechts = 0 (1) oder links = 1 (-1)
@@ -274,13 +280,88 @@
                         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(futterUnpackedColors), gl.STATIC_DRAW);
                         futterVertexColorBuffer.itemSize = 4;
                         futterVertexColorBuffer.numItems = 24;
-                    
+                                           
                 }
                 else
                 {
+                
+                /* setzt Farbe wieder auf zurueck nach Sterbefall */
+                    if(!verloren) 
+                     {
+                          /* ANFANG Farben fuer Grundflaeche */
+                         faceVertexColorBuffer = gl.createBuffer();
+                         gl.bindBuffer(gl.ARRAY_BUFFER, faceVertexColorBuffer);
+                         colors =                    //  AI-Blau
+                             [0.0, 0.29, 0.5, 1];   // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
+
+                         var unpackedColors = [];
+                         for (var j = 0; j < 4; j++) {
+                             unpackedColors = unpackedColors.concat(colors);
+                         }
+
+                         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(unpackedColors), gl.STATIC_DRAW);
+                         faceVertexColorBuffer.itemSize = 4;
+                         faceVertexColorBuffer.numItems = 4;     
+                         /* ENDE Farben fuer Grundflaeche */
+
+                         /* ANFANG Farben fuer Schlange */
+
+                         snakeVertexColorBuffer = gl.createBuffer();
+                         gl.bindBuffer(gl.ARRAY_BUFFER, snakeVertexColorBuffer);
+                         snakeColors = [             //  Hochschul-Gruen
+                             [0.4, 0.8, 0.2, 0.8],   // Front face             // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
+                             [0.4, 0.8, 0.2, 0.85],   // Back face
+                             [0.4, 0.8, 0.2, 0.75],   // Top face
+                             [0.4, 0.8, 0.2, 1.0],   // Bottom face
+                             [0.4, 0.8, 0.2, 0.95],   // Right face
+                             [0.4, 0.8, 0.2, 1.9]    // Left face
+                         ];
+
+                         var snakeUnpackedColors = [];
+                         for (var i in snakeColors) {
+                             var color = snakeColors[i];
+                             for (var j = 0; j < 4; j++) {
+                                 snakeUnpackedColors = snakeUnpackedColors.concat(color);
+                             }
+                         }
+
+                         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(snakeUnpackedColors), gl.STATIC_DRAW);
+                         snakeVertexColorBuffer.itemSize = 4;
+                         snakeVertexColorBuffer.numItems = 24;
+
+                         /* ENDE Farben fuer Schlange */
+
+                         /* ANFANG Farben fuer Futter */
+
+                         futterVertexColorBuffer = gl.createBuffer();
+                         gl.bindBuffer(gl.ARRAY_BUFFER, futterVertexColorBuffer);
+                         futterColors = [
+                             [1.0, 0.0, 0.0, 0.1],   // Front face             // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
+                             [1.0, 0.0, 0.0, 0.2],   // Back face             
+                             [1.0, 0.0, 0.0, 0.3],   // Top face
+                             [1.0, 0.0, 0.0, 0.4],   // Bottom face
+                             [1.0, 0.0, 0.0, 0.5],   // Right face
+                             [1.0, 0.0, 0.0, 0.6]    // Left face
+                         ];
+
+                         var futterUnpackedColors = [];
+                         for (var i in futterColors) {
+                             var color = futterColors[i];
+                             for (var j = 0; j < 4; j++) {
+                                 futterUnpackedColors = futterUnpackedColors.concat(color);
+                             }
+                         }
+
+                         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(futterUnpackedColors), gl.STATIC_DRAW);
+                         futterVertexColorBuffer.itemSize = 4;
+                         futterVertexColorBuffer.numItems = 24;
+
+                         /* ENDE Farben fuer Futter */
+                     }
+     
                     welt[schlangenKoordinaten[headPos].x][schlangenKoordinaten[headPos].y][schlangenKoordinaten[headPos].z] = schlange;
 
-
+                    
                     // Schlange wurde versetzt, jetzt wird gegessen!
                     if(!fressen())
                     {
@@ -741,7 +822,7 @@
             headVertexColorBuffer.numItems = 24;
             
             /* ENDE Farben fuer Schlangenkopf */
-            
+                        
             /* ANFANG Farben fuer Futter */
 
             futterVertexColorBuffer = gl.createBuffer();
@@ -790,7 +871,6 @@
             cubeVertexIndexBuffer.itemSize = 1;
             cubeVertexIndexBuffer.numItems = 36;
         }
-
         
         ////////////////////////////////////////////////////////////////////////
         /*                          drawScene()                               */
@@ -1059,7 +1139,78 @@
         
         function tick() {
             
+                   if(!verloren) 
+        {
+             /* ANFANG Farben fuer Grundflaeche */
+            faceVertexColorBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, faceVertexColorBuffer);
+            colors =                    //  AI-Blau
+                [0.0, 0.29, 0.5, 1];   // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
+
+            var unpackedColors = [];
+            for (var j = 0; j < 4; j++) {
+                unpackedColors = unpackedColors.concat(colors);
+            }
+
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(unpackedColors), gl.STATIC_DRAW);
+            faceVertexColorBuffer.itemSize = 4;
+            faceVertexColorBuffer.numItems = 4;     
+            /* ENDE Farben fuer Grundflaeche */
             
+            /* ANFANG Farben fuer Schlange */
+
+            snakeVertexColorBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, snakeVertexColorBuffer);
+            snakeColors = [             //  Hochschul-Gruen
+                [0.4, 0.8, 0.2, 0.8],   // Front face             // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
+                [0.4, 0.8, 0.2, 0.85],   // Back face
+                [0.4, 0.8, 0.2, 0.75],   // Top face
+                [0.4, 0.8, 0.2, 1.0],   // Bottom face
+                [0.4, 0.8, 0.2, 0.95],   // Right face
+                [0.4, 0.8, 0.2, 1.9]    // Left face
+            ];
+
+            var snakeUnpackedColors = [];
+            for (var i in snakeColors) {
+                var color = snakeColors[i];
+                for (var j = 0; j < 4; j++) {
+                    snakeUnpackedColors = snakeUnpackedColors.concat(color);
+                }
+            }
+
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(snakeUnpackedColors), gl.STATIC_DRAW);
+            snakeVertexColorBuffer.itemSize = 4;
+            snakeVertexColorBuffer.numItems = 24;
+            
+            /* ENDE Farben fuer Schlange */
+            
+            /* ANFANG Farben fuer Futter */
+
+            futterVertexColorBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, futterVertexColorBuffer);
+            futterColors = [
+                [1.0, 0.0, 0.0, 0.1],   // Front face             // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
+                [1.0, 0.0, 0.0, 0.2],   // Back face             
+                [1.0, 0.0, 0.0, 0.3],   // Top face
+                [1.0, 0.0, 0.0, 0.4],   // Bottom face
+                [1.0, 0.0, 0.0, 0.5],   // Right face
+                [1.0, 0.0, 0.0, 0.6]    // Left face
+            ];
+
+            var futterUnpackedColors = [];
+            for (var i in futterColors) {
+                var color = futterColors[i];
+                for (var j = 0; j < 4; j++) {
+                    futterUnpackedColors = futterUnpackedColors.concat(color);
+                }
+            }
+
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(futterUnpackedColors), gl.STATIC_DRAW);
+            futterVertexColorBuffer.itemSize = 4;
+            futterVertexColorBuffer.numItems = 24;
+            
+            /* ENDE Farben fuer Futter */
+        }
             requestAnimFrame(tick);
             drawScene();
             if(framecounter % 30 == 0){
