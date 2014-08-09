@@ -19,13 +19,13 @@
         x   Seitenwaende des Level-Wuerfels (von innen sichtbar von aussen transparent)
         x   nach dem Fressen wird die Schlange laenger
         x   Drehung beenden, wenn Maus Canvas verlaesst
-        -   Bildhoehe und Breite dynamisch an Browserfenster anpassen
+        o   Bildhoehe und Breite dynamisch an Browserfenster anpassen
             -> Geschieht "halb" automatisch, dass heisst, erst nach neu laden der Seite
         -   Schlangenbewegung abhaengig von Zeit, nicht Frames
         o   Animation im Sterbefall 
             -> viel Quellcode, daher sehr unuebersichtlich
             -> Farbe aenderte setzt sich nach Sterbefall nicht zurueck
-            -> Farbe wird in gehen() immer wieder aktuallisiert, sehr unperformant
+            -> Farbe wird in tick() immer wieder aktuallisiert, sehr unperformant
         -   Laserpointer in Laufrichtung
         -   HUD (Tastenbelegung, FPS, Score, einschaltbare Debug-Infos)
         x   Pause-Taste
@@ -34,7 +34,7 @@
        (-   fliessende Bewegung als Bonus)
        (-   Effekt beim Essen)
        (-   Highscore (AJAX, SQL) )
-       (-   Schwierigkeitsgrad)
+       (x   Schwierigkeitsgrad)
        (-   Hindernisse)
        (-   Lighting)
        (-   Statistik)
@@ -114,6 +114,7 @@
         var richtung;    // Startrichtung
         
         var effekt = false;
+        var schwierigkeitsgrad = 30;
         
         function koordinate(x, y, z){
             this.x = x;
@@ -196,6 +197,12 @@
                 pause = true;
             }   
         }  
+        
+        function level(level) {
+            
+            schwierigkeitsgrad = level;
+        }
+
         
         function gehen(){
                
@@ -1139,81 +1146,82 @@
         
         function tick() {
             
-                   if(!verloren) 
-        {
-             /* ANFANG Farben fuer Grundflaeche */
-            faceVertexColorBuffer = gl.createBuffer();
-            gl.bindBuffer(gl.ARRAY_BUFFER, faceVertexColorBuffer);
-            colors =                    //  AI-Blau
-                [0.0, 0.29, 0.5, 1];   // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
+            if(!verloren) 
+            {
+                 /* ANFANG Farben fuer Grundflaeche */
+                faceVertexColorBuffer = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, faceVertexColorBuffer);
+                colors =                    //  AI-Blau
+                    [0.0, 0.29, 0.5, 1];   // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
 
-            var unpackedColors = [];
-            for (var j = 0; j < 4; j++) {
-                unpackedColors = unpackedColors.concat(colors);
-            }
-
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(unpackedColors), gl.STATIC_DRAW);
-            faceVertexColorBuffer.itemSize = 4;
-            faceVertexColorBuffer.numItems = 4;     
-            /* ENDE Farben fuer Grundflaeche */
-            
-            /* ANFANG Farben fuer Schlange */
-
-            snakeVertexColorBuffer = gl.createBuffer();
-            gl.bindBuffer(gl.ARRAY_BUFFER, snakeVertexColorBuffer);
-            snakeColors = [             //  Hochschul-Gruen
-                [0.4, 0.8, 0.2, 0.8],   // Front face             // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
-                [0.4, 0.8, 0.2, 0.85],   // Back face
-                [0.4, 0.8, 0.2, 0.75],   // Top face
-                [0.4, 0.8, 0.2, 1.0],   // Bottom face
-                [0.4, 0.8, 0.2, 0.95],   // Right face
-                [0.4, 0.8, 0.2, 1.9]    // Left face
-            ];
-
-            var snakeUnpackedColors = [];
-            for (var i in snakeColors) {
-                var color = snakeColors[i];
+                var unpackedColors = [];
                 for (var j = 0; j < 4; j++) {
-                    snakeUnpackedColors = snakeUnpackedColors.concat(color);
+                    unpackedColors = unpackedColors.concat(colors);
                 }
-            }
 
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(snakeUnpackedColors), gl.STATIC_DRAW);
-            snakeVertexColorBuffer.itemSize = 4;
-            snakeVertexColorBuffer.numItems = 24;
-            
-            /* ENDE Farben fuer Schlange */
-            
-            /* ANFANG Farben fuer Futter */
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(unpackedColors), gl.STATIC_DRAW);
+                faceVertexColorBuffer.itemSize = 4;
+                faceVertexColorBuffer.numItems = 4;     
+                /* ENDE Farben fuer Grundflaeche */
 
-            futterVertexColorBuffer = gl.createBuffer();
-            gl.bindBuffer(gl.ARRAY_BUFFER, futterVertexColorBuffer);
-            futterColors = [
-                [1.0, 0.0, 0.0, 0.1],   // Front face             // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
-                [1.0, 0.0, 0.0, 0.2],   // Back face             
-                [1.0, 0.0, 0.0, 0.3],   // Top face
-                [1.0, 0.0, 0.0, 0.4],   // Bottom face
-                [1.0, 0.0, 0.0, 0.5],   // Right face
-                [1.0, 0.0, 0.0, 0.6]    // Left face
-            ];
+                /* ANFANG Farben fuer Schlange */
 
-            var futterUnpackedColors = [];
-            for (var i in futterColors) {
-                var color = futterColors[i];
-                for (var j = 0; j < 4; j++) {
-                    futterUnpackedColors = futterUnpackedColors.concat(color);
+                snakeVertexColorBuffer = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, snakeVertexColorBuffer);
+                snakeColors = [             //  Hochschul-Gruen
+                    [0.4, 0.8, 0.2, 0.8],   // Front face             // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
+                    [0.4, 0.8, 0.2, 0.85],   // Back face
+                    [0.4, 0.8, 0.2, 0.75],   // Top face
+                    [0.4, 0.8, 0.2, 1.0],   // Bottom face
+                    [0.4, 0.8, 0.2, 0.95],   // Right face
+                    [0.4, 0.8, 0.2, 1.9]    // Left face
+                ];
+
+                var snakeUnpackedColors = [];
+                for (var i in snakeColors) {
+                    var color = snakeColors[i];
+                    for (var j = 0; j < 4; j++) {
+                        snakeUnpackedColors = snakeUnpackedColors.concat(color);
+                    }
                 }
-            }
 
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(futterUnpackedColors), gl.STATIC_DRAW);
-            futterVertexColorBuffer.itemSize = 4;
-            futterVertexColorBuffer.numItems = 24;
-            
-            /* ENDE Farben fuer Futter */
-        }
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(snakeUnpackedColors), gl.STATIC_DRAW);
+                snakeVertexColorBuffer.itemSize = 4;
+                snakeVertexColorBuffer.numItems = 24;
+
+                /* ENDE Farben fuer Schlange */
+
+                /* ANFANG Farben fuer Futter */
+
+                futterVertexColorBuffer = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, futterVertexColorBuffer);
+                futterColors = [
+                    [1.0, 0.0, 0.0, 0.1],   // Front face             // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
+                    [1.0, 0.0, 0.0, 0.2],   // Back face             
+                    [1.0, 0.0, 0.0, 0.3],   // Top face
+                    [1.0, 0.0, 0.0, 0.4],   // Bottom face
+                    [1.0, 0.0, 0.0, 0.5],   // Right face
+                    [1.0, 0.0, 0.0, 0.6]    // Left face
+                ];
+
+                var futterUnpackedColors = [];
+                for (var i in futterColors) {
+                    var color = futterColors[i];
+                    for (var j = 0; j < 4; j++) {
+                        futterUnpackedColors = futterUnpackedColors.concat(color);
+                    }
+                }
+
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(futterUnpackedColors), gl.STATIC_DRAW);
+                futterVertexColorBuffer.itemSize = 4;
+                futterVertexColorBuffer.numItems = 24;
+
+                /* ENDE Farben fuer Futter */
+            }
+          
             requestAnimFrame(tick);
             drawScene();
-            if(framecounter % 30 == 0){
+            if(framecounter % schwierigkeitsgrad == 0){
                 if(!verloren)
                     gehen(); 
                 darfLenken = true;
@@ -1420,6 +1428,14 @@
         <div style='float: outside;'>
             <button onclick="neuesSpiel();">Neues Spiel!</button>
             <button onclick="stop();">Pause</button>
+            Schwierigkeitsgrad: <select name="schwierigkeitsgrad" size="1"
+                        onchange="level(value)">
+                <option value="30">1</option>
+                <option value="20">2</option>
+                <option value="10">3</option>
+                <option value="5">4</option>
+                <option value="3">5</option>
+            </select>
         </div>    
         <br />Infoleiste
         <p id="info"></p>
