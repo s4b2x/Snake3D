@@ -23,7 +23,8 @@
             -> Geschieht "halb" automatisch, dass heisst, erst nach neu laden der Seite
         x   Schlangenbewegung abhaengig von Zeit, nicht Frames
         x   Animation im Sterbefall
-        -   Laserpointer in Laufrichtung
+        x   Laserpointer in Laufrichtung
+            -> eventuell noch texturieren
         -   HUD (Tastenbelegung, FPS, Score, einschaltbare Debug-Infos)
         x   Pause-Taste
         x   Bug "Neues Spiel", wenn der Button gedrueckt wird und eine andere Ansicht 
@@ -100,6 +101,11 @@
         var leer = 0, schlange = 1, futter = 2;
         var welt;
         
+        var laserlaenge;
+        var laserUmschalter = true;
+        
+        var punkte = 0;
+        
         var darfLenken = true;
         var verloren = false;
         var pause = false;
@@ -155,6 +161,7 @@
             schlangeEinfuegen();
             futterEinfuegen();
             verloren = false;
+            
         }    
         
         /* fuegt die anfaengliche Snake ein, die 3 Felder gross ist */
@@ -199,14 +206,29 @@
         
         function stop(){
             pause = !pause;
+        }         
+        
+        function laser(){
+            laserUmschalter = !laserUmschalter;
         }  
         
         function level(level) {
             
             schwierigkeitsgrad = level;
         }
-
         
+        function score() {
+            
+            leange = aktLaengeSchlange -3;
+            
+            if (schwierigkeitsgrad == 500)  punkte = leange * 1;
+            if (schwierigkeitsgrad == 400)  punkte = leange * 2;
+            if (schwierigkeitsgrad == 300)  punkte = leange * 3;
+            if (schwierigkeitsgrad == 200)  punkte = leange * 4;
+            if (schwierigkeitsgrad == 100)  punkte = leange * 5;
+           
+        }
+               
         function gehen(){
                
             if(!pause)
@@ -485,13 +507,16 @@
         }
         
         var faceVertexPositionBuffer;                               
-        var faceVertexColorBuffer;              //Farbpuffer fuer die Levelwuerfelflaechen
+        var faceVertexColorBuffer;               //Farbpuffer fuer die Levelwuerfelflaechen
+       
+        var laserVertexColorBuffer;              //Farbpuffer fuer den Laser
+        var laserVertexPositionBuffer;           //Puffer fuer den Laser
 
         var cubeVertexPositionBuffer;                               
-        var cubeVertexColorBuffer;              //Farbpuffer fuer den Levelwuerfel
+        var cubeVertexColorBuffer;               //Farbpuffer fuer den Levelwuerfel
         var snakeVertexColorBuffer;              //Farbpuffer fuer die Schlange
-        var headVertexColorBuffer;              //Farbpuffer fuer den Kopf
-        var futterVertexColorBuffer;              //Farbpuffer fuer das Futter
+        var headVertexColorBuffer;               //Farbpuffer fuer den Kopf
+        var futterVertexColorBuffer;             //Farbpuffer fuer das Futter
         var cubeVertexIndexBuffer;
 
         function initBuffers() {
@@ -502,14 +527,49 @@
                  0.5,  0.5, 0.0,
                 -0.5,  0.5, 0.0,
                  0.5, -0.5, 0.0,
-                -0.5, -0.5, 0.0,
+                -0.5, -0.5, 0.0
             ];
 
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
             faceVertexPositionBuffer.itemSize = 3;
             faceVertexPositionBuffer.numItems = 4;
             
-        
+            //  Laser - Objekt
+            
+            laserVertexPositionBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, laserVertexPositionBuffer);
+            vertices = [
+                // Front face
+                -0.5, -0.5, 0.0,
+                 0.5, -0.5, 0.0,
+                 0.5, 0.5, 0.0,
+                -0.5, 0.5, 0.0,
+
+                // Back face
+                -0.5, -0.5, 0.0,
+                -0.5, 0.5, 0.0,
+                 0.5, 0.5, 0.0,
+                 0.5, -0.5, 0.0,
+
+                // Top face
+                -0.5, 0.0, -0.5,
+                -0.5, 0.0, 0.5,
+                 0.5, 0.0, 0.5,
+                 0.5, 0.0, -0.5,
+
+                // Bottom face
+                -0.5, 0.0, -0.5,
+                 0.5, 0.0, -0.5,
+                 0.5, 0.0, 0.5,
+                -0.5, 0.0, 0.5
+
+            ];
+
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+            laserVertexPositionBuffer.itemSize = 3;
+            laserVertexPositionBuffer.numItems = 16;
+            
+            
             /* ANFANG Farben fuer Grundflaeche */
             faceVertexColorBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, faceVertexColorBuffer);
@@ -710,6 +770,27 @@
             cubeVertexIndexBuffer.itemSize = 1;
             cubeVertexIndexBuffer.numItems = 36;
             
+            // Laser Puffer
+            
+            laserVertexIndexBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, laserVertexIndexBuffer);
+            
+            // Dieser Array definiert jede Flaeche als zwei Dreiecke ueber die Indizes
+            // im Vertex-Array, um die Position jedes Dreiecks festzulegen.
+  
+            var laserVertexIndices = [
+                0, 1, 2,        0, 2, 3,        // Front face
+                4, 5, 6,        4, 6, 7,        // Back face
+                8, 9, 10,       8, 10, 11,      // Top face
+                12, 13, 14,     12, 14, 15,     // Bottom face
+            ];
+            
+            // Sende nun das Element-Array zum GL
+              
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(laserVertexIndices), gl.STATIC_DRAW);
+            laserVertexIndexBuffer.itemSize = 1;
+            laserVertexIndexBuffer.numItems = 24;
+            
             
             // Sterbeanimation   
             // Farben fuer Grundflaeche im Sterbefall     
@@ -774,8 +855,34 @@
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(futterUnpackedColors), gl.STATIC_DRAW);
             futterDeadVertexColorBuffer.itemSize = 4;
             futterDeadVertexColorBuffer.numItems = 24;
+            
+            // Farben fuer Laser
+
+            laserVertexColorBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, laserVertexColorBuffer);
+            laserColors = [
+                [1.0, 0.0, 0.0, 0.5],   // Front face             // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
+                [1.0, 0.0, 0.0, 0.6],   // Back face             
+                [1.0, 0.0, 0.0, 0.7],   // Top face
+                [1.0, 0.0, 0.0, 0.8],   // Bottom face
+                [1.0, 0.0, 0.0, 0.9],   // Right face
+                [1.0, 0.0, 0.0, 1.0]    // Left face
+            ];
+
+            var laserUnpackedColors = [];
+            for (var i in laserColors) {
+                var color = laserColors[i];
+                for (var j = 0; j < 4; j++) {
+                    laserUnpackedColors = laserUnpackedColors.concat(color);
+                }
+            }
+
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(laserUnpackedColors), gl.STATIC_DRAW);
+            laserVertexColorBuffer.itemSize = 4;
+            laserVertexColorBuffer.numItems = 4;
+            
         }
-        
+
         ////////////////////////////////////////////////////////////////////////
         //                          drawScene()                               //
         ////////////////////////////////////////////////////////////////////////
@@ -1038,6 +1145,77 @@
                         }
                     }
                     
+                  ///// Laser  
+                    if(!laserUmschalter)  
+                    {                  
+                        var laserX = (richtung === 0) ? 1 : (richtung === 1) ? -1 : 0; 
+                        var laserY = (richtung === 2) ? 1 : (richtung === 3) ? -1 : 0;
+                        var laserZ = (richtung === 4) ? 1 : (richtung === 5) ? -1 : 0; 
+
+                        //laserlaenge = 0;
+                        if(laserX == 1) 
+                        {
+                            laserlaenge = spielfeldGroesse.x - schlangenKoordinaten[headPos].x;
+                            laserlaenge = laserlaenge - 0.5;
+                        }
+                        else if (laserX == -1)
+                        {
+                            laserlaenge = spielfeldGroesse.x + schlangenKoordinaten[headPos].x;
+                            laserlaenge = laserlaenge - 9.5;
+                        }
+                        if(laserY == 1) 
+                        {
+                            laserlaenge = spielfeldGroesse.y - schlangenKoordinaten[headPos].y;
+                            laserlaenge = laserlaenge - 0.5;
+                        }
+                        else if (laserY == -1)
+                        {
+                            laserlaenge = spielfeldGroesse.y + schlangenKoordinaten[headPos].y;
+                            laserlaenge = laserlaenge - 9.5;
+                        }
+                        if(laserZ == 1) 
+                        {
+                            laserlaenge = spielfeldGroesse.z - schlangenKoordinaten[headPos].z;
+                            laserlaenge = laserlaenge - 0.5;
+                        }
+                        else if (laserZ == -1)
+                        {
+                            laserlaenge = spielfeldGroesse.z + schlangenKoordinaten[headPos].z;
+                            laserlaenge = laserlaenge - 9.5;
+                        }
+
+
+                        // Puffer des Lasers wird mit dem Kontext verbunden
+                        gl.bindBuffer(gl.ARRAY_BUFFER, laserVertexPositionBuffer);
+                        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, laserVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+                        // Farb Puffer fuer Laser
+                        gl.bindBuffer(gl.ARRAY_BUFFER, laserVertexColorBuffer);
+                        gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, laserVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+                        // Laser Element Puffer */
+                        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, laserVertexIndexBuffer);
+
+                        // Laser Linie
+                        mvPushMatrix();
+                            mvPushMatrix();
+                                mat4.translate(mvMatrix, [laserX * laserlaenge/2, laserY * laserlaenge/2, laserZ * laserlaenge/2]);
+                                mvPushMatrix();
+                                    mat4.translate(mvMatrix, [schlangenKoordinaten[headPos].x, schlangenKoordinaten[headPos].y , schlangenKoordinaten[headPos].z]);
+                                    mvPushMatrix();
+                                        mat4.rotate(mvMatrix, degToRad(90), [laserY, laserX, laserZ]);
+                                        mat4.scale(mvMatrix, [0.2, 0.2, laserlaenge]);
+                                        mat4.rotate(mvMatrix, degToRad(90), [0, 1, 0]);
+
+                                        setMatrixUniforms();
+                                        gl.drawElements(gl.TRIANGLES, laserVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+    //                                    gl.drawArrays(gl.TRIANGLE_STRIP, 0, laserVertexPositionBuffer.numItems);
+                                    mvPopMatrix();
+                                mvPopMatrix();
+                            mvPopMatrix();
+                        mvPopMatrix();  
+                    }
+                    
                 mvPopMatrix();
                 
 
@@ -1089,16 +1267,17 @@
                 }
                 darfLenken = true;
             }
-            
+            score();
             document.getElementById('info').innerHTML = "drehungX: " + drehungX + "<br />" + 
                                                         "drehungY: " + drehungY + "<br />" + 
                                                         "richtung: " + richtung + "<br />" + 
-                                                        "schlangenKoordinaten[headPos].x: " + schlangenKoordinaten[headPos].x + "<br />" + 
+                                                        /*"schlangenKoordinaten[headPos].x: " + schlangenKoordinaten[headPos].x + "<br />" + 
                                                         "schlangenKoordinaten[headPos].y: " + schlangenKoordinaten[headPos].y + "<br />" + 
-                                                        "schlangenKoordinaten[headPos].z: " + schlangenKoordinaten[headPos].z + "<br />" + 
+                                                        "schlangenKoordinaten[headPos].z: " + schlangenKoordinaten[headPos].z + "<br />" +*/
                                                         "aktLaengeSchlange: " + aktLaengeSchlange + "<br />" +
                                                         "verloren: " + verloren + "<br />" +
                                                         "pause: " + pause + "<br />" +
+                                                        "punkte: " + punkte + "<br />" +
                                                         "FPS: " + fps + "<br />";
                                                         
             animate(); // Drehung
@@ -1303,6 +1482,7 @@
                     <option value="100">5</option>
                 </select>
             </span>
+            <input type="checkbox" name="laserButton" onclick="laser();">Laser
         </div>    
         <br />Infoleiste
         <p id="info"></p>
