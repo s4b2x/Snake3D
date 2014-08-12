@@ -26,6 +26,8 @@
         x   Laserpointer in Laufrichtung
             -> eventuell noch texturieren
         -   HUD (Tastenbelegung, FPS, Score, einschaltbare Debug-Infos)
+            -> feststehendes Menue unten, Info-Fenster links oben ebenfalls festehend
+            -> Score Position noch unbekannt, Abstimmung erfolgt in aeusserst naher Zukunft
         x   Pause-Taste
         x   Bug "Neues Spiel", wenn der Button gedrueckt wird und eine andere Ansicht 
             wie die Startansicht gewaehlt ist bleibt die Schlange stehen
@@ -104,7 +106,7 @@
         var laserlaenge;
         var laserUmschalter = true;
         
-        var punkte = 0;
+        var punkte;
         
         var darfLenken = true;
         var verloren = false;
@@ -141,7 +143,6 @@
                 }
             }
         }
-        neuesSpiel();
         
         function neuesSpiel()
         {
@@ -161,7 +162,9 @@
             schlangeEinfuegen();
             futterEinfuegen();
             verloren = false;
-            
+            punkte = 0;
+            document.getElementById('schwierigkeitsgrad').style.display = "inline";
+
         }    
         
         /* fuegt die anfaengliche Snake ein, die 3 Felder gross ist */
@@ -175,6 +178,8 @@
             
             headPos = 2;
             tailPos = 0;
+            
+            aktLaengeSchlange = 3;
         }
         futterEinfuegen();
         
@@ -219,13 +224,13 @@
         
         function score() {
             
-            leange = aktLaengeSchlange -3;
+            laenge = aktLaengeSchlange - 3;
             
-            if (schwierigkeitsgrad == 500)  punkte = leange * 1;
-            if (schwierigkeitsgrad == 400)  punkte = leange * 2;
-            if (schwierigkeitsgrad == 300)  punkte = leange * 3;
-            if (schwierigkeitsgrad == 200)  punkte = leange * 4;
-            if (schwierigkeitsgrad == 100)  punkte = leange * 5;
+            if (schwierigkeitsgrad == 500)  punkte = laenge * 1;
+            if (schwierigkeitsgrad == 400)  punkte = laenge * 2;
+            if (schwierigkeitsgrad == 300)  punkte = laenge * 3;
+            if (schwierigkeitsgrad == 200)  punkte = laenge * 4;
+            if (schwierigkeitsgrad == 100)  punkte = laenge * 5;
            
         }
                
@@ -894,6 +899,8 @@
             //  Aktivieren von Backface-Culling (von http://www.html5rocks.com/en/tutorials/webgl/webgl_orthographic_3d/)
             gl.enable(gl.CULL_FACE);
             
+            // Blending wird disabled, gilt sonst für alles
+            gl.disable(gl.BLEND)
 
             /* Blickwinkel, Hoehen-/Breitenverhaeltnis, Objekte wird zwischen 0.1 und 100 Einheiten gerendert */
             mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix);
@@ -1111,16 +1118,29 @@
                                             /* Farb Puffer fuer Schlangenkoerper */
                                             gl.bindBuffer(gl.ARRAY_BUFFER, snakeVertexColorBuffer);
                                             gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, snakeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                                            
+                                            /* Der Depth-Buffer wird deaktiviert, Blending wird aktiviert */
+                                            gl.blendFunc(gl.SRC_COLOR, gl.ONE);
+                                            gl.enable(gl.BLEND);
+                                            gl.disable(gl.DEPTH_TEST);
                                         }
                                         else
                                         {
                                             /* Farb Puffer fuer Schlangenkoerper im Sterbefall */
                                             gl.bindBuffer(gl.ARRAY_BUFFER, snakeDeadVertexColorBuffer);
                                             gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, snakeDeadVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                                        
+                                            /*Im Todesfall wird das Blending wieder disabled*/
+                                            gl.disable(gl.BLEND);
+                                            gl.enable(gl.DEPTH_TEST);
                                         }
                                     }
                                     else if(welt[dimX][dimY][dimZ] === futter)
                                     {
+                                        /* Blending wird für den folgenden Code wieder disabled*/
+                                        gl.disable(gl.BLEND);
+                                        gl.enable(gl.DEPTH_TEST); 
+                            
                                         if(!verloren)
                                         {
                                             /* Farb Puffer fuer Schlangenkoerper */
@@ -1145,45 +1165,65 @@
                         }
                     }
                     
-                  ///// Laser  
-                    if(!laserUmschalter)  
-                    {                  
+                  ///// Laser    
+                  
+                  if(!laserUmschalter)                    
+                    {     
+
                         var laserX = (richtung === 0) ? 1 : (richtung === 1) ? -1 : 0; 
                         var laserY = (richtung === 2) ? 1 : (richtung === 3) ? -1 : 0;
                         var laserZ = (richtung === 4) ? 1 : (richtung === 5) ? -1 : 0; 
+                        var laserDrehung;
+                        var laserDrehachse;
 
                         //laserlaenge = 0;
                         if(laserX == 1) 
                         {
+                            laserDrehung = 0;
+                            laserDrehachse = [0, 1, 0];
                             laserlaenge = spielfeldGroesse.x - schlangenKoordinaten[headPos].x;
-                            laserlaenge = laserlaenge - 0.5;
+                            laserlaenge = laserlaenge - 1;
                         }
                         else if (laserX == -1)
                         {
+                            laserDrehung = 180;
+                            laserDrehachse = [0, 1, 0];
                             laserlaenge = spielfeldGroesse.x + schlangenKoordinaten[headPos].x;
-                            laserlaenge = laserlaenge - 9.5;
+                            laserlaenge = laserlaenge - spielfeldGroesse.x;
                         }
                         if(laserY == 1) 
                         {
+                            laserDrehung = 90; 
+                            laserDrehachse = [0, 0, 1];
                             laserlaenge = spielfeldGroesse.y - schlangenKoordinaten[headPos].y;
-                            laserlaenge = laserlaenge - 0.5;
+                            laserlaenge = laserlaenge - 1;
                         }
                         else if (laserY == -1)
                         {
+                            laserDrehung = -90;
+                            laserDrehachse = [0, 0, 1];
                             laserlaenge = spielfeldGroesse.y + schlangenKoordinaten[headPos].y;
-                            laserlaenge = laserlaenge - 9.5;
+                            laserlaenge = laserlaenge - spielfeldGroesse.y;
                         }
                         if(laserZ == 1) 
                         {
+                            laserDrehung = -90;
+                            laserDrehachse = [0, 1, 0];
                             laserlaenge = spielfeldGroesse.z - schlangenKoordinaten[headPos].z;
-                            laserlaenge = laserlaenge - 0.5;
+                            laserlaenge = laserlaenge - 1;
                         }
                         else if (laserZ == -1)
                         {
+                            laserDrehung = 90; 
+                            laserDrehachse = [0, 1, 0];
                             laserlaenge = spielfeldGroesse.z + schlangenKoordinaten[headPos].z;
-                            laserlaenge = laserlaenge - 9.5;
+                            laserlaenge = laserlaenge - spielfeldGroesse.z;
                         }
 
+                        /* Der Depth-Buffer wird deaktiviert, Blending wird aktiviert */
+                        gl.blendFunc(gl.SRC_COLOR, gl.ONE);
+                        gl.enable(gl.BLEND);
+                        gl.disable(gl.DEPTH_TEST);
 
                         // Puffer des Lasers wird mit dem Kontext verbunden
                         gl.bindBuffer(gl.ARRAY_BUFFER, laserVertexPositionBuffer);
@@ -1202,14 +1242,17 @@
                                 mat4.translate(mvMatrix, [laserX * laserlaenge/2, laserY * laserlaenge/2, laserZ * laserlaenge/2]);
                                 mvPushMatrix();
                                     mat4.translate(mvMatrix, [schlangenKoordinaten[headPos].x, schlangenKoordinaten[headPos].y , schlangenKoordinaten[headPos].z]);
-                                    mvPushMatrix();
-                                        mat4.rotate(mvMatrix, degToRad(90), [laserY, laserX, laserZ]);
-                                        mat4.scale(mvMatrix, [0.2, 0.2, laserlaenge]);
-                                        mat4.rotate(mvMatrix, degToRad(90), [0, 1, 0]);
+                                    mvPushMatrix();                                    
+                                        mat4.rotate(mvMatrix, degToRad(laserDrehung), laserDrehachse);
+                                        mat4.translate(mvMatrix, [0.5, 0, 0]);
+                                        mat4.scale(mvMatrix, [laserlaenge, 0.1, 0.1]);                         
 
                                         setMatrixUniforms();
                                         gl.drawElements(gl.TRIANGLES, laserVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-    //                                    gl.drawArrays(gl.TRIANGLE_STRIP, 0, laserVertexPositionBuffer.numItems);
+                                        
+                                        /* Blending wird für den folgenden Code wieder disabled*/
+                                        gl.disable(gl.BLEND);
+                                        gl.enable(gl.DEPTH_TEST); 
                                     mvPopMatrix();
                                 mvPopMatrix();
                             mvPopMatrix();
@@ -1271,13 +1314,13 @@
             document.getElementById('info').innerHTML = "drehungX: " + drehungX + "<br />" + 
                                                         "drehungY: " + drehungY + "<br />" + 
                                                         "richtung: " + richtung + "<br />" + 
-                                                        /*"schlangenKoordinaten[headPos].x: " + schlangenKoordinaten[headPos].x + "<br />" + 
+                                                        "schlangenKoordinaten[headPos].x: " + schlangenKoordinaten[headPos].x + "<br />" + 
                                                         "schlangenKoordinaten[headPos].y: " + schlangenKoordinaten[headPos].y + "<br />" + 
-                                                        "schlangenKoordinaten[headPos].z: " + schlangenKoordinaten[headPos].z + "<br />" +*/
+                                                        "schlangenKoordinaten[headPos].z: " + schlangenKoordinaten[headPos].z + "<br />" +
                                                         "aktLaengeSchlange: " + aktLaengeSchlange + "<br />" +
                                                         "verloren: " + verloren + "<br />" +
                                                         "pause: " + pause + "<br />" +
-                                                        "punkte: " + punkte + "<br />" +
+                                                        "Punkte: " + punkte + "<br />" 
                                                         "FPS: " + fps + "<br />";
                                                         
             animate(); // Drehung
@@ -1291,13 +1334,16 @@
             /* Passt die Groesse des Canvas dynamisch an die Groesse des Browserfensters an,
              * leider muss zur Aktuallisierung die Seite neugeladen werden 
              * /1.05 waer nur die erste Zeile, also die zwei Buttons, sichtbar */
-            canvas.height = window.innerHeight/1.55;
-            canvas.width = window.innerWidth/1.55;
+            canvas.height = window.innerHeight/1;
+            canvas.width = window.innerWidth/1;
             
             initGL(canvas);                  // Initialisierung des WebGL Kontextes
             
             initShaders();
             initBuffers();
+            
+            neuesSpiel();
+
 
 
             // Es geht nur weiter, wenn WebGl verfuegbar ist.
