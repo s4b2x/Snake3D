@@ -21,20 +21,18 @@
         x   Drehung beenden, wenn Maus Canvas verlaesst
         o   Bildhoehe und Breite dynamisch an Browserfenster anpassen
             -> Geschieht "halb" automatisch, dass heisst, erst nach neu laden der Seite
-        -   Schlangenbewegung abhaengig von Zeit, nicht Frames
-        o   Animation im Sterbefall 
-            -> viel Quellcode, daher sehr unuebersichtlich
-            -> Farbe aenderte setzt sich nach Sterbefall nicht zurueck
-            -> Farbe wird in tick() immer wieder aktuallisiert, sehr unperformant
+        x   Schlangenbewegung abhaengig von Zeit, nicht Frames
+        x   Animation im Sterbefall
         -   Laserpointer in Laufrichtung
         -   HUD (Tastenbelegung, FPS, Score, einschaltbare Debug-Infos)
         x   Pause-Taste
-        -   Bug "Neues Spiel", wenn der Button gedrueckt wird und eine andere Ansicht 
+        x   Bug "Neues Spiel", wenn der Button gedrueckt wird und eine andere Ansicht 
             wie die Startansicht gewaehlt ist bleibt die Schlange stehen
        (-   fliessende Bewegung als Bonus)
        (-   Effekt beim Essen)
        (-   Highscore (AJAX, SQL) )
        (x   Schwierigkeitsgrad)
+            x   Schwierigkeitsgrad nur moeglich, wenn tot oder wenn neu geladen
        (-   Hindernisse)
        (-   Lighting)
        (-   Statistik)
@@ -42,6 +40,7 @@
        (-   Kuhlevel)
        (-   Futter = Hochschullogo)
        (-   Touch-Bedienung fuer Handy einfuegen)
+       (-   Sound)
     
     --------------------------------------------------------------------------->
     
@@ -102,7 +101,7 @@
         var welt;
         
         var darfLenken = true;
-        var verloren;
+        var verloren = false;
         var pause = false;
         
         var rechts = 0;
@@ -114,7 +113,7 @@
         var richtung;    // Startrichtung
         
         var effekt = false;
-        var schwierigkeitsgrad = 30;
+        var schwierigkeitsgrad = 500;
         
         function koordinate(x, y, z){
             this.x = x;
@@ -122,31 +121,40 @@
             this.z = z;
         }
         
+        welt = new Array();
+        for (var dimX = 0; dimX < spielfeldGroesse.x; dimX++) {
+            welt[dimX] = new Array();
+            for (var dimY = 0; dimY < spielfeldGroesse.y; dimY++) {
+                welt[dimX][dimY] = new Array();
+                // Hier kann man das Array initialisieren:
+                for (var dimZ = 0; dimZ < spielfeldGroesse.z; dimZ++) {
+                    welt[dimX][dimY][dimZ] = leer; //  erstmal ist alles leer
+                    //  moegliche Werte sind:   0   -   leer
+                    //                          1   -   Schlange
+                    //                          2   -   Futter
+                }
+            }
+        }
         neuesSpiel();
         
         function neuesSpiel()
-        {   
-            welt = new Array();
+        {
+            //  Welt-Array leeren
             for (var dimX = 0; dimX < spielfeldGroesse.x; dimX++) {
-                welt[dimX] = new Array();
                 for (var dimY = 0; dimY < spielfeldGroesse.y; dimY++) {
-                    welt[dimX][dimY] = new Array();
-                    // Hier kann man das Array initialisieren:
                     for (var dimZ = 0; dimZ < spielfeldGroesse.z; dimZ++) {
                         welt[dimX][dimY][dimZ] = leer; //  erstmal ist alles leer
-                        //  moegliche Werte sind:   0   -   leer
-                        //                          1   -   Schlange
-                        //                          2   -   Futter
                     }
                 }
             }
             schlangenKoordinaten = new Array(schlangenMaxLaenge);
+            drehungX = 0;
+            drehungY = 0; 
+            drehen();
+            richtung = rechts;
             schlangeEinfuegen();
             futterEinfuegen();
             verloren = false;
-            richtung = rechts;
-            
-                    
         }    
         
         /* fuegt die anfaengliche Snake ein, die 3 Felder gross ist */
@@ -164,13 +172,14 @@
         futterEinfuegen();
         
         function futterEinfuegen() {
-            welt[6][0][0] = futter;
-            futterPos = {x : 6, y : 0, z : 0};
+            welt[6][1][0] = futter;
+            futterPos = {x : 6, y : 1, z : 0};
         }
         
         function fressen() {
             if (welt[futterPos.x][futterPos.y][futterPos.z] === schlange)
             {
+                document.getElementById('schwierigkeitsgrad').style.display = "none";
                 //  Irgendein zufaelliger Ort in der Welt wird als Futter registriert.
                 while(true)
                 {
@@ -189,13 +198,7 @@
         }
         
         function stop(){
-        
-            if(pause) {
-                pause = false;
-            }
-            else {
-                pause = true;
-            }   
+            pause = !pause;
         }  
         
         function level(level) {
@@ -206,7 +209,8 @@
         
         function gehen(){
                
-        if(!pause){
+            if(!pause)
+            {
                 // Schlange versetzen
                 // wenn Richtung rechts, dann 1, sonst wenn links -1, sonst 0
                 var moveX = (richtung === 0) ? 1 : (richtung === 1) ? -1 : 0;     // Bewegung auf der X-Achse nach rechts = 0 (1) oder links = 1 (-1)
@@ -220,152 +224,15 @@
                     new koordinate ((schlangenKoordinaten[headPos-1].x + moveX + spielfeldGroesse.x) % spielfeldGroesse.x,
                                     (schlangenKoordinaten[headPos-1].y + moveY + spielfeldGroesse.y) % spielfeldGroesse.y,
                                     (schlangenKoordinaten[headPos-1].z + moveZ + spielfeldGroesse.z) % spielfeldGroesse.z);
+                                    
                 //  Neue Kopfkoordinate wird auf schlange gesetzt, wenn sie nicht schon schlange ist
                 if(welt[schlangenKoordinaten[headPos].x][schlangenKoordinaten[headPos].y][schlangenKoordinaten[headPos].z] === schlange) {
                     verloren = true;
-                    
-                    // Sterbeanimation   
-                    // Farben fuer Grundflaeche im Sterbefall     
-                        faceVertexColorBuffer = gl.createBuffer();
-                        gl.bindBuffer(gl.ARRAY_BUFFER, faceVertexColorBuffer);
-                        colors =                    //  Rot
-                            [0.9, 0.2, 0.0, 1];   // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
-
-                        var unpackedColors = [];
-                        for (var j = 0; j < 4; j++) {
-                            unpackedColors = unpackedColors.concat(colors);
-                        }
-
-                        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(unpackedColors), gl.STATIC_DRAW);
-                        faceVertexColorBuffer.itemSize = 4;
-                        faceVertexColorBuffer.numItems = 4;
-
-                    // Farben fuer Schlange im Sterbefall 
-                        snakeVertexColorBuffer = gl.createBuffer();
-                        gl.bindBuffer(gl.ARRAY_BUFFER, snakeVertexColorBuffer);
-                        snakeColors = [             //  Schwarz
-                            [0.0, 0.0, 0.0, 1.0],   // Front face             // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
-                            [0.0, 0.0, 0.0, 1.0],   // Back face
-                            [0.0, 0.0, 0.0, 1.0],   // Top face
-                            [0.0, 0.0, 0.0, 1.0],   // Bottom face
-                            [0.0, 0.0, 0.0, 1.0],   // Right face
-                            [0.0, 0.0, 0.0, 1.0]    // Left face
-                        ];
-
-                        var snakeUnpackedColors = [];
-                        for (var i in snakeColors) {
-                            var color = snakeColors[i];
-                            for (var j = 0; j < 4; j++) {
-                                snakeUnpackedColors = snakeUnpackedColors.concat(color);
-                            }
-                        }
-
-                        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(snakeUnpackedColors), gl.STATIC_DRAW);
-                        snakeVertexColorBuffer.itemSize = 4;
-                        snakeVertexColorBuffer.numItems = 24;
-
-                    // Farben fuer Futter im Sterbefall 
-                        futterVertexColorBuffer = gl.createBuffer();
-                        gl.bindBuffer(gl.ARRAY_BUFFER, futterVertexColorBuffer);
-                        futterColors = [            // Weiss
-                            [0.0, 0.0, 0.0, 0.0],   // Front face             // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
-                            [0.0, 0.0, 0.0, 0.0],   // Back face             
-                            [0.0, 0.0, 0.0, 0.0],   // Top face
-                            [0.0, 0.0, 0.0, 0.0],   // Bottom face
-                            [0.0, 0.0, 0.0, 0.0],   // Right face
-                            [0.0, 0.0, 0.0, 0.0]    // Left face
-                        ];
-
-                        var futterUnpackedColors = [];
-                        for (var i in futterColors) {
-                            var color = futterColors[i];
-                            for (var j = 0; j < 4; j++) {
-                                futterUnpackedColors = futterUnpackedColors.concat(color);
-                            }
-                        }
-
-                        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(futterUnpackedColors), gl.STATIC_DRAW);
-                        futterVertexColorBuffer.itemSize = 4;
-                        futterVertexColorBuffer.numItems = 24;
-                                           
+                    document.getElementById('schwierigkeitsgrad').style.display = "inline";
                 }
                 else
                 {
                 
-                /* setzt Farbe wieder auf zurueck nach Sterbefall */
-                    if(!verloren) 
-                     {
-                          /* ANFANG Farben fuer Grundflaeche */
-                         faceVertexColorBuffer = gl.createBuffer();
-                         gl.bindBuffer(gl.ARRAY_BUFFER, faceVertexColorBuffer);
-                         colors =                    //  AI-Blau
-                             [0.0, 0.29, 0.5, 1];   // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
-
-                         var unpackedColors = [];
-                         for (var j = 0; j < 4; j++) {
-                             unpackedColors = unpackedColors.concat(colors);
-                         }
-
-                         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(unpackedColors), gl.STATIC_DRAW);
-                         faceVertexColorBuffer.itemSize = 4;
-                         faceVertexColorBuffer.numItems = 4;     
-                         /* ENDE Farben fuer Grundflaeche */
-
-                         /* ANFANG Farben fuer Schlange */
-
-                         snakeVertexColorBuffer = gl.createBuffer();
-                         gl.bindBuffer(gl.ARRAY_BUFFER, snakeVertexColorBuffer);
-                         snakeColors = [             //  Hochschul-Gruen
-                             [0.4, 0.8, 0.2, 0.8],   // Front face             // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
-                             [0.4, 0.8, 0.2, 0.85],   // Back face
-                             [0.4, 0.8, 0.2, 0.75],   // Top face
-                             [0.4, 0.8, 0.2, 1.0],   // Bottom face
-                             [0.4, 0.8, 0.2, 0.95],   // Right face
-                             [0.4, 0.8, 0.2, 1.9]    // Left face
-                         ];
-
-                         var snakeUnpackedColors = [];
-                         for (var i in snakeColors) {
-                             var color = snakeColors[i];
-                             for (var j = 0; j < 4; j++) {
-                                 snakeUnpackedColors = snakeUnpackedColors.concat(color);
-                             }
-                         }
-
-                         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(snakeUnpackedColors), gl.STATIC_DRAW);
-                         snakeVertexColorBuffer.itemSize = 4;
-                         snakeVertexColorBuffer.numItems = 24;
-
-                         /* ENDE Farben fuer Schlange */
-
-                         /* ANFANG Farben fuer Futter */
-
-                         futterVertexColorBuffer = gl.createBuffer();
-                         gl.bindBuffer(gl.ARRAY_BUFFER, futterVertexColorBuffer);
-                         futterColors = [
-                             [1.0, 0.0, 0.0, 0.1],   // Front face             // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
-                             [1.0, 0.0, 0.0, 0.2],   // Back face             
-                             [1.0, 0.0, 0.0, 0.3],   // Top face
-                             [1.0, 0.0, 0.0, 0.4],   // Bottom face
-                             [1.0, 0.0, 0.0, 0.5],   // Right face
-                             [1.0, 0.0, 0.0, 0.6]    // Left face
-                         ];
-
-                         var futterUnpackedColors = [];
-                         for (var i in futterColors) {
-                             var color = futterColors[i];
-                             for (var j = 0; j < 4; j++) {
-                                 futterUnpackedColors = futterUnpackedColors.concat(color);
-                             }
-                         }
-
-                         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(futterUnpackedColors), gl.STATIC_DRAW);
-                         futterVertexColorBuffer.itemSize = 4;
-                         futterVertexColorBuffer.numItems = 24;
-
-                         /* ENDE Farben fuer Futter */
-                     }
-     
                     welt[schlangenKoordinaten[headPos].x][schlangenKoordinaten[headPos].y][schlangenKoordinaten[headPos].z] = schlange;
 
                     
@@ -494,45 +361,10 @@
            }
        };
 
-//       this.onKeyUp = function (event) 
-//       {
-//           switch (event.keyCode) 
-//           {
-//               case 37: /* links */
-//               case 65: /* A */
-//                   alert("links");
-//                    moveX = -1;
-//                    moveY = 0;
-//                    moveZ = 0;
-//                   break;
-//
-//               case 39: /* rechts */
-//               case 68: /* D */
-//                    moveX = 1;
-//                    moveY = 0;
-//                    moveZ = 0;
-//                   break;
-//                  
-//               case 38: /* oben */
-//               case 87: /* W */
-//                    moveX = 0;
-//                    moveY = 1;
-//                    moveZ = 0;  
-//                   break;   
-//                   
-//               case 40: /* unten */
-//               case 83: /* S */
-//                    moveX = 0;
-//                    moveY = -1;
-//                    moveZ = 0;  
-//                   break;       
-//           }
-//       };
 
         /* Die Taste wird gerade gedrueckt */
         document.addEventListener("keydown", keyDown, false);
         
-//        document.addEventListener("keyup",onKeyUp(), false);
 
     /* ENDE Steuerung */
      
@@ -877,10 +709,75 @@
             gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubeVertexIndices), gl.STATIC_DRAW);
             cubeVertexIndexBuffer.itemSize = 1;
             cubeVertexIndexBuffer.numItems = 36;
+            
+            
+            // Sterbeanimation   
+            // Farben fuer Grundflaeche im Sterbefall     
+            faceDeadVertexColorBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, faceDeadVertexColorBuffer);
+            colors =                    //  Rot
+                [0.9, 0.2, 0.0, 1];   // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
+
+            var unpackedColors = [];
+            for (var j = 0; j < 4; j++) {
+                unpackedColors = unpackedColors.concat(colors);
+            }
+
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(unpackedColors), gl.STATIC_DRAW);
+            faceDeadVertexColorBuffer.itemSize = 4;
+            faceDeadVertexColorBuffer.numItems = 4;
+
+            // Farben fuer Schlange im Sterbefall 
+            snakeDeadVertexColorBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, snakeDeadVertexColorBuffer);
+            snakeColors = [             //  Schwarz
+                [0.0, 0.0, 0.0, 1.0],   // Front face             // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
+                [0.0, 0.0, 0.0, 1.0],   // Back face
+                [0.0, 0.0, 0.0, 1.0],   // Top face
+                [0.0, 0.0, 0.0, 1.0],   // Bottom face
+                [0.0, 0.0, 0.0, 1.0],   // Right face
+                [0.0, 0.0, 0.0, 1.0]    // Left face
+            ];
+
+            var snakeUnpackedColors = [];
+            for (var i in snakeColors) {
+                var color = snakeColors[i];
+                for (var j = 0; j < 4; j++) {
+                    snakeUnpackedColors = snakeUnpackedColors.concat(color);
+                }
+            }
+
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(snakeUnpackedColors), gl.STATIC_DRAW);
+            snakeDeadVertexColorBuffer.itemSize = 4;
+            snakeDeadVertexColorBuffer.numItems = 24;
+
+        // Farben fuer Futter im Sterbefall 
+            futterDeadVertexColorBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, futterDeadVertexColorBuffer);
+            futterColors = [            // Weiss
+                [0.0, 0.0, 0.0, 0.0],   // Front face             // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
+                [0.0, 0.0, 0.0, 0.0],   // Back face             
+                [0.0, 0.0, 0.0, 0.0],   // Top face
+                [0.0, 0.0, 0.0, 0.0],   // Bottom face
+                [0.0, 0.0, 0.0, 0.0],   // Right face
+                [0.0, 0.0, 0.0, 0.0]    // Left face
+            ];
+
+            var futterUnpackedColors = [];
+            for (var i in futterColors) {
+                var color = futterColors[i];
+                for (var j = 0; j < 4; j++) {
+                    futterUnpackedColors = futterUnpackedColors.concat(color);
+                }
+            }
+
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(futterUnpackedColors), gl.STATIC_DRAW);
+            futterDeadVertexColorBuffer.itemSize = 4;
+            futterDeadVertexColorBuffer.numItems = 24;
         }
         
         ////////////////////////////////////////////////////////////////////////
-        /*                          drawScene()                               */
+        //                          drawScene()                               //
         ////////////////////////////////////////////////////////////////////////
 
         function drawScene() {
@@ -915,9 +812,16 @@
             gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, faceVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
             /* Farb Puffer */
-            gl.bindBuffer(gl.ARRAY_BUFFER, faceVertexColorBuffer);
-            gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, faceVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
-            
+            if(!verloren)
+            {
+                gl.bindBuffer(gl.ARRAY_BUFFER, faceVertexColorBuffer);
+                gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, faceVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            }
+            else
+            {
+                gl.bindBuffer(gl.ARRAY_BUFFER, faceDeadVertexColorBuffer);
+                gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, faceDeadVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            }
         
             mvPushMatrix();
                 mat4.translate(mvMatrix, [0, 0, -spielfeldGroesse.z/2]);
@@ -1095,14 +999,33 @@
                                 {
                                     if(welt[dimX][dimY][dimZ] === schlange)
                                     {
-                                        /* Farb Puffer fuer Schlangenkoerper */
-                                        gl.bindBuffer(gl.ARRAY_BUFFER, snakeVertexColorBuffer);
-                                        gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, snakeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
-                                    }else if(welt[dimX][dimY][dimZ] === futter)
+                                        if(!verloren)
+                                        {
+                                            /* Farb Puffer fuer Schlangenkoerper */
+                                            gl.bindBuffer(gl.ARRAY_BUFFER, snakeVertexColorBuffer);
+                                            gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, snakeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                                        }
+                                        else
+                                        {
+                                            /* Farb Puffer fuer Schlangenkoerper im Sterbefall */
+                                            gl.bindBuffer(gl.ARRAY_BUFFER, snakeDeadVertexColorBuffer);
+                                            gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, snakeDeadVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                                        }
+                                    }
+                                    else if(welt[dimX][dimY][dimZ] === futter)
                                     {
-                                        /* Farb Puffer fuer Schlangenkoerper */
-                                        gl.bindBuffer(gl.ARRAY_BUFFER, futterVertexColorBuffer);
-                                        gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, futterVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                                        if(!verloren)
+                                        {
+                                            /* Farb Puffer fuer Schlangenkoerper */
+                                            gl.bindBuffer(gl.ARRAY_BUFFER, futterVertexColorBuffer);
+                                            gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, futterVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                                        }
+                                        else
+                                        {
+                                            /* Farb Puffer fuer Schlangenkoerper */
+                                            gl.bindBuffer(gl.ARRAY_BUFFER, futterDeadVertexColorBuffer);
+                                            gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, futterDeadVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                                        }
                                     }
                                 mvPushMatrix();
                                     mat4.translate(mvMatrix, [dimX, dimY, dimZ]);  
@@ -1142,88 +1065,28 @@
             lastTime = timeNow;
         }
 
-        framecounter = 0;
+        var framecounter = 0;
+        var lastFramecounter = 0;
+        var lastGehen = 0;
+        var lastSekunde = 0;
+        var fps = 0;
         
         function tick() {
-            
-            if(!verloren) 
-            {
-                 /* ANFANG Farben fuer Grundflaeche */
-                faceVertexColorBuffer = gl.createBuffer();
-                gl.bindBuffer(gl.ARRAY_BUFFER, faceVertexColorBuffer);
-                colors =                    //  AI-Blau
-                    [0.0, 0.29, 0.5, 1];   // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
-
-                var unpackedColors = [];
-                for (var j = 0; j < 4; j++) {
-                    unpackedColors = unpackedColors.concat(colors);
-                }
-
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(unpackedColors), gl.STATIC_DRAW);
-                faceVertexColorBuffer.itemSize = 4;
-                faceVertexColorBuffer.numItems = 4;     
-                /* ENDE Farben fuer Grundflaeche */
-
-                /* ANFANG Farben fuer Schlange */
-
-                snakeVertexColorBuffer = gl.createBuffer();
-                gl.bindBuffer(gl.ARRAY_BUFFER, snakeVertexColorBuffer);
-                snakeColors = [             //  Hochschul-Gruen
-                    [0.4, 0.8, 0.2, 0.8],   // Front face             // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
-                    [0.4, 0.8, 0.2, 0.85],   // Back face
-                    [0.4, 0.8, 0.2, 0.75],   // Top face
-                    [0.4, 0.8, 0.2, 1.0],   // Bottom face
-                    [0.4, 0.8, 0.2, 0.95],   // Right face
-                    [0.4, 0.8, 0.2, 1.9]    // Left face
-                ];
-
-                var snakeUnpackedColors = [];
-                for (var i in snakeColors) {
-                    var color = snakeColors[i];
-                    for (var j = 0; j < 4; j++) {
-                        snakeUnpackedColors = snakeUnpackedColors.concat(color);
-                    }
-                }
-
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(snakeUnpackedColors), gl.STATIC_DRAW);
-                snakeVertexColorBuffer.itemSize = 4;
-                snakeVertexColorBuffer.numItems = 24;
-
-                /* ENDE Farben fuer Schlange */
-
-                /* ANFANG Farben fuer Futter */
-
-                futterVertexColorBuffer = gl.createBuffer();
-                gl.bindBuffer(gl.ARRAY_BUFFER, futterVertexColorBuffer);
-                futterColors = [
-                    [1.0, 0.0, 0.0, 0.1],   // Front face             // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
-                    [1.0, 0.0, 0.0, 0.2],   // Back face             
-                    [1.0, 0.0, 0.0, 0.3],   // Top face
-                    [1.0, 0.0, 0.0, 0.4],   // Bottom face
-                    [1.0, 0.0, 0.0, 0.5],   // Right face
-                    [1.0, 0.0, 0.0, 0.6]    // Left face
-                ];
-
-                var futterUnpackedColors = [];
-                for (var i in futterColors) {
-                    var color = futterColors[i];
-                    for (var j = 0; j < 4; j++) {
-                        futterUnpackedColors = futterUnpackedColors.concat(color);
-                    }
-                }
-
-                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(futterUnpackedColors), gl.STATIC_DRAW);
-                futterVertexColorBuffer.itemSize = 4;
-                futterVertexColorBuffer.numItems = 24;
-
-                /* ENDE Farben fuer Futter */
-            }
-          
             requestAnimFrame(tick);
             drawScene();
-            if(framecounter % schwierigkeitsgrad == 0){
+            var timeNow = new Date().getTime();
+            if(timeNow - lastSekunde > 1000)
+            {
+                fps = (framecounter - lastFramecounter);
+                lastSekunde = timeNow;
+                lastFramecounter = framecounter;
+            }
+            if(timeNow - lastGehen > schwierigkeitsgrad){
                 if(!verloren)
-                    gehen(); 
+                {
+                    gehen();
+                    lastGehen = timeNow;
+                }
                 darfLenken = true;
             }
             
@@ -1235,7 +1098,8 @@
                                                         "schlangenKoordinaten[headPos].z: " + schlangenKoordinaten[headPos].z + "<br />" + 
                                                         "aktLaengeSchlange: " + aktLaengeSchlange + "<br />" +
                                                         "verloren: " + verloren + "<br />" +
-                                                        "pause: " + pause + "<br />";
+                                                        "pause: " + pause + "<br />" +
+                                                        "FPS: " + fps + "<br />";
                                                         
             animate(); // Drehung
             framecounter++;        
@@ -1245,7 +1109,7 @@
         function webGLStart() {
             canvas = document.getElementById("snakecanvas");
             
-            /* Passt die Groesse des Canvas dynamisch an die Groeße des Browserfensters an,
+            /* Passt die Groesse des Canvas dynamisch an die Groesse des Browserfensters an,
              * leider muss zur Aktuallisierung die Seite neugeladen werden 
              * /1.05 waer nur die erste Zeile, also die zwei Buttons, sichtbar */
             canvas.height = window.innerHeight/1.55;
@@ -1290,10 +1154,11 @@
             
             if(istMouseDown == true)
             {
-                //drehungX = (drehungX + (einEvent.clientY - letzterMausPunkt.y) + 360) % 360;
-                drehungX = Math.max(Math.min((drehungX + (einEvent.clientY - letzterMausPunkt.y)), 90) , -90);
-                drehungY = (drehungY + (einEvent.clientX - letzterMausPunkt.x) + 360) % 360;
-                  //drawScene();
+                if(!pause)
+                {
+                    drehungX = Math.max(Math.min((drehungX + (einEvent.clientY - letzterMausPunkt.y)), 90) , -90);
+                    drehungY = (drehungY + (einEvent.clientX - letzterMausPunkt.x) + 360) % 360;
+                }
             }  
             
             drehen();
@@ -1349,7 +1214,7 @@
                     vorne = 2;
                     hinten = 3;
                 }
-                else if(drehungX < -45)  //  Wuerfel von unten betrachtet
+                else if(drehungX < -45)  //  Wuerfel von unten betrsachtet
                 {
                     oben = 1;
                     unten = 0;
@@ -1425,17 +1290,19 @@
 
         <!-- <canvas id="snakecanvas" width="450" height="450"></canvas> -->
         <canvas id="snakecanvas"></canvas>
-        <div style='float: outside;'>
+        <div style='float: right;'>
             <button onclick="neuesSpiel();">Neues Spiel!</button>
             <button onclick="stop();">Pause</button>
-            Schwierigkeitsgrad: <select name="schwierigkeitsgrad" size="1"
-                        onchange="level(value)">
-                <option value="30">1</option>
-                <option value="20">2</option>
-                <option value="10">3</option>
-                <option value="5">4</option>
-                <option value="3">5</option>
-            </select>
+            <span id = "schwierigkeitsgrad">
+                Schwierigkeitsgrad: <select name="schwierigkeitsgrad" size="1"
+                            onchange="level(value)">
+                    <option value="500">1</option>
+                    <option value="400">2</option>
+                    <option value="300">3</option>
+                    <option value="200">4</option>
+                    <option value="100">5</option>
+                </select>
+            </span>
         </div>    
         <br />Infoleiste
         <p id="info"></p>
