@@ -5,6 +5,10 @@
 
     <script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
     <script type="text/javascript" src="webgl-utils.js"></script>
+    
+    <style type="text/css">
+        @import url("snake.css");
+    </style>	
 
     <!--------------------------------------------------------------------------
     
@@ -107,6 +111,7 @@
         var laserUmschalter = true;
         
         var punkte;
+        var schrittanzahl = 0;
         
         var darfLenken = true;
         var verloren = false;
@@ -164,6 +169,8 @@
             verloren = false;
             punkte = 0;
             document.getElementById('schwierigkeitsgrad').style.display = "inline";
+            // Setzt Wert des Sliders wieder auf 1
+            document.getElementById('schwierigkeitsgradSlider').value = 1;
 
         }    
         
@@ -208,29 +215,60 @@
             }
             else return false;
         }
-        
+
+         // Script zum ausklappen des Menues
+
+        function toggle(control)
+        {
+            var elem = document.getElementById(control);
+            
+            if(elem.style.display == "none")
+            {
+                elem.style.display = "block";
+            }
+            else
+            {
+                elem.style.display = "none";
+            }
+        }
+
         function stop(){
             pause = !pause;
+                    
+           // var text = document.getElementById('stop').firstChild;
+           // text.data = text.data == "Men&uuml;" ? "Weiter" : "Pause";
         }         
         
         function laser(){
             laserUmschalter = !laserUmschalter;
+            var text = document.getElementById('laserButton').firstChild;
+            text.data = text.data == "Laser aus" ? "Laser" : "Laser aus";
         }  
-        
+               
         function level(level) {
+                   
+            if (level == 1)  return schwierigkeitsgrad = 500;
+            if (level == 2)  return schwierigkeitsgrad = 400;
+            if (level == 3)  return schwierigkeitsgrad = 300;
+            if (level == 4)  return schwierigkeitsgrad = 200;
+            if (level == 5)  return schwierigkeitsgrad = 100;
             
-            schwierigkeitsgrad = level;
+            // fuer Auswahl Schwierigkeit ueber Dropdown
+            // schwierigkeitsgrad = level;      
         }
         
         function score() {
             
             laenge = aktLaengeSchlange - 3;
-            
-            if (schwierigkeitsgrad == 500)  punkte = laenge * 1;
-            if (schwierigkeitsgrad == 400)  punkte = laenge * 2;
-            if (schwierigkeitsgrad == 300)  punkte = laenge * 3;
-            if (schwierigkeitsgrad == 200)  punkte = laenge * 4;
-            if (schwierigkeitsgrad == 100)  punkte = laenge * 5;
+
+            punkte = laenge * document.getElementById('schwierigkeitsgradSlider').value;        
+
+//          fuer Auswahl Schwierigkeit ueber Dropdown
+//            if (schwierigkeitsgrad == 500)  punkte = laenge * 1;
+//            if (schwierigkeitsgrad == 400)  punkte = laenge * 2;
+//            if (schwierigkeitsgrad == 300)  punkte = laenge * 3;
+//            if (schwierigkeitsgrad == 200)  punkte = laenge * 4;
+//            if (schwierigkeitsgrad == 100)  punkte = laenge * 5;
            
         }
                
@@ -272,6 +310,7 @@
                         //  Umsetzung des Hinterteilzeigers auf die neue Position
                         tailPos++;
                     }
+                 schrittanzahl++;   
                 }
             }
         }
@@ -899,7 +938,7 @@
             //  Aktivieren von Backface-Culling (von http://www.html5rocks.com/en/tutorials/webgl/webgl_orthographic_3d/)
             gl.enable(gl.CULL_FACE);
             
-            // Blending wird disabled, gilt sonst für alles
+            // Blending wird disabled, gilt sonst fï¿½r alles
             gl.disable(gl.BLEND)
 
             /* Blickwinkel, Hoehen-/Breitenverhaeltnis, Objekte wird zwischen 0.1 und 100 Einheiten gerendert */
@@ -1137,7 +1176,7 @@
                                     }
                                     else if(welt[dimX][dimY][dimZ] === futter)
                                     {
-                                        /* Blending wird für den folgenden Code wieder disabled*/
+                                        /* Blending wird fï¿½r den folgenden Code wieder disabled*/
                                         gl.disable(gl.BLEND);
                                         gl.enable(gl.DEPTH_TEST); 
                             
@@ -1250,7 +1289,7 @@
                                         setMatrixUniforms();
                                         gl.drawElements(gl.TRIANGLES, laserVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
                                         
-                                        /* Blending wird für den folgenden Code wieder disabled*/
+                                        /* Blending wird fï¿½r den folgenden Code wieder disabled*/
                                         gl.disable(gl.BLEND);
                                         gl.enable(gl.DEPTH_TEST); 
                                     mvPopMatrix();
@@ -1311,18 +1350,21 @@
                 darfLenken = true;
             }
             score();
-            document.getElementById('info').innerHTML = "drehungX: " + drehungX + "<br />" + 
-                                                        "drehungY: " + drehungY + "<br />" + 
-                                                        "richtung: " + richtung + "<br />" + 
-                                                        "schlangenKoordinaten[headPos].x: " + schlangenKoordinaten[headPos].x + "<br />" + 
-                                                        "schlangenKoordinaten[headPos].y: " + schlangenKoordinaten[headPos].y + "<br />" + 
-                                                        "schlangenKoordinaten[headPos].z: " + schlangenKoordinaten[headPos].z + "<br />" +
-                                                        "aktLaengeSchlange: " + aktLaengeSchlange + "<br />" +
-                                                        "verloren: " + verloren + "<br />" +
-                                                        "pause: " + pause + "<br />" +
-                                                        "Punkte: " + punkte + "<br />" 
-                                                        "FPS: " + fps + "<br />";
-                                                        
+            document.getElementById('hud').innerHTML =  "<table><tr><td>FPS:</td><td class='tr'>" + fps + "</td></tr>" + 
+                                                        "<tr><td>Schritte:</td><td class='tr'>" + schrittanzahl + "</td></tr>" +
+                                                        "<tr><td>L&auml;nge:</td><td class='tr'>" + aktLaengeSchlange + "</td></tr>" +
+                                                        "<tr><td>Punkte:</td><td class='tr'>" + punkte + "</td></tr></table>";
+            /*
+            document.getElementById('debugHud').innerHTML = "DrehungX: " + drehungX + "<br />" + 
+                                                            "DrehungY: " + drehungY + "<br />" + 
+                                                            "Richtung: " + richtung + "<br />" + 
+                                                            "SchlangenKoordinaten[headPos].x: " + schlangenKoordinaten[headPos].x + "<br />" + 
+                                                            "SchlangenKoordinaten[headPos].y: " + schlangenKoordinaten[headPos].y + "<br />" + 
+                                                            "SchlangenKoordinaten[headPos].z: " + schlangenKoordinaten[headPos].z + "<br />" +
+                                                            "Verloren: " + verloren + "<br />" +
+                                                            "Pause: " + pause + "<br />";
+             */
+             
             animate(); // Drehung
             framecounter++;        
         }
@@ -1359,12 +1401,9 @@
             canvas.onmousedown = mouseDown;
             canvas.onmouseup = mouseUp;
             canvas.onmousemove = mouseMove;
-            
-
-
-
+           
             tick();
-            
+
         }
 
 
@@ -1509,15 +1548,58 @@
         }
              
          </script>
+                 
     </head>
 
-    <body onload="webGLStart();">
-
+    <body onload="webGLStart();">      
+        
         <!-- <canvas id="snakecanvas" width="450" height="450"></canvas> -->
+        
         <canvas id="snakecanvas"></canvas>
-        <div style='float: right;'>
-            <button onclick="neuesSpiel();">Neues Spiel!</button>
-            <button onclick="stop();">Pause</button>
+        
+        <span id = "schwierigkeitsgrad">
+            Schwierigkeitsgrad ausw&auml;hlen: <br /><input id="schwierigkeitsgradSlider" type="range" min="1" max="5" value="1" step="1" onchange="level(value)"/>   
+        </span> 
+        
+        <div id="menue">
+            <button id="stop" onclick="stop(); toggle('inhalt');">Men&uuml;</button>&nbsp;&nbsp;&nbsp;
+
+            <div id="inhalt" style="display: none">
+                
+            <button onclick="neuesSpiel();">Neues Spiel</button> 
+
+            <button onclick="" style="color: darkred">Highscore</button>
+            <button onclick="toggle('steuerung')">Steuerung</button>
+            <button onclick="" style="color: darkred">Impressum</button>
+            
+            <!-- Laser: <input type="checkbox" name="laserButton" onclick="laser();"> -->
+            <button id="transButton" onclick="" style="color: darkred">Transparenz</button>
+            <button id="laserButton" onclick="laser();">Laser</button>
+
+                <div id="steuerung" style="display: none">
+                    <h2>Snake 3D Steuerung</h2>
+                    <ul style="list-style-type:disc">
+                        <li><p>Richtung &auml;ndern mit:</p></li>
+                    <table border="1px"><tr><td>&nbsp;&uArr;&nbsp;| W </td><td>&nbsp;oben </td></tr>
+                    <tr><td>&nbsp;&dArr;&nbsp;| S </td><td>&nbsp;unten</td></tr>
+                    <tr><td>&lArr; | A </td><td>&nbsp;links</td></tr>
+                    <tr><td>&rArr; | D </td><td>&nbsp;rechts</td></tr>
+                    <tr><td>F5 </td><td> Aktualisierung des Fensters</td></tr></table>
+                        <li><p>Ansicht ändern:<br>
+                            Mit linker Maustaste klicken und gedrückt halten.</p></li>
+                        <li><p>Die Steuerung ändert sich mit der Ansicht,<br>
+                                z.B. läuft die Schlange IMMER nach links <br>
+                                wenn man die linke Pfeiltaste drückt.</p></li>
+                    </ul>
+                </div>            
+            </div>
+        </div>
+        
+        <!-- Hier wird die HUD oben links eingefügt -->
+        <div id="hud"></div>
+        
+        
+            <!-- Schwierigkeitsgrad per Dropdown aendern
             <span id = "schwierigkeitsgrad">
                 Schwierigkeitsgrad: <select name="schwierigkeitsgrad" size="1"
                             onchange="level(value)">
@@ -1526,12 +1608,15 @@
                     <option value="300">3</option>
                     <option value="200">4</option>
                     <option value="100">5</option>
-                </select>
+                </select>                                   
             </span>
-            <input type="checkbox" name="laserButton" onclick="laser();">Laser
-        </div>    
-        <br />Infoleiste
-        <p id="info"></p>
+            -->        
+        
+        
+          
+        <!--
+        <div id="debugHud"></div>
+        -->
         
    </body>
 
