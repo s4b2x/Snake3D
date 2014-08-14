@@ -278,7 +278,7 @@
                                            '<th>' + zeitPunkt + '</th>' +
                                        '</tr>');
                 //alert(window.location.hostname);
-                if(window.location.hostname == 'sebix.de' || window.location.hostname.trim().toLowerCase().search('sebix.de') != 0)
+                if(window.location.hostname == 'sebix.de' || window.location.hostname.trim().toLowerCase().search('sebix.de') != -1)
                 {
                     $( "#highscore" ).load( "postAndGetHighscore.php",
                                             { userName: nickname, score: punkte },
@@ -301,7 +301,7 @@
             }
             else
             {
-                if(window.location.hostname == 'sebix.de' || window.location.hostname.trim().toLowerCase().search('sebix.de') != 0)
+                if(window.location.hostname == 'sebix.de' || window.location.hostname.trim().toLowerCase().search('sebix.de') != -1)
                 {
                     $( "#highscore" ).load( "getHighscore.php",
                                             function( response, status, xhr ) 
