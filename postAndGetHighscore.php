@@ -28,7 +28,14 @@ function ausgabe(){
     $sql = "SELECT * FROM `snakehighscore` ORDER BY `snakehighscore`.`score` DESC LIMIT 0, 15 ";
     $result = mysql_query($sql)
             or die("SELECT fehlgeschlagen ".mysql_error()." ..");
-
+    
+    echo '<tr>
+  <td>#</td>
+  <td>Name</td>
+  <td>Punkte</td>
+  <td>Datum</td>
+</tr>';
+    
     $zeile;
     $platz = 1;
     while($zeile = mysql_fetch_array($result)){

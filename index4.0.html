@@ -1364,7 +1364,7 @@
                         }
 
                         // Der Depth-Buffer wird deaktiviert, Blending wird aktiviert
-                        if(!verloren)
+                        if(!verloren && transparenzAn)
                         {
                             gl.blendFunc(gl.SRC_COLOR, gl.ONE);
                             gl.enable(gl.BLEND);
@@ -1769,7 +1769,12 @@
                         <a href="http://www.sebix.de/snake">Klicke hier</a> f&uuml;r den globalen Highscore!
                     </p>
                     <table id="highscore">
-
+                        <tr>
+                            <td>#</td>
+                            <td>Name</td>
+                            <td>Punkte</td>
+                            <td>Datum</td>
+                        </tr>
                     </table>
                 </div>
                 
