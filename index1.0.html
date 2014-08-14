@@ -1,0 +1,509 @@
+<head>
+    <title>Snake 3D</title>
+
+    <script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
+    <script type="text/javascript" src="webgl-utils.js"></script>
+
+    <!-- Nicht bearbeiten - ANFANG Initialisierung der Shader -->
+    <script id="shader-fs" type="x-shader/x-fragment">
+        precision mediump float;
+
+        varying vec4 vColor;
+
+        void main(void) {
+            gl_FragColor = vColor;
+        }
+    </script>
+
+    <script id="shader-vs" type="x-shader/x-vertex">
+        attribute vec3 aVertexPosition;
+        attribute vec4 aVertexColor;
+
+        uniform mat4 uMVMatrix;
+        uniform mat4 uPMatrix;
+
+        varying vec4 vColor;
+
+        void main(void) {
+            gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+            vColor = aVertexColor;
+        }
+    </script>
+    <!-- Nicht bearbeiten - ENDE Initialisierung der Shader -->
+
+    <script type="text/javascript">
+        var maxSchlangenlaenge = 100;
+
+    /*Object würfel. hält position, 
+    position wird beim initialisieren übergeben
+    function versetzen soll in der update benutzt werden können*/
+        function wuerfel(x, y, z) {
+            this.posX = x;
+            this.posY = y;
+            this.posZ = z;
+            this.versetzen = versetzen;
+
+            function versetzen(x, y, z){}
+        }
+        
+
+    /*Object würfel. hält position, 
+    position wird beim initialisieren übergeben
+    function versetzen soll in der update benutzt werden können*/
+        function kette(x, y, z) {
+            /*this.posX = x;  // Kopfposition
+            this.posY = y;
+            this.posZ = z;*/
+            this.koerper = new Array(maxSchlangenlaenge);
+            this.koerper[0] = new wuerfel(x-2, y, z);
+            this.koerper[1] = new wuerfel(x-1, y, z);
+            //this.koerper[2] = new wuerfel(x, y, z); // anfaenglicher Kopf
+            this.kopf = 1;
+            this.ende = 0;
+            
+            this.gehen = gehen;
+
+            function gehen(richtung){
+                //if(richtung === 'rechts'){
+                if(true){
+                    if (this.koerper[this.kopf].posX === futter.posX && 
+                        this.koerper[this.kopf].posY === futter.posY &&
+                        this.koerper[this.kopf].posZ === futter.posZ)
+                    {
+
+                        this.kopf = (this.kopf + 1)%maxSchlangenlaenge;
+                        this.koerper[this.kopf] = new wuerfel(futter.posX, futter.posY, futter.posZ);
+
+                        futter.posX = Math.floor(Math.random()*10)-5;
+                        futter.posY = Math.floor(Math.random()*10)-5;
+                        //futter.posZ = Math.floor(Math.random()*10);
+                    }
+                    else {//alert();
+                        this.koerper[this.kopf].posX = (this.koerper[this.kopf].posX+1+5)%10-5;                       
+                        this.kopf = (this.kopf + 1)%maxSchlangenlaenge;
+                        /*this.koerper[kopf].posX = this.koeper[ende].posX;
+                        this.koerper[kopf].posY = this.koeper[ende].posY;
+                        this.koerper[kopf].posZ = this.koeper[ende].posZ;*/
+
+                        this.koerper[this.kopf] = new wuerfel(this.koerper[this.ende].posX,
+                                                         this.koerper[this.ende].posY,
+                                                         this.koerper[this.ende].posZ);
+                        
+                         //this.koerper[kopf] = this.koerper[ende];
+                         //this.koerper[ende] = null;
+                        this.ende = (this.ende + 1)%maxSchlangenlaenge;
+                    }
+                }
+            }
+        }
+        
+        
+        
+        var futter = new wuerfel(2,0,0);
+        var schlange = new kette(-2,0,0);
+         
+        var laufrichtung = 'rechts';
+
+        var gl;
+
+        function initGL(canvas) {
+            try {
+                gl = canvas.getContext("experimental-webgl");
+                gl.viewportWidth = canvas.width;
+                gl.viewportHeight = canvas.height;
+            } catch (e) {
+            }
+            
+            // Wenn wir keinen WebGl Kontext haben
+              
+            if (!gl) {
+                alert("WebGL konnte nicht initialisiert werden.");
+            }
+        }
+
+
+        function getShader(gl, id) {
+            
+            var shaderScript = document.getElementById(id);
+                if (!shaderScript) {
+                    return null;
+                }
+
+                var str = "";
+                var currentChild  = shaderScript.firstChild;
+                while (currentChild ) {
+                    if (currentChild.nodeType == 3) {
+                        str += currentChild.textContent;
+                    }
+                    currentChild  = currentChild.nextSibling;
+                }
+
+            var shader;
+                if (shaderScript.type == "x-shader/x-fragment") {
+                    shader = gl.createShader(gl.FRAGMENT_SHADER);
+                } else if (shaderScript.type == "x-shader/x-vertex") {
+                    shader = gl.createShader(gl.VERTEX_SHADER);
+                } else {
+                    return null;    // Unbekannter Shadertyp
+                }
+
+            gl.shaderSource(shader, str);
+            
+                // Kompiliere das Shaderprogramm
+                gl.compileShader(shader);
+                // ÃœberprÃ¼fe, ob die Kompilierung erfolgreich war
+                if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                    alert("Es ist ein Fehler beim Kompilieren der Shader aufgetaucht: " + gl.getShaderInfoLog(shader));
+                    return null;
+                }
+
+            return shader;
+        }
+
+
+        var shaderProgram;
+
+        function initShaders() {
+            var fragmentShader = getShader(gl, "shader-fs");
+            var vertexShader = getShader(gl, "shader-vs");
+            
+            // Erzeuge Shader
+
+            shaderProgram = gl.createProgram();
+            gl.attachShader(shaderProgram, vertexShader);
+            gl.attachShader(shaderProgram, fragmentShader);
+            gl.linkProgram(shaderProgram);
+            
+            // Wenn die das Aufrufen der Shader fehlschlÃ¤gt,
+            // gib eine Fehlermeldung aus:
+
+            if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+                alert("Initialisierung des Shaderprogramms nicht mÃ¶glich.");
+            }
+
+            gl.useProgram(shaderProgram);
+            
+       
+            shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+            gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+
+            // Farbattribut
+            shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aVertexColor");      
+            gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);
+
+            shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
+            shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+        }
+
+
+        var mvMatrix = mat4.create();
+        var mvMatrixStack = [];
+        var pMatrix = mat4.create();
+
+        function mvPushMatrix() {
+            var copy = mat4.create();
+            mat4.set(mvMatrix, copy);
+            mvMatrixStack.push(copy);
+        }
+
+        function mvPopMatrix() {
+            if (mvMatrixStack.length == 0) {
+                throw "Invalid popMatrix!";
+            }
+            mvMatrix = mvMatrixStack.pop();
+        }
+
+
+        function setMatrixUniforms() {
+            gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
+            gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
+        }
+
+
+        function degToRad(degrees) {
+            return degrees * Math.PI / 180;
+        }
+
+        var cubeVertexPositionBuffer;                               
+        var cubeVertexColorBuffer;                                          //Farbpuffer fÃ¼r das Quadrat
+        var cubeVertexIndexBuffer;
+
+        function initBuffers() {
+
+            cubeVertexPositionBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexPositionBuffer);
+            vertices = [
+                // Front face
+                -0.5, -0.5, 0.5,
+                 0.5, -0.5, 0.5,
+                 0.5, 0.5, 0.5,
+                -0.5, 0.5, 0.5,
+
+                // Back face
+                -0.5, -0.5, -0.5,
+                -0.5, 0.5, -0.5,
+                 0.5, 0.5, -0.5,
+                 0.5, -0.5, -0.5,
+
+                // Top face
+                -0.5, 0.5, -0.5,
+                -0.5, 0.5, 0.5,
+                 0.5, 0.5, 0.5,
+                 0.5, 0.5, -0.5,
+
+                // Bottom face
+                -0.5, -0.5, -0.5,
+                 0.5, -0.5, -0.5,
+                 0.5, -0.5, 0.5,
+                -0.5, -0.5, 0.5,
+
+                // Right face
+                 0.5, -0.5, -0.5,
+                 0.5, 0.5, -0.5,
+                 0.5, 0.5, 0.5,
+                 0.5, -0.5, 0.5,
+
+                // Left face
+                -0.5, -0.5, -0.5,
+                -0.5, -0.5, 0.5,
+                -0.5, 0.5, 0.5,
+                -0.5, 0.5, -0.5
+            ];
+
+
+
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+            cubeVertexPositionBuffer.itemSize = 3;
+            cubeVertexPositionBuffer.numItems = 24;
+            
+            /* ANFANG Farben fÃ¼r Grundfläche */
+
+            cubeVertexColorBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexColorBuffer);
+            colors = [
+                [0.0, 0.0, 0.0, 0.2],   // Front face             // Rot, GrÃ¼n, Blau, Alpha (Transparenz [durchsichtig 0.0 - 1.0 sichtbar])
+                [0.0, 0.0, 0.0, 0.2],   // Back face              // Braun: [0.6, 0.3, 0.0, 1.0]
+                [0.0, 0.0, 0.0, 0.5],   // Top face
+                [0.0, 0.0, 0.0, 0.5],   // Bottom face
+                [0.0, 0.0, 0.0, 0.5],   // Right face
+                [0.0, 0.0, 0.0, 0.5]    // Left face
+            ];
+
+            var unpackedColors = [];
+            for (var i in colors) {
+                var color = colors[i];
+                for (var j = 0; j < 4; j++) {
+                    unpackedColors = unpackedColors.concat(color);
+                }
+            }
+
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(unpackedColors), gl.STATIC_DRAW);
+            cubeVertexColorBuffer.itemSize = 4;
+            cubeVertexColorBuffer.numItems = 24;
+            
+            /* ENDE Farben fÃ¼r Grundfläche */
+
+            /* ANFANG Farben fÃ¼r Schlange */
+
+            snakeVertexColorBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, snakeVertexColorBuffer);
+            snakeColors = [
+                [1.0, 0.0, 0.0, 0.2],   // Front face             // Rot, GrÃ¼n, Blau, Alpha (Transparenz [durchsichtig 0.0 - 1.0 sichtbar])
+                [1.0, 0.0, 0.0, 0.2],   // Back face              // Braun: [0.6, 0.3, 0.0, 1.0]
+                [1.0, 0.0, 0.0, 0.5],   // Top face
+                [1.0, 0.0, 0.0, 0.5],   // Bottom face
+                [1.0, 0.0, 0.0, 0.5],   // Right face
+                [1.0, 0.0, 0.0, 0.5]    // Left face
+            ];
+
+            var snakeUnpackedColors = [];
+            for (var i in snakeColors) {
+                var color = snakeColors[i];
+                for (var j = 0; j < 4; j++) {
+                    snakeUnpackedColors = snakeUnpackedColors.concat(color);
+                }
+            }
+
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(snakeUnpackedColors), gl.STATIC_DRAW);
+            snakeVertexColorBuffer.itemSize = 4;
+            snakeVertexColorBuffer.numItems = 24;
+            
+            /* ENDE Farben fÃ¼r Futter */
+            
+                      /* ANFANG Farben fÃ¼r Schlange */
+
+            futterVertexColorBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, futterVertexColorBuffer);
+            futterColors = [
+                [0.0, 1.0, 0.0, 0.2],   // Front face             // Rot, GrÃ¼n, Blau, Alpha (Transparenz [durchsichtig 0.0 - 1.0 sichtbar])
+                [0.0, 1.0, 0.0, 0.2],   // Back face              // Braun: [0.6, 0.3, 0.0, 1.0]
+                [0.0, 1.0, 0.0, 0.5],   // Top face
+                [0.0, 1.0, 0.0, 0.5],   // Bottom face
+                [0.0, 1.0, 0.0, 0.5],   // Right face
+                [0.0, 1.0, 0.0, 0.5]    // Left face
+            ];
+
+            var futterUnpackedColors = [];
+            for (var i in futterColors) {
+                var color = futterColors[i];
+                for (var j = 0; j < 4; j++) {
+                    futterUnpackedColors = futterUnpackedColors.concat(color);
+                }
+            }
+
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(futterUnpackedColors), gl.STATIC_DRAW);
+            futterVertexColorBuffer.itemSize = 4;
+            futterVertexColorBuffer.numItems = 24;
+            
+            /* ENDE Farben fÃ¼r Futter */
+            
+            cubeVertexIndexBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer);
+            
+            // Dieser Array definiert jede FlÃ¤che als zwei Dreiecke Ã¼ber die Indizes
+            // im Vertex-Array, um die Position jedes Dreiecks festzulegen.
+  
+            var cubeVertexIndices = [
+                0, 1, 2,        0, 2, 3,        // Front face
+                4, 5, 6,        4, 6, 7,        // Back face
+                8, 9, 10,       8, 10, 11,      // Top face
+                12, 13, 14,     12, 14, 15,     // Bottom face
+                16, 17, 18,     16, 18, 19,     // Right face
+                20, 21, 22,     20, 22, 23      // Left face
+            ];
+            
+            // Sende nun das Element-Array zum GL
+              
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubeVertexIndices), gl.STATIC_DRAW);
+            cubeVertexIndexBuffer.itemSize = 1;
+            cubeVertexIndexBuffer.numItems = 36;
+        }
+
+
+        var rCube = 0;
+
+        function drawScene() {
+            gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+            /* Blickwinkel, HÃ¶hen-/BreitenverhÃ¤ltnis, Objekte wird zwischen 0.1 und 100 Einheiten gerendert */
+            mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix);
+
+            mat4.identity(mvMatrix);
+
+            
+            /* Puffer des Quadrats wird mit dem Kontext verbunden */
+            gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexPositionBuffer);
+            gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, cubeVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+            /* Farb Puffer */
+            gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexColorBuffer);
+            gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, cubeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+            /* Element Puffer */
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer);
+
+
+            /* Gesamtbild */
+
+            mat4.translate(mvMatrix, [0.0, 0.0, -20.0]);                 // Verschiebung des Gesamtbildes (x, y, z) Achse
+            //mat4.rotate(mvMatrix, degToRad(rCube), [0, 1, 0]);            // Roatation des Gesamtbildes um die Y-Achse
+
+            /*Grundfläche (ist grau)*/
+            mvPushMatrix();
+                mat4.translate(mvMatrix, [-0.5, -0.5, 0.0]);
+                mat4.scale(mvMatrix, [10.0, 10.0, 1.0]);
+                setMatrixUniforms();
+                gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+            mvPopMatrix();
+
+            /* Farb Puffer für die Schlange fängt an*/
+            gl.bindBuffer(gl.ARRAY_BUFFER, snakeVertexColorBuffer);
+            gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, snakeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+            /*Würfel für Schlange*/
+            /*mvPushMatrix();
+                mat4.translate(mvMatrix, [schlange.posX , schlange.posY, schlange.posZ]);  
+                setMatrixUniforms();
+                gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+            mvPopMatrix();*/
+            for(var i = schlange.ende; i <= schlange.kopf; i++){
+    
+                mvPushMatrix();
+                    mat4.translate(mvMatrix, [schlange.koerper[i].posX , schlange.koerper[i].posY, schlange.koerper[i].posZ]);  
+                    setMatrixUniforms();
+                    gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);                       
+                mvPopMatrix();
+                
+            }
+
+            
+            /* Farb Puffer für das Futter fängt an*/
+            gl.bindBuffer(gl.ARRAY_BUFFER, futterVertexColorBuffer);
+            gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, futterVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            
+            /*Futter*/
+            mvPushMatrix();
+                mat4.translate(mvMatrix, [futter.posX, futter.posY, futter.posZ]);  
+                setMatrixUniforms();
+                gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+            mvPopMatrix();
+            
+            
+
+        }
+
+
+        var lastTime = 0;
+
+        function update() { 
+            var timeNow = new Date().getTime();
+            if (lastTime != 0) {
+                var elapsed = timeNow - lastTime;
+     //           rPyramid += (90 * elapsed) / 1000.0;
+                rCube -= (75 * elapsed) / 1000.0;
+            }
+            schlange.gehen(laufrichtung);
+            lastTime = timeNow;
+        }
+
+        framecounter = 0;
+        function tick() {
+            requestAnimFrame(tick);
+            drawScene();
+            if(framecounter%10==0)
+            {
+                update();
+            }
+            framecounter++;// Drehung
+        }
+
+
+        function webGLStart() {
+            var canvas = document.getElementById("snakecanvas");
+            initGL(canvas);                  // Initialisierung des WebGL Kontextes
+            
+            initShaders();
+            initBuffers();
+
+
+            // Es geht nur weiter, wenn WebGl verfÃ¼gbar ist.
+            if (gl) {
+              gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Setzt die Farbe auf Schwarz, vollstÃ¤ndig sichtbar
+              gl.clearDepth(1.0);                 // LÃ¶sche alles, um die neue Farbe sichtbar zu machen
+              gl.enable(gl.DEPTH_TEST);           // Aktiviere Tiefentest
+              gl.depthFunc(gl.LEQUAL);            // NÃ¤here Objekte verdecken entferntere Objekte
+            }
+
+            tick();
+        }
+
+    </script>
+</head>
+
+    <body onload="webGLStart();">
+        <canvas id="snakecanvas" width="800" height="800"></canvas>
+
+    </body>
+
+</html>

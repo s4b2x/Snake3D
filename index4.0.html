@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-
+<html>
 <head>
     <title>Snake 3D</title>
 
     <script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
     <script type="text/javascript" src="webgl-utils.js"></script>
-    
+    <script type="text/javascript" src="jquery-1.11.1.min.js"></script>
+
     <style type="text/css">
         @import url("snake.css");
     </style>	
@@ -29,19 +30,20 @@
         x   Animation im Sterbefall
         x   Laserpointer in Laufrichtung
             -> eventuell noch texturieren
-        -   HUD (Tastenbelegung, FPS, Score, einschaltbare Debug-Infos)
+        x   HUD (Tastenbelegung, Impressum, FPS, Score, einschaltbare Debug-Infos)
             -> feststehendes Menue unten, Info-Fenster links oben ebenfalls festehend
             -> Score Position noch unbekannt, Abstimmung erfolgt in aeusserst naher Zukunft
         x   Pause-Taste
         x   Bug "Neues Spiel", wenn der Button gedrueckt wird und eine andere Ansicht 
             wie die Startansicht gewaehlt ist bleibt die Schlange stehen
-       (-   fliessende Bewegung als Bonus)
-       (-   Effekt beim Essen)
-       (-   Highscore (AJAX, SQL) )
-       (x   Schwierigkeitsgrad)
+        x   Schwierigkeitsgrad)
             x   Schwierigkeitsgrad nur moeglich, wenn tot oder wenn neu geladen
-       (-   Hindernisse)
+        x   Effekt beim Essen)
+        x   Kopf dunkler
+        x   Highscore (AJAX, SQL)
        (-   Lighting)
+       (-   fliessende Bewegung als Bonus)
+       (-   Hindernisse)
        (-   Statistik)
        (-   Cheat-Modus)
        (-   Kuhlevel)
@@ -80,7 +82,8 @@
     <!-- Nicht bearbeiten - ENDE Initialisierung der Shader -->
 
     <script type="text/javascript">
-        
+        $(document).ready(function() {
+
         var canvas;
 
         function mausPunkt(x, y) {
@@ -109,6 +112,8 @@
         
         var laserlaenge;
         var laserUmschalter = true;
+        
+        var transparenzAn = true;
         
         var punkte;
         var schrittanzahl = 0;
@@ -167,11 +172,10 @@
             schlangeEinfuegen();
             futterEinfuegen();
             verloren = false;
+            scored = false;
             punkte = 0;
-            document.getElementById('schwierigkeitsgrad').style.display = "inline";
-            // Setzt Wert des Sliders wieder auf 1
-            document.getElementById('schwierigkeitsgradSlider').value = 1;
-
+            $('#schwierigkeitsgrad').show();
+            $('schwierigkeitsgradSlider').val(1);
         }    
         
         /* fuegt die anfaengliche Snake ein, die 3 Felder gross ist */
@@ -198,7 +202,7 @@
         function fressen() {
             if (welt[futterPos.x][futterPos.y][futterPos.z] === schlange)
             {
-                document.getElementById('schwierigkeitsgrad').style.display = "none";
+                $('#schwierigkeitsgrad').hide();
                 //  Irgendein zufaelliger Ort in der Welt wird als Futter registriert.
                 while(true)
                 {
@@ -208,35 +212,17 @@
                     if(welt[futterPos.x][futterPos.y][futterPos.z] !== schlange)
                     {
                         welt[futterPos.x][futterPos.y][futterPos.z] = futter;
-                        aktLaengeSchlange++;    
+                        aktLaengeSchlange++;
+                        effektLos();
                         return true;
                     }
                 }
             }
             else return false;
         }
-
-         // Script zum ausklappen des Menues
-
-        function toggle(control)
-        {
-            var elem = document.getElementById(control);
-            
-            if(elem.style.display == "none")
-            {
-                elem.style.display = "block";
-            }
-            else
-            {
-                elem.style.display = "none";
-            }
-        }
-
+        
         function stop(){
             pause = !pause;
-                    
-           // var text = document.getElementById('stop').firstChild;
-           // text.data = text.data == "Men&uuml;" ? "Weiter" : "Pause";
         }         
         
         function laser(){
@@ -244,9 +230,9 @@
             var text = document.getElementById('laserButton').firstChild;
             text.data = text.data == "Laser aus" ? "Laser" : "Laser aus";
         }  
-               
+        
         function level(level) {
-                   
+            
             if (level == 1)  return schwierigkeitsgrad = 500;
             if (level == 2)  return schwierigkeitsgrad = 400;
             if (level == 3)  return schwierigkeitsgrad = 300;
@@ -260,18 +246,80 @@
         function score() {
             
             laenge = aktLaengeSchlange - 3;
-
-            punkte = laenge * document.getElementById('schwierigkeitsgradSlider').value;        
-
+            
+            punkte = laenge * $('#schwierigkeitsgradSlider').val();
+           
 //          fuer Auswahl Schwierigkeit ueber Dropdown
 //            if (schwierigkeitsgrad == 500)  punkte = laenge * 1;
 //            if (schwierigkeitsgrad == 400)  punkte = laenge * 2;
 //            if (schwierigkeitsgrad == 300)  punkte = laenge * 3;
 //            if (schwierigkeitsgrad == 200)  punkte = laenge * 4;
 //            if (schwierigkeitsgrad == 100)  punkte = laenge * 5;
-           
         }
-               
+        
+        var nickname = '';
+        
+        function verlieren(){
+            verloren = true;
+            $('#schwierigkeitsgrad').show();
+            window.setTimeout(function(){highscoreName();}, 100);
+        }
+        
+        var scored = false;
+        
+        function highscoreName(){
+            if(verloren && !scored)
+            {
+                var zeitPunkt = '' + new Date().getFullYear() + '-' + new Date().getMonth() + '-' + new Date().getDate() + ' ' + new Date().getHours() + ':' + new Date().getMinutes();
+                nickname = prompt('Gib deinen Namen fuer den Highscore ein:', nickname);
+                $('#highscore').append('<tr>' +
+                                           '<th>' + nickname + '</th>' +
+                                           '<th>' + punkte + '</th>' +
+                                           '<th>' + zeitPunkt + '</th>' +
+                                       '</tr>');
+                //alert(window.location.hostname);
+                if(window.location.hostname == 'sebix.de' || window.location.hostname.trim().toLowerCase().search('sebix.de') != 0)
+                {
+                    $( "#highscore" ).load( "postAndGetHighscore.php",
+                                            { userName: nickname, score: punkte },
+                                            function( response, status, xhr ) 
+                                            {
+                                                if ( status == "error" ) {
+                                                    var msg = "Sorry but there was an error: ";
+                                                    alert( msg + xhr.status + " " + xhr.statusText );
+                                                }
+                                            }
+                    );
+                }
+                else
+                {
+                    $('#highscoreOffline').show();
+                }
+                $('#btStop').click();
+                $('#divHighscore').show();
+                scored = true;
+            }
+            else
+            {
+                if(window.location.hostname == 'sebix.de' || window.location.hostname.trim().toLowerCase().search('sebix.de') != 0)
+                {
+                    $( "#highscore" ).load( "getHighscore.php",
+                                            function( response, status, xhr ) 
+                                            {
+                                                if ( status == "error" ) {
+                                                    var msg = "Sorry but there was an error: ";
+                                                    alert( msg + xhr.status + " " + xhr.statusText );
+                                                }
+                                            }
+                    );
+                }
+                else
+                {
+                    $('#highscoreOffline').show();
+                }
+            }
+        }
+        
         function gehen(){
                
             if(!pause)
@@ -292,8 +340,7 @@
                                     
                 //  Neue Kopfkoordinate wird auf schlange gesetzt, wenn sie nicht schon schlange ist
                 if(welt[schlangenKoordinaten[headPos].x][schlangenKoordinaten[headPos].y][schlangenKoordinaten[headPos].z] === schlange) {
-                    verloren = true;
-                    document.getElementById('schwierigkeitsgrad').style.display = "inline";
+                    verlieren();
                 }
                 else
                 {
@@ -323,11 +370,11 @@
         {
             if(darfLenken)
             {
-               switch (event.keyCode) 
-               {
+                switch (event.keyCode) 
+                {
                     case 39: /* rechts */
                     case 68: /* D */
-//                    alert("rechts");
+//                    alert('rechts');
                         if(richtung !== links && richtung !== rechts)
                         {
                             richtung = rechts;
@@ -337,7 +384,7 @@
     
                     case 37: /* links */
                     case 65: /* A */
-    //                    alert("links");
+    //                    alert('links');
                         if(richtung !== rechts && richtung !== links)
                         {
                             richtung = links;
@@ -347,7 +394,7 @@
     
                     case 38: /* oben */
                     case 87: /* W */
-    //                    alert("oben");
+    //                    alert('oben');
                         if(richtung !== unten && richtung !== oben)
                         {
                             richtung = oben;
@@ -357,7 +404,7 @@
     
                     case 40: /* unten */
                     case 83: /* S */
-    //                    alert("unten");
+    //                    alert('unten');
                         if(richtung !== oben && richtung !== unten)
                         { 
                             richtung = unten;
@@ -367,7 +414,7 @@
     
                     case 34: /* Bild Ab */
                     case 88: /* X */
-    //                    alert("vorne");
+    //                    alert('vorne');
                         if(richtung !== hinten && richtung !== vorne)
                         { 
                             richtung = vorne;
@@ -377,14 +424,14 @@
     
                     case 33: /* Bild Auf */
                     case 69: /* E */
-    //                    alert("hinten");
+    //                    alert('hinten');
                         if(richtung !== vorne && richtung !== hinten)
                         { 
                             richtung = hinten;
                             darfLenken = false;
                         }
                         break;      
-               }
+                }
             }
             
             switch (event.keyCode) 
@@ -429,7 +476,7 @@
 
 
         /* Die Taste wird gerade gedrueckt */
-        document.addEventListener("keydown", keyDown, false);
+        document.addEventListener('keydown', keyDown, false);
         
 
     /* ENDE Steuerung */
@@ -439,7 +486,7 @@
 
         function initGL(canvas) {
             try {
-                gl = canvas.getContext("experimental-webgl");
+                gl = canvas.getContext('experimental-webgl');
                 gl.viewportWidth = canvas.width;
                 gl.viewportHeight = canvas.height;
             } catch (e) {
@@ -448,7 +495,7 @@
             // Wenn wir keinen WebGl Kontext haben
               
             if (!gl) {
-                alert("WebGL konnte nicht initialisiert werden.");
+                alert('WebGL konnte nicht initialisiert werden.');
             }
         }
 
@@ -459,7 +506,7 @@
                     return null;
                 }
 
-                var str = "";
+                var str = '';
                 var currentChild  = shaderScript.firstChild;
                 while (currentChild ) {
                     if (currentChild.nodeType == 3) {
@@ -469,9 +516,9 @@
                 }
 
             var shader;
-                if (shaderScript.type == "x-shader/x-fragment") {
+                if (shaderScript.type == 'x-shader/x-fragment') {
                     shader = gl.createShader(gl.FRAGMENT_SHADER);
-                } else if (shaderScript.type == "x-shader/x-vertex") {
+                } else if (shaderScript.type == 'x-shader/x-vertex') {
                     shader = gl.createShader(gl.VERTEX_SHADER);
                 } else {
                     return null;    // Unbekannter Shadertyp
@@ -483,7 +530,7 @@
                 gl.compileShader(shader);
                 // Ueberpruefe, ob die Kompilierung erfolgreich war
                 if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-                    alert("Es ist ein Fehler beim Kompilieren der Shader aufgetaucht: " + gl.getShaderInfoLog(shader));
+                    alert('Es ist ein Fehler beim Kompilieren der Shader aufgetaucht: ' + gl.getShaderInfoLog(shader));
                     return null;
                 }
 
@@ -493,8 +540,8 @@
         var shaderProgram;
 
         function initShaders() {
-            var fragmentShader = getShader(gl, "shader-fs");
-            var vertexShader = getShader(gl, "shader-vs");
+            var fragmentShader = getShader(gl, 'shader-fs');
+            var vertexShader = getShader(gl, 'shader-vs');
             
             // Erzeuge Shader
 
@@ -507,21 +554,21 @@
             // gib eine Fehlermeldung aus:
 
             if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-                alert("Initialisierung des Shaderprogramms nicht moeglich.");
+                alert('Initialisierung des Shaderprogramms nicht moeglich.');
             }
 
             gl.useProgram(shaderProgram);
             
        
-            shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+            shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, 'aVertexPosition');
             gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
 
             // Farbattribut
-            shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aVertexColor");      
+            shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, 'aVertexColor');      
             gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);
 
-            shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
-            shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
+            shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, 'uPMatrix');
+            shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, 'uMVMatrix');
         }
 
         var mvMatrix = mat4.create();
@@ -536,7 +583,7 @@
 
         function mvPopMatrix() {
             if (mvMatrixStack.length == 0) {
-                throw "Invalid popMatrix!";
+                throw 'Invalid popMatrix!';
             }
             mvMatrix = mvMatrixStack.pop();
         }
@@ -688,15 +735,6 @@
                 [0.0, 0.0, 0.0, 1],   // Right face
                 [0.0, 0.0, 0.0, 1]    // Left face
             ];
-            /*
-            colors = [
-                [0.0, 0.0, 0.0, 0.1],   // Front face             // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
-                [0.0, 0.0, 0.0, 0.2],   // Back face
-                [0.0, 0.0, 0.0, 0.3],   // Top face
-                [0.0, 0.0, 0.0, 0.4],   // Bottom face
-                [0.0, 0.0, 0.0, 0.5],   // Right face
-                [0.0, 0.0, 0.0, 0.6]    // Left face
-            ];*/
 
             var unpackedColors = [];
             for (var i in colors) {
@@ -722,7 +760,7 @@
                 [0.4, 0.8, 0.2, 0.75],   // Top face
                 [0.4, 0.8, 0.2, 1.0],   // Bottom face
                 [0.4, 0.8, 0.2, 0.95],   // Right face
-                [0.4, 0.8, 0.2, 1.9]    // Left face
+                [0.4, 0.8, 0.2, 0.9]    // Left face
             ];
 
             var snakeUnpackedColors = [];
@@ -743,13 +781,13 @@
 
             headVertexColorBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, headVertexColorBuffer);
-            headColors = [
-                [0.0, 0.0, 0.0, 0.5],   // Front face             // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
-                [0.0, 0.0, 0.0, 0.6],   // Back face              
-                [0.0, 0.0, 0.0, 0.7],   // Top face
-                [0.0, 0.0, 0.0, 0.8],   // Bottom face
-                [0.0, 0.0, 0.0, 0.9],   // Right face
-                [0.0, 0.0, 0.0, 1.0]    // Left face
+            headColors = [             //  dunkleres Hochschul-Gruen
+                [0.5, 1, 0.25, 0.6],   // Front face             // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
+                [0.5, 1, 0.25, 0.7],    // Back face
+                [0.5, 1, 0.25, 0.5],    // Top face
+                [0.5, 1, 0.25, 1.0],   // Bottom face
+                [0.5, 1, 0.25, 0.9],    // Right face
+                [0.5, 1, 0.25, 0.8]     // Left face
             ];
 
             var headUnpackedColors = [];
@@ -938,8 +976,9 @@
             //  Aktivieren von Backface-Culling (von http://www.html5rocks.com/en/tutorials/webgl/webgl_orthographic_3d/)
             gl.enable(gl.CULL_FACE);
             
-            // Blending wird disabled, gilt sonst fï¿½r alles
+            // Blending wird disabled, gilt sonst fuer alles
             gl.disable(gl.BLEND)
+            gl.enable(gl.DEPTH_TEST);
 
             /* Blickwinkel, Hoehen-/Breitenverhaeltnis, Objekte wird zwischen 0.1 und 100 Einheiten gerendert */
             mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix);
@@ -975,7 +1014,7 @@
                 gl.bindBuffer(gl.ARRAY_BUFFER, faceDeadVertexColorBuffer);
                 gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, faceDeadVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
             }
-        
+            
             mvPushMatrix();
                 mat4.translate(mvMatrix, [0, 0, -spielfeldGroesse.z/2]);
                 mat4.scale(mvMatrix, [spielfeldGroesse.x, spielfeldGroesse.y, 1]);
@@ -1053,8 +1092,8 @@
             mvPushMatrix();
                 mat4.translate(mvMatrix, [-spielfeldGroesse.x / 2, -spielfeldGroesse.y / 2, -spielfeldGroesse.z / 2]);
 
-                /* Spielfeld-Rahmen (ist schwarz)*/
-
+                //  Spielfeld-Rahmen (ist schwarz)
+                
                 // Linie rechts vorne
                 mvPushMatrix();
                     mat4.translate(mvMatrix, [spielfeldGroesse.x, spielfeldGroesse.y / 2, spielfeldGroesse.z]);
@@ -1141,7 +1180,22 @@
                 mvPopMatrix();
                 
                 
-                //////  SCHLANGE    /////////////////////////
+                ///////////////  SCHLANGE und FUTTER   /////////////////////////
+
+                if(!verloren && transparenzAn)
+                {
+                    // Der Depth-Buffer wird deaktiviert, Blending wird aktiviert
+                    gl.blendFunc(gl.SRC_COLOR, gl.ONE);
+                    gl.enable(gl.BLEND);
+                    gl.disable(gl.DEPTH_TEST);
+                }
+                else
+                {
+                    // Im Todesfall wird das Blending wieder disabled
+                    gl.disable(gl.BLEND);
+                    gl.enable(gl.DEPTH_TEST);
+                }
+
                 mvPushMatrix();
                     mat4.translate(mvMatrix, [0.5, 0.5, 0.5]);
                     
@@ -1154,59 +1208,109 @@
                                     {
                                         if(!verloren)
                                         {
-                                            /* Farb Puffer fuer Schlangenkoerper */
-                                            gl.bindBuffer(gl.ARRAY_BUFFER, snakeVertexColorBuffer);
-                                            gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, snakeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
-                                            
-                                            /* Der Depth-Buffer wird deaktiviert, Blending wird aktiviert */
-                                            gl.blendFunc(gl.SRC_COLOR, gl.ONE);
-                                            gl.enable(gl.BLEND);
-                                            gl.disable(gl.DEPTH_TEST);
+                                            if(dimX === schlangenKoordinaten[headPos].x &&
+                                               dimY === schlangenKoordinaten[headPos].y &&
+                                               dimZ === schlangenKoordinaten[headPos].z)
+                                            {
+                                                // Farb Puffer fuer Schlangenkoerper
+                                                gl.bindBuffer(gl.ARRAY_BUFFER, headVertexColorBuffer);
+                                                gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, headVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                                            }
+                                            else
+                                            {
+                                                // Farb Puffer fuer Schlangenkoerper
+                                                gl.bindBuffer(gl.ARRAY_BUFFER, snakeVertexColorBuffer);
+                                                gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, snakeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                                            }
                                         }
                                         else
                                         {
-                                            /* Farb Puffer fuer Schlangenkoerper im Sterbefall */
+                                            // Farb Puffer fuer Schlangenkoerper im Sterbefall
                                             gl.bindBuffer(gl.ARRAY_BUFFER, snakeDeadVertexColorBuffer);
                                             gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, snakeDeadVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
-                                        
-                                            /*Im Todesfall wird das Blending wieder disabled*/
-                                            gl.disable(gl.BLEND);
-                                            gl.enable(gl.DEPTH_TEST);
                                         }
                                     }
                                     else if(welt[dimX][dimY][dimZ] === futter)
                                     {
-                                        /* Blending wird fï¿½r den folgenden Code wieder disabled*/
-                                        gl.disable(gl.BLEND);
-                                        gl.enable(gl.DEPTH_TEST); 
+                                        // Blending wird fuer den folgenden Code wieder disabled
+                                        //gl.disable(gl.BLEND);
+                                        //gl.enable(gl.DEPTH_TEST); 
                             
                                         if(!verloren)
                                         {
-                                            /* Farb Puffer fuer Schlangenkoerper */
+                                            // Farb Puffer fuer Futter
                                             gl.bindBuffer(gl.ARRAY_BUFFER, futterVertexColorBuffer);
                                             gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, futterVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
                                         }
                                         else
                                         {
-                                            /* Farb Puffer fuer Schlangenkoerper */
+                                            // Farb Puffer fuer Futter im Sterbefall
                                             gl.bindBuffer(gl.ARRAY_BUFFER, futterDeadVertexColorBuffer);
                                             gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, futterDeadVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
                                         }
                                     }
                                 mvPushMatrix();
                                     mat4.translate(mvMatrix, [dimX, dimY, dimZ]);  
-                                    mat4.rotate(mvMatrix, degToRad(rotationDegree), [Math.sin(degToRad(rotationAxis)), Math.sin(degToRad(0.9*rotationAxis+120)), Math.sin(degToRad(1.1*rotationAxis-120))]);  // staedige Rotation des Gesamtbildes um die Y-Achse
+                                    //  Effekt
+                                    if(welt[dimX][dimY][dimZ] === schlange)
+                                    {
+                                        mat4.rotate(mvMatrix,
+                                                    degToRad(rotationDegree), 
+                                                   [Math.sin(degToRad(rotationAxis)), 
+                                                    Math.sin(degToRad(0.9*rotationAxis+120)), 
+                                                    Math.sin(degToRad(1.1*rotationAxis-120))]);
+                                    }
                                     setMatrixUniforms();
                                     gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+
+                                    ////  Ansatz einer prozeduralen Textur
+                                    /*
+                                    mvPushMatrix();
+
+                                        gl.bindBuffer(gl.ARRAY_BUFFER, headVertexColorBuffer);
+                                        gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, headVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+                                        var texturWinkel = [  0,
+                                                            180,
+                                                             90,
+                                                            -90,
+                                                             90,
+                                                            -90];
+                                        var texturAchsen = [[1, 0, 0],
+                                                            [0, 1, 0],
+                                                            [0, 1, 0],
+                                                            [0, 1, 0],
+                                                            [0, 0, 1],
+                                                            [0, 0, 1]];
+
+                                        for(var i = 0; i < 6; i++)
+                                        {
+                                            mvPushMatrix();
+                                                mat4.rotate(mvMatrix, degToRad(texturWinkel[i]), texturAchsen[i]);
+                                                mvPushMatrix();
+                                                    mat4.rotate(mvMatrix, degToRad(45), [1, 0, 0]);
+                                                    mat4.translate(mvMatrix, [0.5,0,0]);
+                                                    mat4.scale(mvMatrix, [0.05, Math.sqrt(2)/2, Math.sqrt(2)/2]);
+
+                                                    setMatrixUniforms();
+                                                    gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                                                mvPopMatrix();
+                                            mvPopMatrix();
+                                        }
+                                    mvPopMatrix();
+                                    */
                                 mvPopMatrix();
+
                                 }
                             }
                         }
                     }
                     
-                  ///// Laser    
-                  
-                  if(!laserUmschalter)                    
+                    
+                    
+                    ///// Laser    
+
+                    if(!laserUmschalter)                    
                     {     
 
                         var laserX = (richtung === 0) ? 1 : (richtung === 1) ? -1 : 0; 
@@ -1259,10 +1363,13 @@
                             laserlaenge = laserlaenge - spielfeldGroesse.z;
                         }
 
-                        /* Der Depth-Buffer wird deaktiviert, Blending wird aktiviert */
-                        gl.blendFunc(gl.SRC_COLOR, gl.ONE);
-                        gl.enable(gl.BLEND);
-                        gl.disable(gl.DEPTH_TEST);
+                        // Der Depth-Buffer wird deaktiviert, Blending wird aktiviert
+                        if(!verloren)
+                        {
+                            gl.blendFunc(gl.SRC_COLOR, gl.ONE);
+                            gl.enable(gl.BLEND);
+                            gl.disable(gl.DEPTH_TEST);
+                        }
 
                         // Puffer des Lasers wird mit dem Kontext verbunden
                         gl.bindBuffer(gl.ARRAY_BUFFER, laserVertexPositionBuffer);
@@ -1272,7 +1379,7 @@
                         gl.bindBuffer(gl.ARRAY_BUFFER, laserVertexColorBuffer);
                         gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, laserVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-                        // Laser Element Puffer */
+                        // Laser Element Puffer
                         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, laserVertexIndexBuffer);
 
                         // Laser Linie
@@ -1289,7 +1396,7 @@
                                         setMatrixUniforms();
                                         gl.drawElements(gl.TRIANGLES, laserVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
                                         
-                                        /* Blending wird fï¿½r den folgenden Code wieder disabled*/
+                                        //  Blending wird fuer den folgenden Code wieder disabled
                                         gl.disable(gl.BLEND);
                                         gl.enable(gl.DEPTH_TEST); 
                                     mvPopMatrix();
@@ -1299,8 +1406,6 @@
                     }
                     
                 mvPopMatrix();
-                
-
             mvPopMatrix();
 
 
@@ -1316,13 +1421,25 @@
                 
                 if(effekt)
                 {
-                    rotationDegree = (rotationDegree + ((75 * elapsed) / 1000.0)) % 360;
-                    rotationAxis = (rotationAxis + ((23 * elapsed) / 1000.0)) % 360;
+                    rotationDegree = (rotationDegree + ((75 * elapsed) / 100.0)) % 360;
+                    rotationAxis = (rotationAxis + ((23 * elapsed) / 100.0)) % 360;
+                    if(timeNow - lastEffekt > 500)
+                    {
+                        rotationDegree = 0;
+                        rotationAxis = 0;
+                        effekt = false;
+                    }
                 }
             }
             
-            //gehen();
             lastTime = timeNow;
+        }
+        
+        var lastEffekt = 0;
+           
+        function effektLos() {
+            effekt = true;
+            lastEffekt = new Date().getTime();
         }
 
         var framecounter = 0;
@@ -1350,10 +1467,10 @@
                 darfLenken = true;
             }
             score();
-            document.getElementById('hud').innerHTML =  "<table><tr><td>FPS:</td><td class='tr'>" + fps + "</td></tr>" + 
-                                                        "<tr><td>Schritte:</td><td class='tr'>" + schrittanzahl + "</td></tr>" +
-                                                        "<tr><td>L&auml;nge:</td><td class='tr'>" + aktLaengeSchlange + "</td></tr>" +
-                                                        "<tr><td>Punkte:</td><td class='tr'>" + punkte + "</td></tr></table>";
+            $('#hud').html("<table><tr><td>FPS:</td><td class='tr'>" + fps + "</td></tr>" + 
+                                  "<tr><td>Schritte:</td><td class='tr'>" + schrittanzahl + "</td></tr>" +
+                                  "<tr><td>L&auml;nge:</td><td class='tr'>" + aktLaengeSchlange + "</td></tr>" +
+                                  "<tr><td>Punkte:</td><td class='tr'>" + punkte + "</td></tr></table>");
             /*
             document.getElementById('debugHud').innerHTML = "DrehungX: " + drehungX + "<br />" + 
                                                             "DrehungY: " + drehungY + "<br />" + 
@@ -1364,20 +1481,18 @@
                                                             "Verloren: " + verloren + "<br />" +
                                                             "Pause: " + pause + "<br />";
              */
-             
+                                                        
             animate(); // Drehung
             framecounter++;        
         }
 
 
         function webGLStart() {
-            canvas = document.getElementById("snakecanvas");
+            canvas = document.getElementById('snakecanvas');
             
-            /* Passt die Groesse des Canvas dynamisch an die Groesse des Browserfensters an,
-             * leider muss zur Aktuallisierung die Seite neugeladen werden 
-             * /1.05 waer nur die erste Zeile, also die zwei Buttons, sichtbar */
-            canvas.height = window.innerHeight/1;
-            canvas.width = window.innerWidth/1;
+            // Passt die Groesse des Canvas dynamisch an die Groesse des Browserfensters an
+            canvas.height = window.innerHeight-40;
+            canvas.width = window.innerWidth-30;
             
             initGL(canvas);                  // Initialisierung des WebGL Kontextes
             
@@ -1401,9 +1516,8 @@
             canvas.onmousedown = mouseDown;
             canvas.onmouseup = mouseUp;
             canvas.onmousemove = mouseMove;
-           
+            
             tick();
-
         }
 
 
@@ -1546,13 +1660,68 @@
                 }
             }
         }
-             
+        
+        webGLStart();
+        
+        $('#schwierigkeitsgradSlider').val(1);
+        
+        $('#schwierigkeitsgradSlider').change(function(){
+            level($('#schwierigkeitsgradSlider').val());
+        });
+        
+        $('#btStop').click(function(){
+            stop();
+            $('#inhalt').toggle();
+            $('#impressum').hide();
+            $('#steuerung').hide();
+            $('#divHighscore').hide();
+        });
+        
+        $('#btNeuesSpiel').click(function(){
+            neuesSpiel();
+            $('#btStop').click();
+            $('#impressum').hide();
+            $('#steuerung').hide();
+            $('#divHighscore').hide();
+        });
+        
+        $('#btHighscore').click(function(){
+            highscoreName();
+            $('#divHighscore').toggle();
+            $('#steuerung').hide();
+            $('#impressum').hide();
+        });
+        $('#btSteuerung').click(function(){
+            $('#steuerung').toggle();
+            $('#divHighscore').hide();
+            $('#impressum').hide();
+        });
+        $('#btImpressum').click(function(){
+            $('#impressum').toggle();
+            $('#steuerung').hide();
+            $('#divHighscore').hide();
+        });
+
+        $('#btTransparenz').click(function(){
+            transparenzAn = !transparenzAn;
+            $('#impressum').hide();
+            $('#steuerung').hide();
+            $('#divHighscore').hide();
+        });
+        $('#btLaser').click(function(){
+            $('#impressum').hide();
+            $('#steuerung').hide();
+            $('#divHighscore').hide();
+            laser();
+        });
+        
+
+        }); //  Ende JQuery
          </script>
-                 
     </head>
 
-    <body onload="webGLStart();">      
-        
+    <body>
+
         <!-- <canvas id="snakecanvas" width="450" height="450"></canvas> -->
         
         <canvas id="snakecanvas"></canvas>
@@ -1562,19 +1731,19 @@
         </span> 
         
         <div id="menue">
-            <button id="stop" onclick="stop(); toggle('inhalt');">Men&uuml;</button>&nbsp;&nbsp;&nbsp;
+            <button id="btStop" onclick="">Men&uuml;</button>&nbsp;&nbsp;&nbsp;
 
             <div id="inhalt" style="display: none">
-                
-            <button onclick="neuesSpiel();">Neues Spiel</button> 
 
-            <button onclick="" style="color: darkred">Highscore</button>
-            <button onclick="toggle('steuerung')">Steuerung</button>
-            <button onclick="" style="color: darkred">Impressum</button>
-            
-            <!-- Laser: <input type="checkbox" name="laserButton" onclick="laser();"> -->
-            <button id="transButton" onclick="" style="color: darkred">Transparenz</button>
-            <button id="laserButton" onclick="laser();">Laser</button>
+                <button id="btNeuesSpiel" onclick="">Neues Spiel</button> 
+
+                <button id="btHighscore" onclick="">Highscore</button>
+                <button id="btSteuerung" onclick="">Steuerung</button>
+                <button id="btImpressum" onclick="">Impressum</button>
+
+                <!-- Laser: <input type="checkbox" name="laserButton" onclick="laser();"> -->
+                <button id="btTransparenz" onclick="">Transparenz</button>
+                <button id="btLaser" onclick="">Laser</button>
 
                 <div id="steuerung" style="display: none">
                     <h2>Snake 3D Steuerung</h2>
@@ -1584,18 +1753,35 @@
                     <tr><td>&nbsp;&dArr;&nbsp;| S </td><td>&nbsp;unten</td></tr>
                     <tr><td>&lArr; | A </td><td>&nbsp;links</td></tr>
                     <tr><td>&rArr; | D </td><td>&nbsp;rechts</td></tr>
-                    <tr><td>F5 </td><td> Aktualisierung des Fensters</td></tr></table>
-                        <li><p>Ansicht ändern:<br>
-                            Mit linker Maustaste klicken und gedrückt halten.</p></li>
-                        <li><p>Die Steuerung ändert sich mit der Ansicht,<br>
-                                z.B. läuft die Schlange IMMER nach links <br>
-                                wenn man die linke Pfeiltaste drückt.</p></li>
+                    <tr><td>F5 </td><td> Aktualisierung der Fenstergr&ouml;&szlig;e</td></tr></table>
+                        <li><p>Ansicht &auml;ndern:<br>
+                            Mit linker Maustaste klicken und gedr&uuml;ckt halten.</p></li>
+                        <li><p>Die Steuerung &auml;ndert sich mit der Ansicht,<br>
+                                z.B. l&auml;uft die Schlange IMMER nach links <br>
+                                wenn man die linke Pfeiltaste dr&uuml;ckt.</p></li>
                     </ul>
-                </div>            
+                </div>
+                
+                
+                <div id="divHighscore" style="display: none">
+                    <h2>Highscore</h2>
+                    <p id="highscoreOffline" style="display: none">(lokale Ausf&uuml;hrung)<br />
+                        <a href="http://www.sebix.de/snake">Klicke hier</a> f&uuml;r den globalen Highscore!
+                    </p>
+                    <table id="highscore">
+
+                    </table>
+                </div>
+                
+                <div id="impressum" style="display: none">
+                    <h2>Impressum</h2>
+                    <img src="impressum.svg" width="600px">
+                </div>
             </div>
         </div>
         
-        <!-- Hier wird die HUD oben links eingefügt -->
+        
+        <!-- Hier wird die HUD oben links eingefuegt -->
         <div id="hud"></div>
         
         
