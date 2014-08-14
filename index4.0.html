@@ -41,14 +41,15 @@
         x   Effekt beim Essen)
         x   Kopf dunkler
         x   Highscore (AJAX, SQL)
+        -   Google Analytics fuer die Online-Version
        (-   Lighting)
+       (-   Statistik (Durchschn. Score, Schw., Schritte/Laenge, Gesamtschritte aller User))
+       (-   Touch-Bedienung fuer Handy einfuegen)
        (-   fliessende Bewegung als Bonus)
        (-   Hindernisse)
-       (-   Statistik)
        (-   Cheat-Modus)
        (-   Kuhlevel)
        (-   Futter = Hochschullogo)
-       (-   Touch-Bedienung fuer Handy einfuegen)
        (-   Sound)
     
     --------------------------------------------------------------------------->
@@ -174,6 +175,7 @@
             verloren = false;
             scored = false;
             punkte = 0;
+            schrittanzahl = 0;
             $('#schwierigkeitsgrad').show();
             $('schwierigkeitsgradSlider').val(1);
         }    
@@ -272,11 +274,15 @@
             {
                 var zeitPunkt = '' + new Date().getFullYear() + '-' + new Date().getMonth() + '-' + new Date().getDate() + ' ' + new Date().getHours() + ':' + new Date().getMinutes();
                 nickname = prompt('Gib deinen Namen fuer den Highscore ein:', nickname);
-                $('#highscore').append('<tr>' +
-                                           '<th>' + nickname + '</th>' +
-                                           '<th>' + punkte + '</th>' +
-                                           '<th>' + zeitPunkt + '</th>' +
-                                       '</tr>');
+                if(nickname != '')
+                {
+                    $('#highscore').append('<tr>' +
+                                               '<th></th>' +
+                                               '<th>' + nickname + '</th>' +
+                                               '<th>' + punkte + '</th>' +
+                                               '<th>' + zeitPunkt + '</th>' +
+                                           '</tr>');
+                }
                 //alert(window.location.hostname);
                 if(window.location.hostname == 'sebix.de' || window.location.hostname.trim().toLowerCase().search('sebix.de') != -1)
                 {
@@ -368,6 +374,14 @@
 
         function keyDown(event) 
         {
+            switch (event.keyCode) 
+            {
+                case 27: /* Escape */
+                    $('#btStop').click();
+                    break;
+            }
+
+            
             if(darfLenken)
             {
                 switch (event.keyCode) 
@@ -1469,8 +1483,10 @@
             score();
             $('#hud').html("<table><tr><td>FPS:</td><td class='tr'>" + fps + "</td></tr>" + 
                                   "<tr><td>Schritte:</td><td class='tr'>" + schrittanzahl + "</td></tr>" +
+                                  "<tr><td>Schwierigkeit:</td><td class='tr'>" + $('#schwierigkeitsgradSlider').val() + "</td></tr>" +
                                   "<tr><td>L&auml;nge:</td><td class='tr'>" + aktLaengeSchlange + "</td></tr>" +
                                   "<tr><td>Punkte:</td><td class='tr'>" + punkte + "</td></tr></table>");
+            
             /*
             document.getElementById('debugHud').innerHTML = "DrehungX: " + drehungX + "<br />" + 
                                                             "DrehungY: " + drehungY + "<br />" + 
@@ -1663,11 +1679,17 @@
         
         webGLStart();
         
+        //////  JQuery
+        
+        //  Setzt Anfangswert 1 auf Schw.slider
         $('#schwierigkeitsgradSlider').val(1);
         
+        //  Changehandler
         $('#schwierigkeitsgradSlider').change(function(){
             level($('#schwierigkeitsgradSlider').val());
         });
+        
+        //  Clickhandler
         
         $('#btStop').click(function(){
             stop();
@@ -1715,6 +1737,28 @@
             laser();
         });
         
+        $('#hudMaske').css('width', $('#hud').css('width'));
+        $('#hudMaske').css('height', $('#hud').css('height'));
+        
+        $('#hudMaske').click(function(){
+            if(parseInt($('#hudMaske').css("left")) > 0)
+            {
+                $('#hud').animate({ 
+                    "left": "-=" + ($('#hud').width()+35)
+                }, "slow", function(){
+                    $('#hudTitel').toggle();
+                    $('#hudMaske').css("left", "-=" + ($('#hudMaske').width()+35));
+                });
+            }
+            else
+            {
+                $('#hud').animate({ "left": "+=" + ($('#hud').width()+35)}, "slow" );
+                $('#hudTitel').toggle();
+                $('#hudMaske').css("left", "+=" + ($('#hudMaske').width()+35));
+            }
+        });
+        
+        $('#hudMaske').click();
 
         }); //  Ende JQuery
          </script>
@@ -1747,13 +1791,18 @@
 
                 <div id="steuerung" style="display: none">
                     <h2>Snake 3D Steuerung</h2>
+                        
+                    <table border="0">
+                        <tr><td>&uArr;</td><td>W</td><td class="linksb">Richtung oben </td></tr>
+                        <tr><td>&dArr;</td><td>S</td><td class="linksb">Richtung unten</td></tr>
+                        <tr><td>&lArr;</td><td>A</td><td class="linksb">Richtung links</td></tr>
+                        <tr><td>&rArr;</td><td>D</td><td class="linksb">Richtung rechts</td></tr>
+                        <tr><td colspan="2">F5</td>  <td class="linksb">Aktualisierung der <br />
+                                                               Fenstergr&ouml;&szlig;e</td></tr>
+                        <tr><td colspan="2">Esc</td><td class="linksb">Men&uuml; ein-/ausblenden<br />
+                    </table>
+
                     <ul style="list-style-type:disc">
-                        <li><p>Richtung &auml;ndern mit:</p></li>
-                    <table border="1px"><tr><td>&nbsp;&uArr;&nbsp;| W </td><td>&nbsp;oben </td></tr>
-                    <tr><td>&nbsp;&dArr;&nbsp;| S </td><td>&nbsp;unten</td></tr>
-                    <tr><td>&lArr; | A </td><td>&nbsp;links</td></tr>
-                    <tr><td>&rArr; | D </td><td>&nbsp;rechts</td></tr>
-                    <tr><td>F5 </td><td> Aktualisierung der Fenstergr&ouml;&szlig;e</td></tr></table>
                         <li><p>Ansicht &auml;ndern:<br>
                             Mit linker Maustaste klicken und gedr&uuml;ckt halten.</p></li>
                         <li><p>Die Steuerung &auml;ndert sich mit der Ansicht,<br>
@@ -1780,30 +1829,16 @@
                 
                 <div id="impressum" style="display: none">
                     <h2>Impressum</h2>
-                    <img src="impressum.svg" width="600px">
+                    <img src="impressum.svg" width="600" alt="Impressum" />
                 </div>
             </div>
         </div>
         
         
         <!-- Hier wird die HUD oben links eingefuegt -->
+        <div id="hudTitel" style="display: none;">H<br />U<br />D</div>
         <div id="hud"></div>
-        
-        
-            <!-- Schwierigkeitsgrad per Dropdown aendern
-            <span id = "schwierigkeitsgrad">
-                Schwierigkeitsgrad: <select name="schwierigkeitsgrad" size="1"
-                            onchange="level(value)">
-                    <option value="500">1</option>
-                    <option value="400">2</option>
-                    <option value="300">3</option>
-                    <option value="200">4</option>
-                    <option value="100">5</option>
-                </select>                                   
-            </span>
-            -->        
-        
-        
+        <div id="hudMaske"></div>
           
         <!--
         <div id="debugHud"></div>

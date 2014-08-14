@@ -5,8 +5,11 @@ body {
     color: black;
 }
 
+body:hover {
+    cursor: pointer;
+}
+
 #hud {
-    position: fixed;
     top: 5px; 
     z-index: 3;
     //text-align: center;
@@ -29,9 +32,54 @@ body {
     color: black; 
 }
 
-td.tr{
+#hudMaske {
+    top: 5px; 
+    z-index: 7;
+    
+    position:absolute; 
+    left: 10px;
+    top: 10px;
+    border-top-left-radius: 15px; 
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+    border-bottom-left-radius: 15px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+    background: transparent; 
+    box-shadow: 0px 0px 5px 3px transparent;
+}
+
+#hud:hover, #hudTitel:hover, #hudMaske:hover {
+    cursor: ew-resize;
+}
+
+#hudTitel {
+    position: absolute;
+    top: 5px; 
+    z-index: 5;
+    //text-align: center;
+    
+    //width: 140px;
+    //height: 100px;
+    left: -17px;
+    top: 34px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+    background: transparent;
+    color: black; 
+}
+
+td.tr {
     text-align: right;
     width: 50px;
+}
+
+th {
+    font-weight: normal;
 }
 
 #debugHud {
@@ -84,6 +132,22 @@ td.tr{
     padding-right: 20px;
     //background: rgba(0,0,0,0.9); 
     box-shadow: 0px 0px 5px 3px silver;
+}
+
+#steuerung table {
+    border-spacing: 0;
+    border-collapse: collapse;
+    margin-left: auto;
+    margin-right: auto;
+}
+#steuerung td {
+    border: black thin solid;
+    padding: 5px;
+}
+
+td.linksb {
+    text-align: left;
+    padding-left: 10px !important;
 }
 
 #divHighscore {
@@ -148,7 +212,11 @@ td.tr{
 
 #schwierigkeitsgradSlider {
     font-size: 12px;
-    vertical-align: middle; 
+    vertical-align: middle;    
+}
+
+#schwierigkeitsgrad:hover, #schwierigkeitsgradSlider:hover {
+    cursor: pointer;
 }
 
 button {
@@ -182,6 +250,15 @@ button:hover {
     border-right-color: black;
     background: #004d99;
     color: #FFFFFF;
+    cursor: pointer;
+}
+
+canvas:hover {
+    cursor: pointer;
+}
+
+canvas:active {
+    cursor: all-scroll;
 }
 
 // Quelle Buttons: http://css-tricks.com/examples/ButtonMaker/#

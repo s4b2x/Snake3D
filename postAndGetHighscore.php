@@ -18,10 +18,13 @@ if(!mySQL_select_db('sauronsql1', $con)){
 
 
 function eingabe($inickname, $iscore, $idate){
-    $sql = "INSERT INTO `snakehighscore` (`nickname`, `score`, `datum`) 
-                                  VALUES ('$inickname', '$iscore', '$idate') ;";
-    mysql_query($sql)
-    or die("INSERT fehlgeschlagen ".mysql_error());
+    if($inickname != '')
+    {
+        $sql = "INSERT INTO `snakehighscore` (`nickname`, `score`, `datum`) 
+                                      VALUES ('$inickname', '$iscore', '$idate') ;";
+        mysql_query($sql)
+        or die("INSERT fehlgeschlagen ".mysql_error());
+    }
 }
 
 function ausgabe(){
