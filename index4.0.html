@@ -379,6 +379,14 @@
                 case 27: /* Escape */
                     $('#btStop').click();
                     break;
+                    
+                case 76: /* L */
+                    $('#btLaser').click();
+                    break;
+                    
+                case 84: /* T */
+                    $('#btTransparenz').click();
+                    break;
             }
 
             
@@ -425,9 +433,9 @@
                             darfLenken = false;
                         }
                         break; 
-    
-                    case 34: /* Bild Ab */
-                    case 88: /* X */
+                    /*  Steuerung nach hinten und vorne, nicht mehr notwenig
+                    case 34: // Bild Ab
+                    case 88: // X
     //                    alert('vorne');
                         if(richtung !== hinten && richtung !== vorne)
                         { 
@@ -436,15 +444,15 @@
                         }
                         break;      
     
-                    case 33: /* Bild Auf */
-                    case 69: /* E */
+                    case 33: // Bild Auf
+                    case 69: // E
     //                    alert('hinten');
                         if(richtung !== vorne && richtung !== hinten)
                         { 
                             richtung = hinten;
                             darfLenken = false;
                         }
-                        break;      
+                        break; */     
                 }
             }
             
@@ -1797,9 +1805,11 @@
                         <tr><td>&dArr;</td><td>S</td><td class="linksb">Richtung unten</td></tr>
                         <tr><td>&lArr;</td><td>A</td><td class="linksb">Richtung links</td></tr>
                         <tr><td>&rArr;</td><td>D</td><td class="linksb">Richtung rechts</td></tr>
+                        <tr><td colspan="2">L</td><td class="linksb">Laser ein-/ausschalten<br />
+                        <tr><td colspan="2">T</td><td class="linksb">Transparenz ein-/ausschalten<br />
+                        <tr><td colspan="2">Esc</td><td class="linksb">Men&uuml; ein-/ausblenden<br />
                         <tr><td colspan="2">F5</td>  <td class="linksb">Aktualisierung der <br />
                                                                Fenstergr&ouml;&szlig;e</td></tr>
-                        <tr><td colspan="2">Esc</td><td class="linksb">Men&uuml; ein-/ausblenden<br />
                     </table>
 
                     <ul style="list-style-type:disc">
