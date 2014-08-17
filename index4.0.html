@@ -41,7 +41,9 @@
         x   Effekt beim Essen)
         x   Kopf dunkler
         x   Highscore (AJAX, SQL)
+        x   Maussteuerung in Steuerung-Menue
         -   Google Analytics fuer die Online-Version
+        -   Prozedurale Texturen
        (-   Lighting)
        (-   Statistik (Durchschn. Score, Schw., Schritte/Laenge, Gesamtschritte aller User))
        (-   Touch-Bedienung fuer Handy einfuegen)
@@ -273,7 +275,7 @@
             if(verloren && !scored)
             {
                 var zeitPunkt = '' + new Date().getFullYear() + '-' + new Date().getMonth() + '-' + new Date().getDate() + ' ' + new Date().getHours() + ':' + new Date().getMinutes();
-                nickname = prompt('Gib deinen Namen fuer den Highscore ein:', nickname);
+                nickname = prompt('Du hast ' + punkte + ' Punkte erreicht! Gib deinen Namen fuer den Highscore ein:', nickname);
                 if(nickname != '')
                 {
                     $('#highscore').append('<tr>' +
@@ -1798,17 +1800,19 @@
                 <button id="btLaser" onclick="">Laser</button>
 
                 <div id="steuerung" style="display: none">
-                    <h2>Snake 3D Steuerung</h2>
+                    <h2>Steuerung</h2>
                         
                     <table border="0">
-                        <tr><td>&uArr;</td><td>W</td><td class="linksb">Richtung oben </td></tr>
-                        <tr><td>&dArr;</td><td>S</td><td class="linksb">Richtung unten</td></tr>
-                        <tr><td>&lArr;</td><td>A</td><td class="linksb">Richtung links</td></tr>
-                        <tr><td>&rArr;</td><td>D</td><td class="linksb">Richtung rechts</td></tr>
-                        <tr><td colspan="2">L</td><td class="linksb">Laser ein-/ausschalten<br />
-                        <tr><td colspan="2">T</td><td class="linksb">Transparenz ein-/ausschalten<br />
-                        <tr><td colspan="2">Esc</td><td class="linksb">Men&uuml; ein-/ausblenden<br />
-                        <tr><td colspan="2">F5</td>  <td class="linksb">Aktualisierung der <br />
+                        <tr><td>&uArr;</td><td>W</td>   <td class="linksb">Richtung oben </td></tr>
+                        <tr><td>&dArr;</td><td>S</td>   <td class="linksb">Richtung unten</td></tr>
+                        <tr><td>&lArr;</td><td>A</td>   <td class="linksb">Richtung links</td></tr>
+                        <tr><td>&rArr;</td><td>D</td>   <td class="linksb">Richtung rechts</td></tr>
+                        <tr><td colspan="2">linke Maustaste 
+                                 gedr&uuml;ckt ziehen</td>   <td class="linksb">Welt drehen</td></tr>
+                        <tr><td colspan="2">  L </td>   <td class="linksb">Laser ein-/ausschalten</td></tr>
+                        <tr><td colspan="2">  T </td>   <td class="linksb">Transparenz ein-/ausschalten</td></tr>
+                        <tr><td colspan="2">Esc </td>   <td class="linksb">Men&uuml; ein-/ausblenden</td></tr>
+                        <tr><td colspan="2"> F5 </td>   <td class="linksb">Aktualisierung der <br />
                                                                Fenstergr&ouml;&szlig;e</td></tr>
                     </table>
 
