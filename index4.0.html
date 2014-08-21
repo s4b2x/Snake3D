@@ -42,18 +42,22 @@
         x   Kopf dunkler
         x   Highscore (AJAX, SQL)
         x   Maussteuerung in Steuerung-Menue
+        -   Mehr Depth-Cues!!!
+            ->	Projektion auf Seitenwaende
         -   Google Analytics fuer die Online-Version
         -   Prozedurale Texturen
         -   Hinweis auf Canvas-Unterstuetzung in Canvas-Tag
         -   Beschreibung des Spiels mit Bild fuer Suchmaschinen
         -   Hinweis auf Javascript, wenn deaktiviert
+        -   Offline-Highscore sortieren
+       (o   Kuhlevel)
+            ->  Aktivierungssequenz per Tastatur oder Koordinaten-Folge
+            o>  Cheat-Modus, Futter taucht bei jedem Schritt auf
        (-   Lighting)
        (-   Statistik (Durchschn. Score, Schw., Schritte/Laenge, Gesamtschritte aller User))
        (-   Touch-Bedienung fuer Handy einfuegen)
        (-   fliessende Bewegung als Bonus)
        (-   Hindernisse)
-       (-   Cheat-Modus)
-       (-   Kuhlevel)
        (-   Futter = Hochschullogo)
        (-   Sound)
     
@@ -121,6 +125,8 @@
         
         var transparenzAn = true;
         
+        var cheatAn = false;
+        
         var punkte;
         var schrittanzahl = 0;
         
@@ -176,7 +182,7 @@
             drehen();
             richtung = rechts;
             schlangeEinfuegen();
-            futterEinfuegen();
+            futterEinfuegenBei(6, 1, 0);
             verloren = false;
             scored = false;
             punkte = 0;
@@ -199,31 +205,46 @@
             
             aktLaengeSchlange = 3;
         }
-        futterEinfuegen();
         
-        function futterEinfuegen() {
-            welt[6][1][0] = futter;
-            futterPos = {x : 6, y : 1, z : 0};
+        futterEinfuegenBei(6, 1, 0);
+        
+        function futterEinfuegenBei(x, y, z)
+        {
+            welt[x][y][z] = futter;
+            futterPos = {x : x, y : y, z : z};
+        }
+        
+        function zufallsGanzZahl(max)
+        {
+            return Math.floor(Math.random()*max);
+        }
+        
+        function futterEinfuegen()
+        {
+            while(true)
+            {
+                //  Irgendein zufaelliger Ort in der Welt wird als Futter registriert.
+                var x = zufallsGanzZahl(spielfeldGroesse.x);
+                var y = zufallsGanzZahl(spielfeldGroesse.y);
+                var z = zufallsGanzZahl(spielfeldGroesse.z);
+                futterPos = {x : x, y : y, z : z};
+                if(welt[futterPos.x][futterPos.y][futterPos.z] !== schlange)
+                {
+                    welt[futterPos.x][futterPos.y][futterPos.z] = futter;
+                    break;
+                }
+            }
         }
         
         function fressen() {
-            if (welt[futterPos.x][futterPos.y][futterPos.z] === schlange)
+            //if (welt[futterPos.x][futterPos.y][futterPos.z] === schlange)
+            if (welt[schlangenKoordinaten[headPos].x][schlangenKoordinaten[headPos].y][schlangenKoordinaten[headPos].z] === futter)
             {
                 $('#schwierigkeitsgrad').hide();
-                //  Irgendein zufaelliger Ort in der Welt wird als Futter registriert.
-                while(true)
-                {
-                    futterPos = {x : Math.floor(Math.random()*spielfeldGroesse.x),
-                                 y : Math.floor(Math.random()*spielfeldGroesse.y),
-                                 z : Math.floor(Math.random()*spielfeldGroesse.z)};
-                    if(welt[futterPos.x][futterPos.y][futterPos.z] !== schlange)
-                    {
-                        welt[futterPos.x][futterPos.y][futterPos.z] = futter;
-                        aktLaengeSchlange++;
-                        effektLos();
-                        return true;
-                    }
-                }
+                futterEinfuegen();
+                aktLaengeSchlange++;
+                effektLos();
+                return true;
             }
             else return false;
         }
@@ -332,7 +353,8 @@
         }
         
         function gehen(){
-               
+            if(cheatAn)
+                futterEinfuegen();
             if(!pause)
             {
                 // Schlange versetzen
@@ -355,10 +377,6 @@
                 }
                 else
                 {
-                
-                    welt[schlangenKoordinaten[headPos].x][schlangenKoordinaten[headPos].y][schlangenKoordinaten[headPos].z] = schlange;
-
-                    
                     // Schlange wurde versetzt, jetzt wird gegessen!
                     if(!fressen())
                     {
@@ -368,7 +386,8 @@
                         //  Umsetzung des Hinterteilzeigers auf die neue Position
                         tailPos++;
                     }
-                 schrittanzahl++;   
+                    welt[schlangenKoordinaten[headPos].x][schlangenKoordinaten[headPos].y][schlangenKoordinaten[headPos].z] = schlange;
+                    schrittanzahl++;   
                 }
             }
         }
