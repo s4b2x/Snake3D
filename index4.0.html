@@ -15,10 +15,10 @@
     
                                     BUGS
     
-        -   Wenn man HUD zum ausblenden doppelklickt, ist es ganz weg.
-        -   Kein Essen mehr spawnen in Pause (bei cheatAn)
-        -   Wenn man beim Highscore abbricht, steht beim naechsten Mal "null" drin
-        -   Highscore im cheatAn möglich.
+        x   Wenn man HUD zum ausblenden doppelklickt, ist es ganz weg.
+        x   Kein Essen mehr spawnen in Pause (bei cheatAn)
+        x   Wenn man beim Highscore abbricht, steht beim naechsten Mal "null" drin
+        x   Highscore im cheatAn moeglich.
     
                                     TODO
            
@@ -50,14 +50,17 @@
         x   Highscore (AJAX, SQL)
         x   Maussteuerung in Steuerung-Menue
         x   4er-Schlange kann sich nicht mehr in den Schwanz beissen
+        -   Schwierigkeitsgrad an php und sql weitergeben
         -   Mehr Depth-Cues!!!
             ->	Projektion auf Seitenwaende
+        -   JS-Code komprimieren
         -   Google Analytics fuer die Online-Version
         -   Prozedurale Texturen
         -   Hinweis auf Canvas-Unterstuetzung in Canvas-Tag
         -   Beschreibung des Spiels mit Bild fuer Suchmaschinen
         -   Hinweis auf Javascript, wenn deaktiviert
         -   Offline-Highscore sortieren
+        -   Hinweis an Spieler, gefundene Bugs bitte zu berichten
        (o   Kuhlevel)
             ->  Aktivierungssequenz per Tastatur oder Koordinaten-Folge
             o>  Cheat-Modus, Futter taucht bei jedem Schritt auf
@@ -69,7 +72,7 @@
        (-   Futter = Hochschullogo)
        (-   Sound)
     
-    - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - --->
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
     
     <!-- Nicht bearbeiten - ANFANG Initialisierung der Shader -->
     <script id="shader-fs" type="x-shader/x-fragment">
@@ -293,10 +296,14 @@
         var scored = false;
         
         function highscoreName(){
-            if(verloren && !scored)
+            if(verloren && !scored && !cheatAn)
             {
                 var zeitPunkt = '' + new Date().getFullYear() + '-' + new Date().getMonth() + '-' + new Date().getDate() + ' ' + new Date().getHours() + ':' + new Date().getMinutes();
+                if(nickname == null)
+                    nickname = '';
                 nickname = prompt('Du hast ' + punkte + ' Punkte erreicht! Gib deinen Namen fuer den Highscore ein:', nickname);
+                if(nickname == null)
+                    nickname = '';
                 if(nickname != '')
                 {
                     $('#highscore').append('<tr>' +
@@ -1860,11 +1867,11 @@
         $('#hudMaske').click(function(){
             if(parseInt($('#hudMaske').css("left")) > 0)
             {
+                $('#hudMaske').css("left", "-=" + ($('#hudMaske').width()+35));
                 $('#hud').animate({ 
                     "left": "-=" + ($('#hud').width()+35)
                 }, "slow", function(){
                     $('#hudTitel').toggle();
-                    $('#hudMaske').css("left", "-=" + ($('#hudMaske').width()+35));
                 });
             }
             else
