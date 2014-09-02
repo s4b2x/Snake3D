@@ -50,10 +50,12 @@
         x   Highscore (AJAX, SQL)
         x   Maussteuerung in Steuerung-Menue
         x   4er-Schlange kann sich nicht mehr in den Schwanz beissen
+        -   Menue: Optionen: Sprache, Transparenz, Laser, Schatten, Farben
         -   Rahmenkanten noch ein bisschen nach aussen schieben
         -   Schwierigkeitsgrad an php und sql weitergeben
         -   Mehr Depth-Cues!!!
             ->	Projektion auf Seitenwaende
+            ->  Gitter
         -   JS-Code komprimieren
         -   Google Analytics fuer die Online-Version
         -   Prozedurale Texturen
@@ -116,7 +118,7 @@
         var letzterMausPunkt = new mausPunkt(0,0);
         var istMouseDown = false;
 
-        var drehungX = 0, drehungY = 0;
+        var drehungX = 12, drehungY = 0;
         var kameraAbstand = 25.0;
 
         var rotationDegree = 0;
@@ -128,6 +130,12 @@
         var headPos, tailPos, futterPos;   //  Zeiger auf Kopf und Hinterteil der Schlange im Array
         
         var schlangenKoordinaten;   //  Schlangen-Array
+        
+        var bannerSchlangenKoordinaten;   //  Array fuer den Schriftzug
+        var bannerHead = 0;
+        var bannerTail = 0;
+        var bannerLaeuft = true;
+        var bannerStoppt = false;
         
         var leer = 0, schlange = 1, futter = 2;
         var welt;
@@ -191,7 +199,7 @@
                 }
             }
             schlangenKoordinaten = new Array(schlangenMaxLaenge);
-            drehungX = 0;
+            drehungX = 12;
             drehungY = 0; 
             drehen();
             richtung = rechts;
@@ -220,13 +228,248 @@
             aktLaengeSchlange = 3;
         }
         
-        futterEinfuegenBei(6, 1, 0);
+        function bannerBauen()
+        {
+            bannerSchlangenKoordinaten = new Array();
+            var i = 0;
+            //  _
+            bannerSchlangenKoordinaten[i++] = new koordinate( 17, 15, -31);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 17, 15, -32);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 17, 15, -33);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 17, 15, -34);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 17, 15, -35);
+            for(var j = 18; j < 26; j++)
+            {
+                bannerSchlangenKoordinaten[i++] = new koordinate( j, 15, -35);
+            }
+            bannerSchlangenKoordinaten[i++] = new koordinate( 25, 15, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 25, 14, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 25, 13, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 25, 12, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 25, 11, -35);
+            for(var j = 25; j > -17; j--)
+            {
+                bannerSchlangenKoordinaten[i++] = new koordinate( j, 10, -35);
+            }
+            for(var j = -16; j < -10; j++)
+            {
+                bannerSchlangenKoordinaten[i++] = new koordinate( j, 11, -35);
+            }
+            bannerSchlangenKoordinaten[i++] = new koordinate(-10, 11, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -9, 11, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -9, 11, -34);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -9, 11, -33);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -9, 11, -32);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -9, 11, -31);
+            //  S
+            bannerSchlangenKoordinaten[i++] = new koordinate( -9, 11, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -8, 11, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -7, 11, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -7, 12, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -7, 13, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -8, 13, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -9, 13, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -9, 14, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -9, 15, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -8, 15, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -7, 15, -30);
+            //  \
+            bannerSchlangenKoordinaten[i++] = new koordinate( -7, 15, -31);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -7, 15, -32);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -7, 15, -33);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -7, 15, -34);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -7, 15, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -7, 14, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -6, 14, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -6, 13, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -6, 12, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -5, 12, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -5, 11, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -5, 11, -34);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -5, 11, -33);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -5, 11, -32);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -5, 11, -31);
+            //  N
+            bannerSchlangenKoordinaten[i++] = new koordinate( -5, 11, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -5, 12, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -5, 13, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -5, 14, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -5, 15, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -4, 15, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -3, 15, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -3, 14, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -3, 13, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -3, 12, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -3, 11, -30);
+            //  _
+            bannerSchlangenKoordinaten[i++] = new koordinate( -3, 11, -31);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -3, 11, -32);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -3, 11, -33);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -3, 11, -34);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -3, 11, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -2, 11, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -1, 11, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -1, 11, -34);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -1, 11, -33);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -1, 11, -32);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -1, 11, -31);
+            //  A
+            bannerSchlangenKoordinaten[i++] = new koordinate( -1, 11, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -1, 12, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -1, 13, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -1, 14, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -1, 15, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -0, 15, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  1, 15, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  1, 14, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  1, 13, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  1, 12, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  1, 11, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  1, 11, -31);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  1, 11, -32);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  1, 12, -32);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  1, 13, -32);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  1, 13, -31);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  0, 13, -31);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -1, 13, -31);
+            //  /
+            bannerSchlangenKoordinaten[i++] = new koordinate( -1, 13, -32);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -1, 13, -33);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -1, 13, -34);
+            bannerSchlangenKoordinaten[i++] = new koordinate( -1, 13, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  0, 13, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  0, 14, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  1, 14, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  2, 14, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  2, 15, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  3, 15, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  3, 15, -34);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  3, 15, -33);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  3, 15, -32);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  3, 15, -31);
+            //  K
+            bannerSchlangenKoordinaten[i++] = new koordinate(  3, 15, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  3, 14, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  4, 14, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  4, 13, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  3, 13, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  3, 12, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  3, 11, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  3, 11, -31);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  3, 11, -32);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  4, 11, -32);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  5, 11, -32);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  5, 11, -31);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  5, 11, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  5, 12, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  5, 12, -31);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  5, 12, -32);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  5, 13, -32);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  5, 14, -32);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  5, 14, -31);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  5, 14, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  5, 15, -30);
+            //  -
+            bannerSchlangenKoordinaten[i++] = new koordinate(  5, 15, -31);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  5, 15, -32);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  5, 15, -33);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  5, 15, -34);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  5, 15, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  6, 15, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  7, 15, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  8, 15, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  9, 15, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  9, 15, -34);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  9, 15, -33);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  9, 15, -32);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  9, 15, -31);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  9, 15, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  8, 15, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  7, 15, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  7, 14, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  7, 13, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  7, 12, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  7, 11, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  8, 11, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  9, 11, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  9, 11, -31);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  9, 11, -32);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  8, 11, -32);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  7, 11, -32);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  7, 12, -32);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  7, 13, -32);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  7, 13, -31);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  8, 13, -31);
+            
+            bannerHead = bannerSchlangenKoordinaten.length;
+            //  -
+            bannerSchlangenKoordinaten[i++] = new koordinate(  8, 13, -32);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  8, 13, -33);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  8, 13, -34);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  8, 13, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate(  9, 13, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 10, 13, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 11, 13, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 12, 13, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 12, 13, -34);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 12, 13, -33);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 12, 13, -32);
+            //  3
+            bannerSchlangenKoordinaten[i++] = new koordinate( 12, 13, -31);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 13, 13, -31);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 14, 13, -31);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 14, 12, -32);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 14, 11, -32);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 13, 11, -32);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 12, 11, -32);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 12, 11, -31);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 12, 11, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 13, 11, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 14, 11, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 14, 12, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 14, 13, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 14, 14, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 14, 15, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 13, 15, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 12, 15, -30);
+            //  -
+            bannerSchlangenKoordinaten[i++] = new koordinate( 12, 15, -31);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 12, 15, -32);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 12, 15, -33);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 12, 15, -34);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 12, 15, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 13, 15, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 14, 15, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 15, 15, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 16, 15, -35);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 16, 15, -34);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 16, 15, -33);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 16, 15, -32);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 16, 15, -31);
+            //  D
+            bannerSchlangenKoordinaten[i++] = new koordinate( 16, 15, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 16, 14, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 16, 13, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 16, 12, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 16, 11, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 17, 11, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 17, 12, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 18, 12, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 18, 13, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 18, 14, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 17, 14, -30);
+            bannerSchlangenKoordinaten[i++] = new koordinate( 17, 15, -30);
+        }
+        
+        bannerBauen();
         
         function futterEinfuegenBei(x, y, z)
         {
             welt[x][y][z] = futter;
             futterPos = new koordinate(x, y, z);
         }
+        
+        futterEinfuegenBei(6, 1, 0);
         
         function zufallsGanzZahl(max)
         {
@@ -408,6 +651,7 @@
             {
                 if(!debug)
                     $('#schwierigkeitsgrad').hide();
+                bannerLaeuft = false;
                 futterEinfuegen();
                 aktLaengeSchlange++;
                 effektLos();
@@ -852,21 +1096,13 @@
             headVertexColorBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, headVertexColorBuffer);
             headColors = [             //  helleres Hochschul-Gruen
-                [0.5, 1, 0.25, 0.6],   // Front face             // Rot, Gruen, Blau, Deckkraft
-                [0.5, 1, 0.25, 0.7],    // Back face
-                [0.5, 1, 0.25, 0.5],    // Top face
-                [0.5, 1, 0.25, 1.0],   // Bottom face
-                [0.5, 1, 0.25, 0.9],    // Right face
-                [0.5, 1, 0.25, 0.8]     // Left face
+                [0.5, 1, 0.25, 0.55],  // Front face             // Rot, Gruen, Blau, Deckkraft
+                [0.5, 1, 0.25, 0.6],   // Back face
+                [0.5, 1, 0.25, 0.5],   // Top face
+                [0.5, 1, 0.25, 0.75],  // Bottom face
+                [0.5, 1, 0.25, 0.7],   // Right face
+                [0.5, 1, 0.25, 0.65]   // Left face
             ];
-            /*headColors = [             //  helleres Hochschul-Gruen
-                [0.0, 1, 0.0, 0.6],   // Front face             // Rot, Gruen, Blau, Deckkraft
-                [0.0, 1, 0.0, 0.7],    // Back face
-                [0.0, 1, 0.0, 0.5],    // Top face
-                [0.0, 1, 0.0, 1.0],   // Bottom face
-                [0.0, 1, 0.0, 0.9],    // Right face
-                [0.0, 1, 0.0, 0.8]     // Left face
-            ];*/
 
             var headUnpackedColors = [];
             for (var i in headColors) {
@@ -1258,24 +1494,63 @@
                 mvPopMatrix();
                 
                 
-                ///////////////  SCHLANGE und FUTTER   /////////////////////////
-
-                if(!verloren && transparenzAn)
-                {
-                    // Der Depth-Buffer wird deaktiviert, Blending wird aktiviert
-                    gl.blendFunc(gl.SRC_COLOR, gl.ONE);
-                    gl.enable(gl.BLEND);
-                    gl.disable(gl.DEPTH_TEST);
-                }
-                else
-                {
-                    // Im Todesfall wird das Blending wieder deaktiviert
-                    gl.disable(gl.BLEND);
-                    gl.enable(gl.DEPTH_TEST);
-                }
-
                 mvPushMatrix();
-                    mat4.translate(mvMatrix, [0.5, 0.5, 0.5]);
+                mat4.translate(mvMatrix, [0.5, 0.5, 0.5]);
+                
+                ////////////////////////  SCHRIFTZUG  //////////////////////////
+
+                    if(!bannerStoppt)
+                    {
+                        // Nicht transparent
+                        gl.disable(gl.BLEND);
+                        gl.enable(gl.DEPTH_TEST);
+
+                        var skalierung = 1;
+                        for (var i = bannerTail; i !== bannerHead; i = (i + 1) % bannerSchlangenKoordinaten.length)
+                        {
+                            var dimX = bannerSchlangenKoordinaten[i].x;
+                            var dimY = bannerSchlangenKoordinaten[i].y;
+                            var dimZ = bannerSchlangenKoordinaten[i].z;
+
+                            if(dimZ === -30 || dimZ === -31)
+                            {
+                                // Farb Puffer fuer Schlangenkoerper
+                                gl.bindBuffer(gl.ARRAY_BUFFER, snakeVertexColorBuffer);
+                                gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, snakeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                            }
+                            else
+                            {
+                                // Farb Puffer fuer Schlangenkoerper
+                                gl.bindBuffer(gl.ARRAY_BUFFER, headVertexColorBuffer);
+                                gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, headVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                            }
+
+                            mvPushMatrix();
+                                mat4.translate(mvMatrix, [dimX, dimY, dimZ]);  
+                                mat4.scale(mvMatrix, [skalierung, skalierung, skalierung]);
+                                setMatrixUniforms();
+                                gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                            mvPopMatrix();
+                            skalierung += 1/(bannerSchlangenKoordinaten.length*5);
+                        }
+                    }
+                
+                
+                /////////////////////////  SCHLANGE  ///////////////////////////
+
+                    if(!verloren && transparenzAn)
+                    {
+                        // Der Depth-Buffer wird deaktiviert, Blending wird aktiviert
+                        gl.blendFunc(gl.SRC_COLOR, gl.ONE);
+                        gl.enable(gl.BLEND);
+                        gl.disable(gl.DEPTH_TEST);
+                    }
+                    else
+                    {
+                        // Im Todesfall wird das Blending wieder deaktiviert
+                        gl.disable(gl.BLEND);
+                        gl.enable(gl.DEPTH_TEST);
+                    }
                     
                     if(!verloren)
                     {
@@ -1311,6 +1586,43 @@
                             mat4.scale(mvMatrix, [skalierung, skalierung, skalierung]);
                             setMatrixUniforms();
                             gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+
+                            ////  Ansatz einer prozeduralen Textur
+                            /*
+                            mvPushMatrix();
+
+                                gl.bindBuffer(gl.ARRAY_BUFFER, headVertexColorBuffer);
+                                gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, headVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+                                var texturWinkel = [  0,
+                                                    180,
+                                                     90,
+                                                    -90,
+                                                     90,
+                                                    -90];
+                                var texturAchsen = [[1, 0, 0],
+                                                    [0, 1, 0],
+                                                    [0, 1, 0],
+                                                    [0, 1, 0],
+                                                    [0, 0, 1],
+                                                    [0, 0, 1]];
+
+                                for(var i = 0; i < 6; i++)
+                                {
+                                    mvPushMatrix();
+                                        mat4.rotate(mvMatrix, degToRad(texturWinkel[i]), texturAchsen[i]);
+                                        mvPushMatrix();
+                                            mat4.rotate(mvMatrix, degToRad(45), [1, 0, 0]);
+                                            mat4.translate(mvMatrix, [0.5,0,0]);
+                                            mat4.scale(mvMatrix, [0.05, Math.sqrt(2)/2, Math.sqrt(2)/2]);
+
+                                            setMatrixUniforms();
+                                            gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                                        mvPopMatrix();
+                                    mvPopMatrix();
+                                }
+                            mvPopMatrix();
+                            */
                         mvPopMatrix();
                         skalierung += 1/(aktLaengeSchlange*5);
                     }
@@ -1332,48 +1644,18 @@
                     mvPopMatrix();
                     
                     
+                //////////////////////////  FUTTER   ///////////////////////////
+                    
                     for (var dimX = 0; dimX < spielfeldGroesse.x; dimX++)
                     {
                         for (var dimY = 0; dimY < spielfeldGroesse.y; dimY++)
                         {
                             for (var dimZ = 0; dimZ < spielfeldGroesse.z; dimZ++)
                             {
-                                //if(welt[dimX][dimY][dimZ] !== leer)
                                 if(welt[dimX][dimY][dimZ] === futter)
                                 {
-                                    /*
-                                    if(welt[dimX][dimY][dimZ] === schlange)
+                                    if(welt[dimX][dimY][dimZ] === futter)
                                     {
-                                        if(!verloren)
-                                        {
-                                            if(dimX === schlangenKoordinaten[headPos].x &&
-                                               dimY === schlangenKoordinaten[headPos].y &&
-                                               dimZ === schlangenKoordinaten[headPos].z)
-                                            {
-                                                // Farb Puffer fuer Schlangenkoerper
-                                                gl.bindBuffer(gl.ARRAY_BUFFER, headVertexColorBuffer);
-                                                gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, headVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
-                                            }
-                                            else
-                                            {
-                                                // Farb Puffer fuer Schlangenkoerper
-                                                gl.bindBuffer(gl.ARRAY_BUFFER, snakeVertexColorBuffer);
-                                                gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, snakeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            // Farb Puffer fuer Schlangenkoerper im Sterbefall
-                                            gl.bindBuffer(gl.ARRAY_BUFFER, snakeDeadVertexColorBuffer);
-                                            gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, snakeDeadVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
-                                        }
-                                    }
-                                    else*/ if(welt[dimX][dimY][dimZ] === futter)
-                                    {
-                                        // Blending wird fuer den folgenden Code wieder disabled
-                                        //gl.disable(gl.BLEND);
-                                        //gl.enable(gl.DEPTH_TEST); 
-                            
                                         if(!verloren)
                                         {
                                             // Farb Puffer fuer Futter
@@ -1388,55 +1670,9 @@
                                         }
                                     }
                                 mvPushMatrix();
-                                    mat4.translate(mvMatrix, [dimX, dimY, dimZ]);  
-                                    //  Effekt
-                                    /*if(welt[dimX][dimY][dimZ] === schlange)
-                                    {
-                                        mat4.rotate(mvMatrix,
-                                                    degToRad(rotationDegree), 
-                                                   [Math.sin(degToRad(rotationAxis)), 
-                                                    Math.sin(degToRad(0.9*rotationAxis+120)), 
-                                                    Math.sin(degToRad(1.1*rotationAxis-120))]);
-                                    }*/
+                                    mat4.translate(mvMatrix, [dimX, dimY, dimZ]);
                                     setMatrixUniforms();
                                     gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-
-                                    ////  Ansatz einer prozeduralen Textur
-                                    /*
-                                    mvPushMatrix();
-
-                                        gl.bindBuffer(gl.ARRAY_BUFFER, headVertexColorBuffer);
-                                        gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, headVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-                                        var texturWinkel = [  0,
-                                                            180,
-                                                             90,
-                                                            -90,
-                                                             90,
-                                                            -90];
-                                        var texturAchsen = [[1, 0, 0],
-                                                            [0, 1, 0],
-                                                            [0, 1, 0],
-                                                            [0, 1, 0],
-                                                            [0, 0, 1],
-                                                            [0, 0, 1]];
-
-                                        for(var i = 0; i < 6; i++)
-                                        {
-                                            mvPushMatrix();
-                                                mat4.rotate(mvMatrix, degToRad(texturWinkel[i]), texturAchsen[i]);
-                                                mvPushMatrix();
-                                                    mat4.rotate(mvMatrix, degToRad(45), [1, 0, 0]);
-                                                    mat4.translate(mvMatrix, [0.5,0,0]);
-                                                    mat4.scale(mvMatrix, [0.05, Math.sqrt(2)/2, Math.sqrt(2)/2]);
-
-                                                    setMatrixUniforms();
-                                                    gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-                                                mvPopMatrix();
-                                            mvPopMatrix();
-                                        }
-                                    mvPopMatrix();
-                                    */
                                 mvPopMatrix();
 
                                 }
@@ -1585,6 +1821,7 @@
         var lastFramecounter = 0;
         var lastGehen = 0;
         var lastSekunde = 0;
+        var lastBannertick = 0;
         var fps = 0;
         
         function tick() {
@@ -1596,6 +1833,19 @@
                 fps = (framecounter - lastFramecounter);
                 lastSekunde = timeNow;
                 lastFramecounter = framecounter;
+            }
+            //  Schriftzug
+            if(timeNow - lastBannertick > 200)
+            {
+                if(bannerLaeuft)
+                    bannerHead = (bannerHead + 1) % bannerSchlangenKoordinaten.length;
+                if(!bannerStoppt)
+                {
+                    bannerTail = (bannerTail + 1) % bannerSchlangenKoordinaten.length;
+                    if(bannerHead === bannerTail)
+                        bannerStoppt = true;
+                }
+                lastSekunde = timeNow;
             }
             if(timeNow - lastGehen > schwierigkeitsgrad){
                 if(!verloren)
