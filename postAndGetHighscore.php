@@ -1,9 +1,14 @@
 <?php
 require_once 'login.php';
 
-
 $userName = $_POST['userName'];
 $score = $_POST['score'];
+$speed = $_POST['speed'];
+
+$userName = strtr($userName, ",;()'`", "      ");
+$score = strtr($score, ",;()'`", "      ");
+$speed = strtr($speed, ",;()'`", "      ");
+
 $date = date("Y-m-d H:i:s");
 
 $con = mySQL_connect($db_hostname, $db_username, $db_passwd);
@@ -17,11 +22,11 @@ if(!mySQL_select_db('sauronsql1', $con)){
 }
 
 
-function eingabe($inickname, $iscore, $idate){
+function eingabe($inickname, $iscore, $ispeed, $idate){
     if($inickname != '')
     {
-        $sql = "INSERT INTO `snakehighscore` (`nickname`, `score`, `datum`) 
-                                      VALUES ('$inickname', '$iscore', '$idate') ;";
+        $sql = "INSERT INTO `snakehighscore` (`nickname`, `score`, `speed`, `datum`) 
+                                      VALUES ('$inickname', '$iscore', '$ispeed', '$idate') ;";
         mysql_query($sql)
         or die("INSERT fehlgeschlagen ".mysql_error());
     }
@@ -32,14 +37,9 @@ function ausgabe(){
     $result = mysql_query($sql)
             or die("SELECT fehlgeschlagen ".mysql_error()." ..");
     
-    echo '<tr>
-  <td>#</td>
-  <td>Name</td>
-  <td>Punkte</td>
-  <td>Datum</td>
-</tr>';
+    echo '<tr>  <td>#</td>  <td>Name</td>  <td>Punkte</td>  <td>Schwierigkeitsgrad</td>  <td>Datum</td>  </tr>';
     
-    $zeile;
+    $zeile = null;
     $platz = 1;
     while($zeile = mysql_fetch_array($result)){
         echo '
@@ -47,6 +47,7 @@ function ausgabe(){
     <th>' . $platz . '</th>
     <th>' . $zeile['nickname'] . '</th>
     <th>' . $zeile['score'] . '</th>
+    <th>' . $zeile['speed'] . '</th>
     <th>' . $zeile['datum'] . '</th>
 </tr>
 ';
@@ -54,7 +55,7 @@ function ausgabe(){
     }
 }
 
-eingabe($userName, $score, $date);
+eingabe($userName, $score, $speed, $date);
 ausgabe();
 
 ?>

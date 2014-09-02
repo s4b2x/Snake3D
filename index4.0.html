@@ -50,6 +50,7 @@
         x   Highscore (AJAX, SQL)
         x   Maussteuerung in Steuerung-Menue
         x   4er-Schlange kann sich nicht mehr in den Schwanz beissen
+        -   Rahmenkanten noch ein bisschen nach aussen schieben
         -   Schwierigkeitsgrad an php und sql weitergeben
         -   Mehr Depth-Cues!!!
             ->	Projektion auf Seitenwaende
@@ -298,6 +299,7 @@
         function highscoreName(){
             if(verloren && !scored && !cheatAn)
             {
+                var speed = $('#schwierigkeitsgradSlider').val();
                 var zeitPunkt = '' + new Date().getFullYear() + '-' + new Date().getMonth() + '-' + new Date().getDate() + ' ' + new Date().getHours() + ':' + new Date().getMinutes();
                 if(nickname == null)
                     nickname = '';
@@ -310,6 +312,7 @@
                                                '<th></th>' +
                                                '<th>' + nickname + '</th>' +
                                                '<th>' + punkte + '</th>' +
+                                               '<th>' + speed + '</th>' +
                                                '<th>' + zeitPunkt + '</th>' +
                                            '</tr>');
                 }
@@ -317,7 +320,7 @@
                 if(window.location.hostname == 'sebix.de' || window.location.hostname.trim().toLowerCase().search('sebix.de') != -1)
                 {
                     $( "#highscore" ).load( "postAndGetHighscore.php",
-                                            { userName: nickname, score: punkte },
+                                            { userName: nickname, score: punkte, speed: speed },
                                             function( response, status, xhr ) 
                                             {
                                                 if ( status == "error" ) {
@@ -1951,6 +1954,7 @@
                             <td>#</td>
                             <td>Name</td>
                             <td>Punkte</td>
+                            <td>Schwierigkeitsgrad</td>
                             <td>Datum</td>
                         </tr>
                     </table>

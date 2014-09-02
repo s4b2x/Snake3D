@@ -1,11 +1,6 @@
 <?php
 require_once 'login.php';
 
-
-$userName = $_POST['userName'];
-$score = $_POST['score'];
-$date = date("Y-m-d H:i:s");
-
 $con = mySQL_connect($db_hostname, $db_username, $db_passwd);
 
 if(!$con){
@@ -21,14 +16,9 @@ function ausgabe(){
     $result = mysql_query($sql)
             or die("SELECT fehlgeschlagen ".mysql_error()." ..");
     
-    echo '<tr>
-  <td>#</td>
-  <td>Name</td>
-  <td>Punkte</td>
-  <td>Datum</td>
-</tr>';
+    echo '<tr>  <td>#</td>  <td>Name</td>  <td>Punkte</td>  <td>Schwierigkeitsgrad</td>  <td>Datum</td>  </tr>';
     
-    $zeile;
+    $zeile = null;
     $platz = 1;
     while($zeile = mysql_fetch_array($result)){
         echo '
@@ -36,6 +26,7 @@ function ausgabe(){
     <th>' . $platz . '</th>
     <th>' . $zeile['nickname'] . '</th>
     <th>' . $zeile['score'] . '</th>
+    <th>' . $zeile['speed'] . '</th>
     <th>' . $zeile['datum'] . '</th>
 </tr>
 ';
