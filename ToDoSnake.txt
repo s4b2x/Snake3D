@@ -53,6 +53,7 @@ s -   Prozedurale Texturen
   -   favicon
   -   Beschreibung des Spiels mit Bild fuer Suchmaschinen
   -   Hinweis auf Javascript, wenn deaktiviert
+  -   MULTIPLAYER!!!!
   -   Offline-Highscore sortieren
   -   Hinweis an Spieler, gefundene Bugs bitte zu berichten
 s(o   Kuhlevel)
