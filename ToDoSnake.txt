@@ -4,65 +4,65 @@ Bei offenen Punkten (-) bitte eintragen, wer diese bearbeiten moechte.
 
                               BUGS
  
-  x   Wenn man HUD zum ausblenden doppelklickt, ist es ganz weg.
-  x   Kein Essen mehr spawnen in Pause (bei cheatAn)
-  x   Wenn man beim Highscore abbricht, steht beim naechsten Mal "null" drin
-  x   Highscore im cheatAn moeglich.
+    x   Wenn man HUD zum ausblenden doppelklickt, ist es ganz weg.
+    x   Kein Essen mehr spawnen in Pause (bei cheatAn)
+    x   Wenn man beim Highscore abbricht, steht beim naechsten Mal "null" drin
+    x   Highscore im cheatAn moeglich.
  
                               TODO
      
-  x   Korrekte Umsetzung des zyklischen Arrays (zu 3)
-  x   Auf Stelle Wenden verhindern
-  x   Beschleunigung verhindern
-  x   Bewegung im Takt
-  x   Bewegegung in Z-Richtung
-  x   Drehung des Level-Wuerfels
-  x   Seitenwaende des Level-Wuerfels (von innen sichtbar von aussen transparent)
-  x   nach dem Fressen wird die Schlange laenger
-  x   Drehung beenden, wenn Maus Canvas verlaesst
-  o   Bildhoehe und Breite dynamisch an Browserfenster anpassen
-      -> Geschieht "halb" automatisch, dass heisst, erst nach neu laden der Seite
-  x   Schlangenbewegung abhaengig von Zeit, nicht Frames
-  x   Animation im Sterbefall
-  x   Laserpointer in Laufrichtung
-      -> eventuell noch texturieren
-  x   HUD (Tastenbelegung, Impressum, FPS, Score, einschaltbare Debug-Infos)
-      -> feststehendes Menue unten, Info-Fenster links oben ebenfalls feststehend
-      -> Score Position noch unbekannt, Abstimmung erfolgt in aeusserst naher Zukunft
-  x   Pause-Taste
-  x   Bug "Neues Spiel", wenn der Button gedrueckt wird und eine andere Ansicht 
-      wie die Startansicht gewaehlt ist bleibt die Schlange stehen
-  x   Schwierigkeitsgrad)
-      x   Schwierigkeitsgrad nur moeglich, wenn tot oder wenn neu geladen
-  x   Effekt beim Essen)
-  x   Kopf dunkler
-  x   Highscore (AJAX, SQL)
-  x   Maussteuerung in Steuerung-Menue
-  x   4er-Schlange kann sich nicht mehr in den Schwanz beissen
-  -   Menue: Optionen: Sprache, Transparenz, Laser, Schatten, Farben
-  -   Rahmenkanten noch ein bisschen nach aussen schieben
-  -   Schwierigkeitsgrad an php und sql weitergeben
-  -   Mehr Depth-Cues!!!
-      ->	Projektion auf Seitenwaende
-      -> Gitter
-  -   JS-Code komprimieren
-      -> muss dafuer wahrscheinlich in js-Datei ausgelagert werden
-  -   Google Analytics fuer die Online-Version
-s -   Prozedurale Texturen
-  -   Hinweis auf Canvas-Unterstuetzung in Canvas-Tag
-  -   favicon
-  -   Beschreibung des Spiels mit Bild fuer Suchmaschinen
-  -   Hinweis auf Javascript, wenn deaktiviert
-  -   MULTIPLAYER!!!!
-  -   Offline-Highscore sortieren
-  -   Hinweis an Spieler, gefundene Bugs bitte zu berichten
-s(o   Kuhlevel)
-      ->  Aktivierungssequenz per Tastatur oder Koordinaten-Folge
-      o>  Cheat-Modus, Futter taucht bei jedem Schritt auf
- (-   Lighting)
- (-   Statistik (Durchschn. Score, Schw., Schritte/Laenge, Gesamtschritte aller User))
- (-   Touch-Bedienung fuer Handy einfuegen)
- (-   fliessende Bewegung als Bonus)
- (-   Hindernisse)
- (-   Futter = Hochschullogo)
- (-   Sound)
+    x   Korrekte Umsetzung des zyklischen Arrays (zu 3)
+    x   Auf Stelle Wenden verhindern
+    x   Beschleunigung verhindern
+    x   Bewegung im Takt
+    x   Bewegegung in Z-Richtung
+    x   Drehung des Level-Wuerfels
+    x   Seitenwaende des Level-Wuerfels (von innen sichtbar von aussen transparent)
+    x   nach dem Fressen wird die Schlange laenger
+    x   Drehung beenden, wenn Maus Canvas verlaesst
+    o   Bildhoehe und Breite dynamisch an Browserfenster anpassen
+        -> Geschieht "halb" automatisch, dass heisst, erst nach neu laden der Seite
+    x   Schlangenbewegung abhaengig von Zeit, nicht Frames
+    x   Animation im Sterbefall
+    x   Laserpointer in Laufrichtung
+        -> eventuell noch texturieren
+    x   HUD (Tastenbelegung, Impressum, FPS, Score, einschaltbare Debug-Infos)
+        -> feststehendes Menue unten, Info-Fenster links oben ebenfalls feststehend
+        -> Score Position noch unbekannt, Abstimmung erfolgt in aeusserst naher Zukunft
+    x   Pause-Taste
+    x   Bug "Neues Spiel", wenn der Button gedrueckt wird und eine andere Ansicht 
+        wie die Startansicht gewaehlt ist bleibt die Schlange stehen
+    x   Schwierigkeitsgrad)
+        x   Schwierigkeitsgrad nur moeglich, wenn tot oder wenn neu geladen
+    x   Effekt beim Essen)
+    x   Kopf dunkler
+    x   Highscore (AJAX, SQL)
+    x   Maussteuerung in Steuerung-Menue
+    x   4er-Schlange kann sich nicht mehr in den Schwanz beissen
+    -   Menue: Optionen: Sprache, Transparenz, Laser, Schatten, Farben
+    -   Rahmenkanten noch ein bisschen nach aussen schieben
+    -   Schwierigkeitsgrad an php und sql weitergeben
+    -   Mehr Depth-Cues!!!
+        ->	Projektion auf Seitenwaende
+        -> Gitter
+    -   JS-Code komprimieren
+        -> muss dafuer wahrscheinlich in js-Datei ausgelagert werden
+    -   Google Analytics fuer die Online-Version
+s   -   Prozedurale Texturen
+    -   Hinweis auf Canvas-Unterstuetzung in Canvas-Tag
+    -   favicon
+    -   Beschreibung des Spiels mit Bild fuer Suchmaschinen
+    -   Hinweis auf Javascript, wenn deaktiviert
+    -   MULTIPLAYER!!!!
+    -   Offline-Highscore sortieren
+    -   Hinweis an Spieler, gefundene Bugs bitte zu berichten
+s  (o   Kuhlevel)
+        ->  Aktivierungssequenz per Tastatur oder Koordinaten-Folge
+        o>  Cheat-Modus, Futter taucht bei jedem Schritt auf
+   (-   Lighting)
+   (-   Statistik (Durchschn. Score, Schw., Schritte/Laenge, Gesamtschritte aller User))
+   (-   Touch-Bedienung fuer Handy einfuegen)
+   (-   fliessende Bewegung als Bonus)
+   (-   Hindernisse)
+   (-   Futter = Hochschullogo)
+   (-   Sound)
