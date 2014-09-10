@@ -54,6 +54,7 @@ s   -   Prozedurale Texturen
     -   Beschreibung des Spiels mit Bild fuer Suchmaschinen
     -   Hinweis auf Javascript, wenn deaktiviert
     -   MULTIPLAYER!!!!
+    -   zusaetzliche Ansicht in Ego-Perspektive
     -   Offline-Highscore sortieren
     -   Hinweis an Spieler, gefundene Bugs bitte zu berichten
 s  (o   Kuhlevel)
