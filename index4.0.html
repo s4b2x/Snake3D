@@ -429,8 +429,28 @@
         
         function stop(){
             pause = !pause;
-        }         
+        }      
         
+        // Der Benutzer wird nach 50 Schritten und 
+        // noch keinen gefressenen Wuerfel gefragt, ob er Hilfe benoetigt
+        
+        var hilfeCheck;
+        function hilfe()
+        {
+            if(hilfeCheck != false && schrittanzahl == 50 && aktLaengeSchlange == 3) 
+            {
+                hilfeCheck = confirm("Brauchen Sie Hilfe bei der Steuerung?");
+                if (hilfeCheck == true) 
+                {
+                    $('#btStop').click();
+                    $('#btSteuerung').click();
+                    hilfeCheck = false;
+                }
+                else 
+                    hilfeCheck = false;
+            }
+        }
+                
         function laser(){
             laserUmschalter = !laserUmschalter;
             var text = document.getElementById('laserButton').firstChild;
@@ -612,6 +632,14 @@
                     
                 case 84: /* T */
                     $('#cbTransparenz').click();
+                    break;
+                    
+                case 72: /* H */
+                    $('#cbSchatten').click();
+                    break;
+                    
+                case 71: /* G */
+                    $('#cbGitternetz').click();
                     break;
             }
 
@@ -1750,7 +1778,7 @@
             effekt = true;
             lastEffekt = new Date().getTime();
         }
-
+               
         var framecounter = 0;
         var lastFramecounter = 0;
         var lastGehen = 0;
@@ -1785,6 +1813,7 @@
                 if(!verloren)
                 {
                     gehen();
+                    hilfe();
                     lastGehen = timeNow;
                 }
                 darfLenken = true;
@@ -2184,8 +2213,10 @@
                         <tr><td>&rArr;</td><td>D</td>   <td class="linksb">Richtung rechts</td></tr>
                         <tr><td colspan="2">linke Maustaste 
                                  gedr&uuml;ckt ziehen</td>   <td class="linksb">Welt drehen</td></tr>
+                        <tr><td colspan="2">  H </td>   <td class="linksb">Schatten ein-/ausschalten</td></tr>
                         <tr><td colspan="2">  L </td>   <td class="linksb">Laser ein-/ausschalten</td></tr>
                         <tr><td colspan="2">  T </td>   <td class="linksb">Transparenz ein-/ausschalten</td></tr>
+                        <tr><td colspan="2">  G </td>   <td class="linksb">Gitternetz ein-/ausschalten</td></tr>
                         <tr><td colspan="2">Esc </td>   <td class="linksb">Men&uuml; ein-/ausblenden</td></tr>
                         <tr><td colspan="2"> F5 </td>   <td class="linksb">Aktualisierung der <br />
                                                                Fenstergr&ouml;&szlig;e</td></tr>
