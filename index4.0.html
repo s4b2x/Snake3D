@@ -2012,7 +2012,10 @@
         });
         
         $('#btNeuesSpiel').click(function(){
-            neuesSpiel();
+            Check = confirm("Wollen Sie wirklich ein neues Spiel beginnen?");
+            if (Check == true) {
+              neuesSpiel();
+            }
             $('#btStop').click();
             $('#impressum').hide();
             $('#steuerung').hide();
@@ -2148,9 +2151,21 @@
                         <tr>
                             <td>Farbschema</td>  
                             <td class="linksb">
-                                <select name="sprache" size="1">      
+                                <select name="sprache" size="1">  
+                                    <!-- 
+                                    Hochschule:         komplett gruen
+                                    Homer Simpson:      gelb, weiß, blau
+                                    Marge Simpson:      blau, gelb, hellgruen
+                                    Bart Simpson:       gelb, rot, blau
+                                    Lisa Simpson:       gelb, orange
+                                    Schlumpf:           weis, blau, weis  
+                                    -->
                                     <option>Hochschule</option>
                                     <option>Homer Simpson</option>
+                                    <option>Marge Simpson</option>
+                                    <option>Bart Simpson</option>
+                                    <option>Lisa Simpson</option>
+                                    <option>Schlumpf</option>
                                 </select>   
                             </td>
                         </tr>
