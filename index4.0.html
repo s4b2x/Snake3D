@@ -607,11 +607,11 @@
                     break;
                     
                 case 76: /* L */
-                    $('#btLaser').click();
+                    $('#cbLaser').click();
                     break;
                     
                 case 84: /* T */
-                    $('#btTransparenz').click();
+                    $('#cbTransparenz').click();
                     break;
             }
 
@@ -2008,6 +2008,7 @@
             $('#impressum').hide();
             $('#steuerung').hide();
             $('#divHighscore').hide();
+            $('#optionen').hide();
         });
         
         $('#btNeuesSpiel').click(function(){
@@ -2016,35 +2017,37 @@
             $('#impressum').hide();
             $('#steuerung').hide();
             $('#divHighscore').hide();
-        });
-        
+            $('#optionen').hide();
+        });        
         $('#btHighscore').click(function(){
             highscoreName();
             $('#divHighscore').toggle();
             $('#steuerung').hide();
             $('#impressum').hide();
+            $('#optionen').hide();
         });
         $('#btSteuerung').click(function(){
             $('#steuerung').toggle();
             $('#divHighscore').hide();
             $('#impressum').hide();
+            $('#optionen').hide();
         });
         $('#btImpressum').click(function(){
             $('#impressum').toggle();
             $('#steuerung').hide();
             $('#divHighscore').hide();
+            $('#optionen').hide();
         });
-
-        $('#btTransparenz').click(function(){
+        $('#btOptionen').click(function(){
+            $('#optionen').toggle();
+            $('#steuerung').hide();
+            $('#divHighscore').hide();
+            $('#impressum').hide();
+        });
+        $('#cbTransparenz').click(function(){
             transparenzAn = !transparenzAn;
-            $('#impressum').hide();
-            $('#steuerung').hide();
-            $('#divHighscore').hide();
         });
-        $('#btLaser').click(function(){
-            $('#impressum').hide();
-            $('#steuerung').hide();
-            $('#divHighscore').hide();
+        $('#cbLaser').click(function(){
             laser();
         });
         
@@ -2096,11 +2099,66 @@
                 <button id="btHighscore" onclick="">Highscore</button>
                 <button id="btSteuerung" onclick="">Steuerung</button>
                 <button id="btImpressum" onclick="">Impressum</button>
+                <button id="btOptionen" onclick="">Optionen</button>
 
-                <!-- Laser: <input type="checkbox" name="laserButton" onclick="laser();"> -->
+                <!-- Laser: <input type="checkbox" name="laserButton" onclick="laser();"> 
                 <button id="btTransparenz" onclick="">Transparenz</button>
                 <button id="btLaser" onclick="">Laser</button>
+                -->
 
+                 <div id="optionen" style="display: none">
+                    <h2>Optionen</h2>
+                    
+                    <table border="0">
+                        <tr>
+                            <td>Schatten</td>  
+                            <td>
+                                <input type="checkbox" id="cbSchatten" value="schatten"> <br>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Transparenz</td>  
+                            <td>
+                                <input type="checkbox" id="cbTransparenz" value="transparenz" checked="checked"> <br>
+                            </td>
+                        </tr>   
+                        <tr>
+                            <td>Laser</td>  
+                            <td>
+                                <input type="checkbox" id="cbLaser" value="laser"> <br>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Gitternetz</td>  
+                            <td>
+                                <input type="checkbox" id="cbGitternetz" value="gitternetz"> <br>
+                            </td>
+                        </tr>
+                        <!--
+                        <tr>
+                            <td>Sprache</td>  
+                            <td class="linksb">
+                                <select name="sprache" size="2">      
+                                    <option>deutsch</option>
+                                    <option>english</option>
+                                </select>   
+                            </td>
+                        </tr>
+                        -->
+                        <tr>
+                            <td>Farbschema</td>  
+                            <td class="linksb">
+                                <select name="sprache" size="1">      
+                                    <option>Hochschule</option>
+                                    <option>Homer Simpson</option>
+                                </select>   
+                            </td>
+                        </tr>
+    
+                    </table>
+                    
+                 </div>
+                
                 <div id="steuerung" style="display: none">
                     <h2>Steuerung</h2>
                         
@@ -2127,7 +2185,6 @@
                     </ul>
                 </div>
                 
-                
                 <div id="divHighscore" style="display: none">
                     <h2>Highscore</h2>
                     <p id="highscoreOffline" style="display: none">(lokale Ausf&uuml;hrung)<br />
@@ -2148,10 +2205,11 @@
                     <h2>Impressum</h2>
                     <img src="impressum.svg" width="600" alt="Impressum" />
                 </div>
-            </div>
+                
+ 
         </div>
-        
-        
+    </div>
+                
         <!-- Hier wird die HUD oben links eingefuegt -->
         <div id="hudTitel" style="display: none;">H<br />U<br />D</div>
         <div id="hud"></div>
