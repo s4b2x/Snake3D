@@ -86,10 +86,10 @@
         var welt;
         
         var laserlaenge;
-        var laserUmschalter = true;
+        var laserAn = false;
         
-        var transparenzAn = true;
-        var schattenAn = true;
+        var transparenzAn = false;
+        var schattenAn = false;
         
         var cheatAn = false;
         
@@ -462,12 +462,6 @@
                     hilfeCheck = false;
             }
         }
-                
-        function laser(){
-            laserUmschalter = !laserUmschalter;
-            var text = document.getElementById('laserButton').firstChild;
-            text.data = text.data == "Laser aus" ? "Laser" : "Laser aus";
-        }  
         
         function level(level) {
             
@@ -638,7 +632,7 @@
                     $('#btStop').click();
                     break;
                     
-                case 76: /* L */
+                case 90: /* Z */
                     $('#cbLaser').click();
                     break;
                     
@@ -1776,7 +1770,7 @@
                     
                     ///// Laser    
 
-                    if(!laserUmschalter)                    
+                    if(laserAn)                    
                     {     
 
                         var laserX = (richtung === 0) ? 1 : (richtung === 1) ? -1 : 0; 
@@ -2205,11 +2199,16 @@
             $('#divHighscore').hide();
             $('#impressum').hide();
         });
+        $(':checkbox').removeAttr('checked');
+        
         $('#cbTransparenz').click(function(){
             transparenzAn = !transparenzAn;
         });
         $('#cbLaser').click(function(){
-            laser();
+            laserAn = !laserAn;
+        });
+        $('#cbSchatten').click(function(){
+            schattenAn = !schattenAn;
         });
         
         $('#hudMaske').css('width', $('#hud').css('width'));
@@ -2280,11 +2279,11 @@
                         <tr>
                             <td>Transparenz</td>  
                             <td>
-                                <input type="checkbox" id="cbTransparenz" value="transparenz" checked="checked"> <br>
+                                <input type="checkbox" id="cbTransparenz" value="transparenz"> <br>
                             </td>
                         </tr>   
                         <tr>
-                            <td>Laser</td>  
+                            <td>Zunge</td>  
                             <td>
                                 <input type="checkbox" id="cbLaser" value="laser"> <br>
                             </td>
@@ -2299,7 +2298,7 @@
                         <tr>
                             <td>Sprache</td>  
                             <td class="linksb">
-                                <select name="sprache" size="2">      
+                                <select name="sprache" size="1">      
                                     <option>deutsch</option>
                                     <option>english</option>
                                 </select>   
@@ -2343,7 +2342,7 @@
                         <tr><td colspan="2">linke Maustaste 
                                  gedr&uuml;ckt ziehen</td>   <td class="linksb">Welt drehen</td></tr>
                         <tr><td colspan="2">  H </td>   <td class="linksb">Schatten ein-/ausschalten</td></tr>
-                        <tr><td colspan="2">  L </td>   <td class="linksb">Laser ein-/ausschalten</td></tr>
+                        <tr><td colspan="2">  Z </td>   <td class="linksb">Zunge ein-/ausschalten</td></tr>
                         <tr><td colspan="2">  T </td>   <td class="linksb">Transparenz ein-/ausschalten</td></tr>
                         <tr><td colspan="2">  G </td>   <td class="linksb">Gitternetz ein-/ausschalten</td></tr>
                         <tr><td colspan="2">Esc </td>   <td class="linksb">Men&uuml; ein-/ausblenden</td></tr>
