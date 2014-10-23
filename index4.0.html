@@ -1465,6 +1465,110 @@
                     gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
                 mvPopMatrix();
                 
+                                
+                /// HILFSLINIEN
+                
+                di=0.03;
+                for(h=0;h<=10; h++){       
+                    
+                //rechts vertikal
+                mvPushMatrix();
+                    mat4.translate(mvMatrix, [spielfeldGroesse.x, spielfeldGroesse.y / 2, spielfeldGroesse.z-h]);
+                    mat4.scale(mvMatrix, [di, spielfeldGroesse.y, di]);
+                    setMatrixUniforms();
+                    gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                mvPopMatrix();
+                
+                //rechts horizontal
+                mvPushMatrix();
+                    mat4.translate(mvMatrix, [spielfeldGroesse.x, h , spielfeldGroesse.z / 2]);
+                    mat4.scale(mvMatrix, [di, di, spielfeldGroesse.z]);
+                    setMatrixUniforms();
+                    gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                mvPopMatrix();   
+                                
+                //oben horizantal, auf einen zulaufend
+                mvPushMatrix();
+                    mat4.translate(mvMatrix, [h, spielfeldGroesse.y , spielfeldGroesse.z / 2]);
+                    mat4.scale(mvMatrix, [di, di, spielfeldGroesse.z]);
+                    setMatrixUniforms();
+                    gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                mvPopMatrix();
+                
+                // links horizontal
+                mvPushMatrix();
+                    mat4.translate(mvMatrix, [0, spielfeldGroesse.y-h , spielfeldGroesse.z / 2]);
+                    mat4.scale(mvMatrix, [di, di, spielfeldGroesse.z]);
+                    setMatrixUniforms();
+                    gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                mvPopMatrix();
+                
+                // unten vertikal, auf einen zulaufend
+                mvPushMatrix();
+                    mat4.translate(mvMatrix, [h, 0, spielfeldGroesse.z / 2]);
+                    mat4.scale(mvMatrix, [di, di, spielfeldGroesse.z]);
+                    setMatrixUniforms();
+                    gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                mvPopMatrix();
+                
+                // unten horizontal
+                mvPushMatrix();
+                    mat4.translate(mvMatrix, [spielfeldGroesse.x / 2, 0 , h]);
+                    mat4.scale(mvMatrix, [spielfeldGroesse.x, di, di]);
+                    setMatrixUniforms();
+                    gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                mvPopMatrix();
+                
+                //hinten horizontal
+                mvPushMatrix();
+                    mat4.translate(mvMatrix, [spielfeldGroesse.x / 2, h , 0]);
+                    mat4.scale(mvMatrix, [spielfeldGroesse.x, di, di]);
+                    setMatrixUniforms();
+                    gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                mvPopMatrix();
+                
+                //links vertikal                
+                mvPushMatrix();
+                    mat4.translate(mvMatrix, [0, spielfeldGroesse.y / 2 , h]);
+                    mat4.scale(mvMatrix, [di, spielfeldGroesse.y, di]);
+                    setMatrixUniforms();
+                    gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                mvPopMatrix();  
+                                
+                //hinten vertikal
+                mvPushMatrix();
+                    mat4.translate(mvMatrix, [h, spielfeldGroesse.y / 2 , 0]);
+                    mat4.scale(mvMatrix, [di, spielfeldGroesse.y, di]);
+                    setMatrixUniforms();
+                    gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                mvPopMatrix();
+                
+                //vorne horizontal        
+                mvPushMatrix();
+                    mat4.translate(mvMatrix, [spielfeldGroesse.x / 2, h , spielfeldGroesse.z]);
+                    mat4.scale(mvMatrix, [spielfeldGroesse.x, di, di]);
+                    setMatrixUniforms();
+                    gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                mvPopMatrix();   
+
+                //  vorne vertikal
+                mvPushMatrix();
+                    mat4.translate(mvMatrix, [h, spielfeldGroesse.y / 2 , spielfeldGroesse.z]);
+                    mat4.scale(mvMatrix, [di, spielfeldGroesse.y, di]);
+                    setMatrixUniforms();
+                    gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                mvPopMatrix();
+                
+                //oben horizontal
+                mvPushMatrix();
+                    mat4.translate(mvMatrix, [spielfeldGroesse.x / 2, spielfeldGroesse.y , spielfeldGroesse.z-h]);
+                    mat4.scale(mvMatrix, [spielfeldGroesse.x, di, di]);
+                    setMatrixUniforms();
+                    gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                mvPopMatrix();
+                }
+                
+                
                 
                 mvPushMatrix();
                 mat4.translate(mvMatrix, [0.5, 0.5, 0.5]);
