@@ -1510,6 +1510,94 @@
                             skalierung += 1/(bannerSchlangenKoordinaten.length*5);
                         }
                     }
+                    
+                    
+                //////////////////////////  FUTTER   ///////////////////////////
+                    
+                    for (var dimX = 0; dimX < spielfeldGroesse.x; dimX++)
+                    {
+                        for (var dimY = 0; dimY < spielfeldGroesse.y; dimY++)
+                        {
+                            for (var dimZ = 0; dimZ < spielfeldGroesse.z; dimZ++)
+                            {
+                                if(welt[dimX][dimY][dimZ] === futter)
+                                {
+                                    //  Erst FUTTERSCHATTEN
+                                    if(schattenAn)
+                                    {
+                                        // Blending fuer Schatten deaktiviert, weil schwarz und sonst unsichtbar
+                                        gl.disable(gl.BLEND);
+                                        gl.enable(gl.DEPTH_TEST);
+
+                                        // Farb Puffer fuer Schlangenschatten == schwarz == Kantenfarbe
+                                        gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexColorBuffer);
+                                        gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, cubeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+                                        var skalierungX = 1;
+                                        var skalierungY = 1;
+                                        var skalierungZ = 1;
+                                        
+                                        var dimXs = dimX;
+                                        var dimYs = dimY;
+                                        var dimZs = dimZ;
+                                        switch (unten)
+                                        {
+                                            case 0: //  urspr. rechte Seite ist Boden
+                                                dimXs = 9.6;
+                                                skalierungX = 0.1;
+                                                break;
+                                            case 1: //  urspr. linke Seite ist Boden
+                                                dimXs = -0.6;
+                                                skalierungX = 0.1;
+                                                break;
+                                            case 3: //  urspr. untere Seite ist Boden
+                                                dimYs = -0.6;
+                                                skalierungY = 0.1;
+                                                break;
+                                            case 4: //  urspr. vordere Seite ist Boden
+                                                dimZs = 9.6;
+                                                skalierungZ = 0.1;
+                                                break;
+                                            case 5: //  urspr. hintere Seite ist Boden
+                                                dimZs = -0.6;
+                                                skalierungZ = 0.1;
+                                                break;
+                                        }
+                                        
+
+                                        mvPushMatrix();
+                                            mat4.translate(mvMatrix, [dimXs, dimYs, dimZs]);
+                                            mat4.scale(mvMatrix, [skalierungX, skalierungY, skalierungZ]);
+                                            setMatrixUniforms();
+                                            gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                                        mvPopMatrix();
+                                    }
+                                    
+                                    //  Dann FUTTER
+                                    if(!verloren)
+                                    {
+                                        // Farb Puffer fuer Futter
+                                        gl.bindBuffer(gl.ARRAY_BUFFER, futterVertexColorBuffer);
+                                        gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, futterVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                                    }
+                                    else
+                                    {
+                                        // Farb Puffer fuer Futter im Sterbefall
+                                        gl.bindBuffer(gl.ARRAY_BUFFER, futterDeadVertexColorBuffer);
+                                        gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, futterDeadVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                                    }
+                                    
+                                mvPushMatrix();
+                                    mat4.translate(mvMatrix, [dimX, dimY, dimZ]);
+                                    setMatrixUniforms();
+                                    gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                                mvPopMatrix();
+
+
+                                }
+                            }
+                        }
+                    }
                 
                 
                 /////////////////////  SCHLANGENSCHATTEN  //////////////////////
@@ -1685,94 +1773,6 @@
                         if (i === headPos)
                             break;
                     }
-                    
-                    
-                //////////////////////////  FUTTER   ///////////////////////////
-                    
-                    for (var dimX = 0; dimX < spielfeldGroesse.x; dimX++)
-                    {
-                        for (var dimY = 0; dimY < spielfeldGroesse.y; dimY++)
-                        {
-                            for (var dimZ = 0; dimZ < spielfeldGroesse.z; dimZ++)
-                            {
-                                if(welt[dimX][dimY][dimZ] === futter)
-                                {
-                                    if(!verloren)
-                                    {
-                                        // Farb Puffer fuer Futter
-                                        gl.bindBuffer(gl.ARRAY_BUFFER, futterVertexColorBuffer);
-                                        gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, futterVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
-                                    }
-                                    else
-                                    {
-                                        // Farb Puffer fuer Futter im Sterbefall
-                                        gl.bindBuffer(gl.ARRAY_BUFFER, futterDeadVertexColorBuffer);
-                                        gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, futterDeadVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
-                                    }
-                                    
-                                mvPushMatrix();
-                                    mat4.translate(mvMatrix, [dimX, dimY, dimZ]);
-                                    setMatrixUniforms();
-                                    gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-                                mvPopMatrix();
-
-                                    if(schattenAn)
-                                    {
-                                        // Blending fuer Schatten deaktiviert, weil schwarz und sonst unsichtbar
-                                        gl.disable(gl.BLEND);
-                                        gl.enable(gl.DEPTH_TEST);
-
-                                        // Farb Puffer fuer Schlangenschatten == schwarz == Kantenfarbe
-                                        gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexColorBuffer);
-                                        gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, cubeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-                                        var skalierungX = 1;
-                                        var skalierungY = 1;
-                                        var skalierungZ = 1;
-                                        
-                                        var dimXs = dimX;
-                                        var dimYs = dimY;
-                                        var dimZs = dimZ;
-                                        switch (unten)
-                                        {
-                                            case 0: //  urspr. rechte Seite ist Boden
-                                                dimXs = 9.6;
-                                                skalierungX = 0.1;
-                                                break;
-                                            case 1: //  urspr. linke Seite ist Boden
-                                                dimXs = -0.6;
-                                                skalierungX = 0.1;
-                                                break;
-                                            case 3: //  urspr. untere Seite ist Boden
-                                                dimYs = -0.6;
-                                                skalierungY = 0.1;
-                                                break;
-                                            case 4: //  urspr. vordere Seite ist Boden
-                                                dimZs = 9.6;
-                                                skalierungZ = 0.1;
-                                                break;
-                                            case 5: //  urspr. hintere Seite ist Boden
-                                                dimZs = -0.6;
-                                                skalierungZ = 0.1;
-                                                break;
-                                        }
-                                        
-
-                                        mvPushMatrix();
-                                            mat4.translate(mvMatrix, [dimXs, dimYs, dimZs]);
-                                            mat4.scale(mvMatrix, [skalierungX, skalierungY, skalierungZ]);
-                                            setMatrixUniforms();
-                                            gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-                                        mvPopMatrix();
-                                    }
-
-                                }
-                            }
-                        }
-                    }
-                    
-                    
-                    
                     
                     ///// Laser    
 
