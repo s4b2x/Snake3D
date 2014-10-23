@@ -52,6 +52,9 @@
 
     <script type="text/javascript">
         $(document).ready(function() {
+        
+        //  Hinweis auf deaktiviertes JS entfernen
+        $('#JavaScriptHinweis').remove();
 
         var canvas;
 
@@ -2234,9 +2237,6 @@
         
         if(!debug)
             $('#hudMaske').click();
-        
-        $('#JavaScriptHinweis').hide();
-
         }); //  Ende JQuery
          </script>
     </head>
@@ -2244,8 +2244,10 @@
     <body>
         <div id="JavaScriptHinweis">
             <div>
-                JavaScript ist deaktiviert.<br />
-                Bitte aktivieren Sie JavaScript in Ihren Browser-Einstellungen.
+                <div>
+                    JavaScript ist deaktiviert.<br />
+                    Bitte aktivieren Sie JavaScript in Ihren Browser-Einstellungen.
+                </div>
             </div>
         </div>
 
