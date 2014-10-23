@@ -448,7 +448,7 @@
         
         // Der Benutzer wird nach 50 Schritten und 
         // noch keinen gefressenen Wuerfel gefragt, ob er Hilfe benoetigt
-        
+               
         var hilfeCheck;
         function hilfe()
         {
@@ -469,8 +469,8 @@
         function level(level) {
             
             if (level == 1)  return schwierigkeitsgrad = 500;
-            if (level == 2)  return schwierigkeitsgrad = 400;
-            if (level == 3)  return schwierigkeitsgrad = 300;
+            if (level == 2)  return schwierigkeitsgrad = 370;
+            if (level == 3)  return schwierigkeitsgrad = 270;
             if (level == 4)  return schwierigkeitsgrad = 200;
             if (level == 5)  return schwierigkeitsgrad = 100;
             
@@ -651,9 +651,8 @@
                     $('#cbGitternetz').click();
                     break;
             }
-
             
-            if(darfLenken)
+            if(darfLenken && !pause)
             {
                 switch (event.keyCode) 
                 {
@@ -2237,6 +2236,12 @@
         
         if(!debug)
             $('#hudMaske').click();
+<<<<<<< HEAD
+=======
+        
+        $('#JavaScriptHinweis').hide();
+       
+>>>>>>> origin/master
         }); //  Ende JQuery
          </script>
     </head>
