@@ -21,7 +21,7 @@ Bei offenen Punkten (-) bitte eintragen, wer diese bearbeiten moechte.
     x   nach dem Fressen wird die Schlange laenger
     x   Drehung beenden, wenn Maus Canvas verlaesst
     o   Bildhoehe und Breite dynamisch an Browserfenster anpassen
-        -> Geschieht "halb" automatisch, dass heisst, erst nach neu laden der Seite
+        -> Geschieht "halb" automatisch, das heisst, erst nach neu laden der Seite
     x   Schlangenbewegung abhaengig von Zeit, nicht Frames
     x   Animation im Sterbefall
     x   Laserpointer in Laufrichtung

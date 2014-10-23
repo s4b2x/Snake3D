@@ -3,6 +3,16 @@
 <head>
     <title>Snake 3D</title>
 
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','http://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-55370383-1', 'auto');
+        ga('send', 'pageview');
+    </script>
+    
     <script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
     <script type="text/javascript" src="webgl-utils.js"></script>
     <script type="text/javascript" src="jquery-1.11.1.min.js"></script>
@@ -79,6 +89,7 @@
         var laserUmschalter = true;
         
         var transparenzAn = true;
+        var schattenAn = true;
         
         var cheatAn = false;
         
@@ -885,7 +896,9 @@
         var snakeVertexColorBuffer;              //Farbpuffer fuer die Schlange
         var headVertexColorBuffer;               //Farbpuffer fuer den Kopf
         var futterVertexColorBuffer;             //Farbpuffer fuer das Futter
+        var futterDeadVertexColorBuffer;             //Farbpuffer fuer das Futter
         var cubeVertexIndexBuffer;
+        var laserVertexIndexBuffer;
 
         function initBuffers() {
             //  Quadrat-Flaeche
@@ -1293,8 +1306,8 @@
             }
             
             mvPushMatrix();
-                mat4.translate(mvMatrix, [0, 0, -spielfeldGroesse.z/2]);
-                mat4.scale(mvMatrix, [spielfeldGroesse.x, spielfeldGroesse.y, 1]);
+                mat4.translate(mvMatrix, [0, 0, -spielfeldGroesse.z/2-0.1]);
+                mat4.scale(mvMatrix, [spielfeldGroesse.x+0.2, spielfeldGroesse.y+0.2, 1]);
                 setMatrixUniforms();
                 gl.drawArrays(gl.TRIANGLE_STRIP, 0, faceVertexPositionBuffer.numItems);
             mvPopMatrix();
@@ -1302,8 +1315,8 @@
             mvPushMatrix();
                 mat4.rotate(mvMatrix, degToRad(90),  [0, 1, 0]);
                 mvPushMatrix();
-                    mat4.translate(mvMatrix, [0, 0, -spielfeldGroesse.z/2]);
-                    mat4.scale(mvMatrix, [spielfeldGroesse.x, spielfeldGroesse.y, 1]);
+                    mat4.translate(mvMatrix, [0, 0, -spielfeldGroesse.z/2-0.1]);
+                    mat4.scale(mvMatrix, [spielfeldGroesse.x+0.2, spielfeldGroesse.y+0.2, 1]);
                     setMatrixUniforms();
                     gl.drawArrays(gl.TRIANGLE_STRIP, 0, faceVertexPositionBuffer.numItems);
                 mvPopMatrix();
@@ -1312,8 +1325,8 @@
             mvPushMatrix();
                 mat4.rotate(mvMatrix, degToRad(90),  [1, 0, 0]);
                 mvPushMatrix();
-                    mat4.translate(mvMatrix, [0, 0, -spielfeldGroesse.z/2]);
-                    mat4.scale(mvMatrix, [spielfeldGroesse.x, spielfeldGroesse.y, 1]);
+                    mat4.translate(mvMatrix, [0, 0, -spielfeldGroesse.z/2-0.1]);
+                    mat4.scale(mvMatrix, [spielfeldGroesse.x+0.2, spielfeldGroesse.y+0.2, 1]);
                     setMatrixUniforms();
                     gl.drawArrays(gl.TRIANGLE_STRIP, 0, faceVertexPositionBuffer.numItems);
                 mvPopMatrix();
@@ -1322,8 +1335,8 @@
             mvPushMatrix();
                 mat4.rotate(mvMatrix, degToRad(-90),  [0, 1, 0]);
                 mvPushMatrix();
-                    mat4.translate(mvMatrix, [0, 0, -spielfeldGroesse.z/2]);
-                    mat4.scale(mvMatrix, [spielfeldGroesse.x, spielfeldGroesse.y, 1]);
+                    mat4.translate(mvMatrix, [0, 0, -spielfeldGroesse.z/2-0.1]);
+                    mat4.scale(mvMatrix, [spielfeldGroesse.x+0.2, spielfeldGroesse.y+0.2, 1]);
                     setMatrixUniforms();
                     gl.drawArrays(gl.TRIANGLE_STRIP, 0, faceVertexPositionBuffer.numItems);
                 mvPopMatrix();
@@ -1332,8 +1345,8 @@
             mvPushMatrix();
                 mat4.rotate(mvMatrix, degToRad(-90),  [1, 0, 0]);
                 mvPushMatrix();
-                    mat4.translate(mvMatrix, [0, 0, -spielfeldGroesse.z/2]);
-                    mat4.scale(mvMatrix, [spielfeldGroesse.x, spielfeldGroesse.y, 1]);
+                    mat4.translate(mvMatrix, [0, 0, -spielfeldGroesse.z/2-0.1]);
+                    mat4.scale(mvMatrix, [spielfeldGroesse.x+0.2, spielfeldGroesse.y+0.2, 1]);
                     setMatrixUniforms();
                     gl.drawArrays(gl.TRIANGLE_STRIP, 0, faceVertexPositionBuffer.numItems);
                 mvPopMatrix();
@@ -1342,8 +1355,8 @@
             mvPushMatrix();
                 mat4.rotate(mvMatrix, degToRad(180),  [1, 0, 0]);
                 mvPushMatrix();
-                    mat4.translate(mvMatrix, [0, 0, -spielfeldGroesse.z/2]);
-                    mat4.scale(mvMatrix, [spielfeldGroesse.x, spielfeldGroesse.y, 1]);
+                    mat4.translate(mvMatrix, [0, 0, -spielfeldGroesse.z/2-0.1]);
+                    mat4.scale(mvMatrix, [spielfeldGroesse.x+0.2, spielfeldGroesse.y+0.2, 1]);
                     setMatrixUniforms();
                     gl.drawArrays(gl.TRIANGLE_STRIP, 0, faceVertexPositionBuffer.numItems);
                 mvPopMatrix();
@@ -1373,85 +1386,85 @@
                 
                 // Linie rechts vorne
                 mvPushMatrix();
-                    mat4.translate(mvMatrix, [spielfeldGroesse.x, spielfeldGroesse.y / 2, spielfeldGroesse.z]);
-                    mat4.scale(mvMatrix, [0.1, spielfeldGroesse.y, 0.1]);
+                    mat4.translate(mvMatrix, [spielfeldGroesse.x+0.1, spielfeldGroesse.y / 2, spielfeldGroesse.z+0.1]);
+                    mat4.scale(mvMatrix, [0.1, spielfeldGroesse.y+0.3, 0.1]);
                     setMatrixUniforms();
                     gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
                 mvPopMatrix();
                 // Linie rechts hinten
                 mvPushMatrix();
-                    mat4.translate(mvMatrix, [spielfeldGroesse.x, spielfeldGroesse.y / 2 , 0]);
-                    mat4.scale(mvMatrix, [0.1, spielfeldGroesse.y, 0.1]);
+                    mat4.translate(mvMatrix, [spielfeldGroesse.x+0.1, spielfeldGroesse.y / 2 , -0.1]);
+                    mat4.scale(mvMatrix, [0.1, spielfeldGroesse.y+0.3, 0.1]);
                     setMatrixUniforms();
                     gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
                 mvPopMatrix();
                 // Linie links vorne
                 mvPushMatrix();
-                    mat4.translate(mvMatrix, [0, spielfeldGroesse.y / 2 , spielfeldGroesse.z]);
-                    mat4.scale(mvMatrix, [0.1, spielfeldGroesse.y, 0.1]);
+                    mat4.translate(mvMatrix, [-0.1, spielfeldGroesse.y / 2 , spielfeldGroesse.z+0.1]);
+                    mat4.scale(mvMatrix, [0.1, spielfeldGroesse.y+0.3, 0.1]);
                     setMatrixUniforms();
                     gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
                 mvPopMatrix();
                 // Linie links hinten
                 mvPushMatrix();
-                    mat4.translate(mvMatrix, [0, spielfeldGroesse.y / 2 , 0]);
-                    mat4.scale(mvMatrix, [0.1, spielfeldGroesse.y, 0.1]);
+                    mat4.translate(mvMatrix, [-0.1, spielfeldGroesse.y / 2 , -0.1]);
+                    mat4.scale(mvMatrix, [0.1, spielfeldGroesse.y+0.3, 0.1]);
                     setMatrixUniforms();
                     gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
                 mvPopMatrix();
                 // Linie oben vorne
                 mvPushMatrix();
-                    mat4.translate(mvMatrix, [spielfeldGroesse.x / 2, spielfeldGroesse.y , spielfeldGroesse.z]);
-                    mat4.scale(mvMatrix, [spielfeldGroesse.x, 0.1, 0.1]);
+                    mat4.translate(mvMatrix, [spielfeldGroesse.x / 2, spielfeldGroesse.y+0.1, spielfeldGroesse.z+0.1]);
+                    mat4.scale(mvMatrix, [spielfeldGroesse.x+0.3, 0.1, 0.1]);
                     setMatrixUniforms();
                     gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
                 mvPopMatrix();
                 // Linie oben hinten
                 mvPushMatrix();
-                    mat4.translate(mvMatrix, [spielfeldGroesse.x / 2, spielfeldGroesse.y , 0]);
-                    mat4.scale(mvMatrix, [spielfeldGroesse.x, 0.1, 0.1]);
+                    mat4.translate(mvMatrix, [spielfeldGroesse.x / 2, spielfeldGroesse.y+0.1, -0.1]);
+                    mat4.scale(mvMatrix, [spielfeldGroesse.x+0.3, 0.1, 0.1]);
                     setMatrixUniforms();
                     gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
                 mvPopMatrix();
                 // Linie unten vorne
                 mvPushMatrix();
-                    mat4.translate(mvMatrix, [spielfeldGroesse.x / 2, 0 , spielfeldGroesse.z]);
-                    mat4.scale(mvMatrix, [spielfeldGroesse.x, 0.1, 0.1]);
+                    mat4.translate(mvMatrix, [spielfeldGroesse.x / 2, -0.1, spielfeldGroesse.z+0.1]);
+                    mat4.scale(mvMatrix, [spielfeldGroesse.x+0.3, 0.1, 0.1]);
                     setMatrixUniforms();
                     gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
                 mvPopMatrix();
                 // Linie unten hinten
                 mvPushMatrix();
-                    mat4.translate(mvMatrix, [spielfeldGroesse.x / 2, 0 , 0]);
-                    mat4.scale(mvMatrix, [spielfeldGroesse.x, 0.1, 0.1]);
+                    mat4.translate(mvMatrix, [spielfeldGroesse.x / 2, -0.1, -0.1]);
+                    mat4.scale(mvMatrix, [spielfeldGroesse.x+0.3, 0.1, 0.1]);
                     setMatrixUniforms();
                     gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
                 mvPopMatrix();
                 // Linie links oben
                 mvPushMatrix();
-                    mat4.translate(mvMatrix, [0, spielfeldGroesse.y , spielfeldGroesse.z / 2]);
-                    mat4.scale(mvMatrix, [0.1, 0.1, spielfeldGroesse.z]);
+                    mat4.translate(mvMatrix, [-0.1, spielfeldGroesse.y+0.1, spielfeldGroesse.z / 2]);
+                    mat4.scale(mvMatrix, [0.1, 0.1, spielfeldGroesse.z+0.3]);
                     setMatrixUniforms();
                     gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
                 mvPopMatrix();
                 // Linie rechts oben
                 mvPushMatrix();
-                    mat4.translate(mvMatrix, [spielfeldGroesse.x, spielfeldGroesse.y , spielfeldGroesse.z / 2]);
-                    mat4.scale(mvMatrix, [0.1, 0.1, spielfeldGroesse.z]);
+                    mat4.translate(mvMatrix, [spielfeldGroesse.x+0.1, spielfeldGroesse.y+0.1, spielfeldGroesse.z / 2]);
+                    mat4.scale(mvMatrix, [0.1, 0.1, spielfeldGroesse.z+0.3]);
                     setMatrixUniforms();
                     gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
                 mvPopMatrix();
                 // Linie rechts unten
                 mvPushMatrix();
-                    mat4.translate(mvMatrix, [spielfeldGroesse.x, 0 , spielfeldGroesse.z / 2]);
-                    mat4.scale(mvMatrix, [0.1, 0.1, spielfeldGroesse.z]);
+                    mat4.translate(mvMatrix, [spielfeldGroesse.x+0.1, -0.1, spielfeldGroesse.z / 2]);
+                    mat4.scale(mvMatrix, [0.1, 0.1, spielfeldGroesse.z+0.3]);
                     setMatrixUniforms();
                     gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
                 mvPopMatrix();
                 // Linie links unten
                 mvPushMatrix();
-                    mat4.translate(mvMatrix, [0, 0, spielfeldGroesse.z / 2]);
-                    mat4.scale(mvMatrix, [0.1, 0.1, spielfeldGroesse.z]);
+                    mat4.translate(mvMatrix, [-0.1, -0.1, spielfeldGroesse.z / 2]);
+                    mat4.scale(mvMatrix, [0.1, 0.1, spielfeldGroesse.z+0.3]);
                     setMatrixUniforms();
                     gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
                 mvPopMatrix();
@@ -1499,6 +1512,82 @@
                     }
                 
                 
+                /////////////////////  SCHLANGENSCHATTEN  //////////////////////
+
+                    
+                    if(schattenAn)
+                    {
+                        // Blending fuer Schatten deaktiviert, weil schwarz und sonst unsichtbar
+                        gl.disable(gl.BLEND);
+                        gl.enable(gl.DEPTH_TEST);
+                        
+                        // Farb Puffer fuer Schlangenschatten == schwarz == Kantenfarbe
+                        gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexColorBuffer);
+                        gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, cubeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+                        var skalierung = 1;
+                        var skalierungX = 1;
+                        var skalierungY = 1;
+                        var skalierungZ = 1;
+                        for (var i = tailPos; ; i = (i + 1) % schlangenMaxLaenge)
+                        {
+                            var dimX = schlangenKoordinaten[i].x;
+                            var dimY = schlangenKoordinaten[i].y;
+                            var dimZ = schlangenKoordinaten[i].z;
+
+                            skalierungX = skalierung;
+                            skalierungY = skalierung;
+                            skalierungZ = skalierung;
+
+                            switch (unten)
+                            {
+                                case 0: //  urspr. rechte Seite ist Boden
+                                    dimX = 9.6;
+                                    skalierungX = 0.1;
+                                    break;
+                                case 1: //  urspr. linke Seite ist Boden
+                                    dimX = -0.6;
+                                    skalierungX = 0.1;
+                                    break;
+                                case 3: //  urspr. untere Seite ist Boden
+                                    dimY = -0.6;
+                                    skalierungY = 0.1;
+                                    break;
+                                case 4: //  urspr. vordere Seite ist Boden
+                                    dimZ = 9.6;
+                                    skalierungZ = 0.1;
+                                    break;
+                                case 5: //  urspr. hintere Seite ist Boden
+                                    dimZ = -0.6;
+                                    skalierungZ = 0.1;
+                                    break;
+                            }
+
+                            mvPushMatrix();
+                                mat4.translate(mvMatrix, [dimX, dimY, dimZ]);
+                                mat4.scale(mvMatrix, [skalierungX, skalierungY, skalierungZ]);
+                                //  Effekt bei Kopf
+                                if(i === headPos)
+                                {
+                                    mat4.rotate(mvMatrix,
+                                                degToRad(rotationDegree), 
+                                               [Math.sin(degToRad(rotationAxis)), 
+                                                Math.sin(degToRad(0.9*rotationAxis+120)), 
+                                                Math.sin(degToRad(1.1*rotationAxis-120))]);
+                                }
+                                setMatrixUniforms();
+                                gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+
+                            mvPopMatrix();
+                            skalierung += 1/(aktLaengeSchlange*5);
+
+                            //  Schleife verlassen, wenn Kopf erledigt
+                            if (i === headPos)
+                                break;
+                        }
+                    }
+                
+                
                 /////////////////////////  SCHLANGE  ///////////////////////////
 
                     if(!verloren && transparenzAn)
@@ -1531,21 +1620,24 @@
                         }
                     }
                     
-                    var skalierung = 1;
-                    for (var i = tailPos; i !== headPos; i = (i + 1) % schlangenMaxLaenge)
+                    skalierung = 1;
+                    for (var i = tailPos; ; i = (i + 1) % schlangenMaxLaenge)
                     {
                         var dimX = schlangenKoordinaten[i].x;
                         var dimY = schlangenKoordinaten[i].y;
                         var dimZ = schlangenKoordinaten[i].z;
+                        
                         mvPushMatrix();
-                            mat4.translate(mvMatrix, [dimX, dimY, dimZ]);  
-                            //  Effekt
-                            //mat4.rotate(mvMatrix,
-                            //            degToRad(rotationDegree), 
-                            //           [Math.sin(degToRad(rotationAxis)), 
-                            //            Math.sin(degToRad(0.9*rotationAxis+120)), 
-                            //            Math.sin(degToRad(1.1*rotationAxis-120))]);
-                            
+                            mat4.translate(mvMatrix, [dimX, dimY, dimZ]);
+                            //  Effekt bei Kopf
+                            if(i === headPos)
+                            {
+                                mat4.rotate(mvMatrix,
+                                            degToRad(rotationDegree), 
+                                           [Math.sin(degToRad(rotationAxis)), 
+                                            Math.sin(degToRad(0.9*rotationAxis+120)), 
+                                            Math.sin(degToRad(1.1*rotationAxis-120))]);
+                            }
                             mat4.scale(mvMatrix, [skalierung, skalierung, skalierung]);
                             setMatrixUniforms();
                             gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
@@ -1588,23 +1680,11 @@
                             */
                         mvPopMatrix();
                         skalierung += 1/(aktLaengeSchlange*5);
+                        
+                        //  Schleife verlassen, wenn Kopf erledigt
+                        if (i === headPos)
+                            break;
                     }
-                    
-                    var dimX = schlangenKoordinaten[headPos].x;
-                    var dimY = schlangenKoordinaten[headPos].y;
-                    var dimZ = schlangenKoordinaten[headPos].z;
-                    mvPushMatrix();
-                        mat4.translate(mvMatrix, [dimX, dimY, dimZ]);  
-                        //  Effekt
-                        mat4.rotate(mvMatrix,
-                                    degToRad(rotationDegree), 
-                                   [Math.sin(degToRad(rotationAxis)), 
-                                    Math.sin(degToRad(0.9*rotationAxis+120)), 
-                                    Math.sin(degToRad(1.1*rotationAxis-120))]);
-                        mat4.scale(mvMatrix, [skalierung, skalierung, skalierung]);
-                        setMatrixUniforms();
-                        gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-                    mvPopMatrix();
                     
                     
                 //////////////////////////  FUTTER   ///////////////////////////
@@ -1617,26 +1697,74 @@
                             {
                                 if(welt[dimX][dimY][dimZ] === futter)
                                 {
-                                    if(welt[dimX][dimY][dimZ] === futter)
+                                    if(!verloren)
                                     {
-                                        if(!verloren)
-                                        {
-                                            // Farb Puffer fuer Futter
-                                            gl.bindBuffer(gl.ARRAY_BUFFER, futterVertexColorBuffer);
-                                            gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, futterVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
-                                        }
-                                        else
-                                        {
-                                            // Farb Puffer fuer Futter im Sterbefall
-                                            gl.bindBuffer(gl.ARRAY_BUFFER, futterDeadVertexColorBuffer);
-                                            gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, futterDeadVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
-                                        }
+                                        // Farb Puffer fuer Futter
+                                        gl.bindBuffer(gl.ARRAY_BUFFER, futterVertexColorBuffer);
+                                        gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, futterVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
                                     }
+                                    else
+                                    {
+                                        // Farb Puffer fuer Futter im Sterbefall
+                                        gl.bindBuffer(gl.ARRAY_BUFFER, futterDeadVertexColorBuffer);
+                                        gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, futterDeadVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                                    }
+                                    
                                 mvPushMatrix();
                                     mat4.translate(mvMatrix, [dimX, dimY, dimZ]);
                                     setMatrixUniforms();
                                     gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
                                 mvPopMatrix();
+
+                                    if(schattenAn)
+                                    {
+                                        // Blending fuer Schatten deaktiviert, weil schwarz und sonst unsichtbar
+                                        gl.disable(gl.BLEND);
+                                        gl.enable(gl.DEPTH_TEST);
+
+                                        // Farb Puffer fuer Schlangenschatten == schwarz == Kantenfarbe
+                                        gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexColorBuffer);
+                                        gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, cubeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+                                        var skalierungX = 1;
+                                        var skalierungY = 1;
+                                        var skalierungZ = 1;
+                                        
+                                        var dimXs = dimX;
+                                        var dimYs = dimY;
+                                        var dimZs = dimZ;
+                                        switch (unten)
+                                        {
+                                            case 0: //  urspr. rechte Seite ist Boden
+                                                dimXs = 9.6;
+                                                skalierungX = 0.1;
+                                                break;
+                                            case 1: //  urspr. linke Seite ist Boden
+                                                dimXs = -0.6;
+                                                skalierungX = 0.1;
+                                                break;
+                                            case 3: //  urspr. untere Seite ist Boden
+                                                dimYs = -0.6;
+                                                skalierungY = 0.1;
+                                                break;
+                                            case 4: //  urspr. vordere Seite ist Boden
+                                                dimZs = 9.6;
+                                                skalierungZ = 0.1;
+                                                break;
+                                            case 5: //  urspr. hintere Seite ist Boden
+                                                dimZs = -0.6;
+                                                skalierungZ = 0.1;
+                                                break;
+                                        }
+                                        
+
+                                        mvPushMatrix();
+                                            mat4.translate(mvMatrix, [dimXs, dimYs, dimZs]);
+                                            mat4.scale(mvMatrix, [skalierungX, skalierungY, skalierungZ]);
+                                            setMatrixUniforms();
+                                            gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                                        mvPopMatrix();
+                                    }
 
                                 }
                             }
