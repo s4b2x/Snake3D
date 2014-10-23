@@ -2234,16 +2234,23 @@
         
         if(!debug)
             $('#hudMaske').click();
+        
+        $('#JavaScriptHinweis').hide();
 
         }); //  Ende JQuery
          </script>
     </head>
 
     <body>
+        <div id="JavaScriptHinweis">
+            JavaScript ist deaktiviert.<br />
+            Bitte aktivieren Sie JavaScript in Ihren Browser-Einstellungen.
+        </div>
 
-        <!-- <canvas id="snakecanvas" width="450" height="450"></canvas> -->
-        
-        <canvas id="snakecanvas"></canvas>
+        <canvas id="snakecanvas">
+            Ihr Browser unterst&uuml;tzt das Canvas-Element nicht.<br />
+            Bitte updaten Sie Ihren Browser auf die aktuelle Version.
+        </canvas>
         
         <span id = "schwierigkeitsgrad">
             Schwierigkeitsgrad ausw&auml;hlen: <br /><input id="schwierigkeitsgradSlider" type="range" min="1" max="5" value="1" step="1" onchange="level(value)"/>   

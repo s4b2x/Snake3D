@@ -39,20 +39,20 @@ Bei offenen Punkten (-) bitte eintragen, wer diese bearbeiten moechte.
     x   Highscore (AJAX, SQL)
     x   Maussteuerung in Steuerung-Menue
     x   4er-Schlange kann sich nicht mehr in den Schwanz beissen
+    x   Rahmenkanten noch ein bisschen nach aussen schieben
+    x   Schwierigkeitsgrad an php und sql weitergeben
+    x   Google Analytics fuer die Online-Version
+    x   favicon
+    x   Hinweis auf Canvas-Unterstuetzung in Canvas-Tag
+    x   Hinweis auf Javascript, wenn deaktiviert
     -   Menue: Optionen: Sprache, Transparenz, Laser, Schatten, Farben
-    -   Rahmenkanten noch ein bisschen nach aussen schieben
-    -   Schwierigkeitsgrad an php und sql weitergeben
     -   Mehr Depth-Cues!!!
         ->	Projektion auf Seitenwaende
         -> Gitter
     -   JS-Code komprimieren
         -> muss dafuer wahrscheinlich in js-Datei ausgelagert werden
-    -   Google Analytics fuer die Online-Version
 s   -   Prozedurale Texturen
-    -   Hinweis auf Canvas-Unterstuetzung in Canvas-Tag
-    -   favicon
     -   Beschreibung des Spiels mit Bild fuer Suchmaschinen
-    -   Hinweis auf Javascript, wenn deaktiviert
     -   MULTIPLAYER!!!!
     -   zusaetzliche Ansicht in Ego-Perspektive
     -   Offline-Highscore sortieren
