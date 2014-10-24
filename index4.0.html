@@ -1828,6 +1828,13 @@
                             gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, headVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
                         }
                     }
+                    else
+                    {
+                        //  Im Todesfall
+                        // Farb Puffer fuer Schlangenkoerper == schwarz
+                        gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexColorBuffer);
+                        gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, cubeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                    }
                     
                     skalierung = 1;
                     for (var i = tailPos; ; i = (i + 1) % schlangenMaxLaenge)
