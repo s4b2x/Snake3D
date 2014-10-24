@@ -1674,6 +1674,20 @@
                                     }
                                     
                                     //  Dann FUTTER
+                                    if(!verloren && transparenzAn)
+                                    {
+                                        // Der Depth-Buffer wird deaktiviert, Blending wird aktiviert
+                                        gl.blendFunc(gl.SRC_COLOR, gl.ONE);
+                                        gl.enable(gl.BLEND);
+                                        gl.disable(gl.DEPTH_TEST);
+                                    }
+                                    else
+                                    {
+                                        // Im Todesfall wird das Blending wieder deaktiviert
+                                        gl.disable(gl.BLEND);
+                                        gl.enable(gl.DEPTH_TEST);
+                                    }
+
                                     if(!verloren)
                                     {
                                         // Farb Puffer fuer Futter
@@ -2345,7 +2359,8 @@
     </head>
 
     <body>
-        <!--
+        <!--    Hinweis, dass JS deaktiviert ist.
+                Wird von JS entfernt, wenn es funzt   -->
         <div id="JavaScriptHinweis">
             <div>
                 <div>
@@ -2353,7 +2368,7 @@
                     Bitte aktivieren Sie JavaScript in Ihren Browser-Einstellungen.
                 </div>
             </div>
-        </div>-->
+        </div>
 
         <canvas id="snakecanvas">
             Ihr Browser unterst&uuml;tzt das Canvas-Element nicht.<br />
