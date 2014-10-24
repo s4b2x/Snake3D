@@ -481,7 +481,7 @@
         
         function score() {
             
-            laenge = aktLaengeSchlange - 3;
+            var laenge = aktLaengeSchlange - 3;
             
             punkte = laenge * $('#schwierigkeitsgradSlider').val();
            
@@ -888,24 +888,36 @@
         
         var faceVertexPositionBuffer;                               
         var faceVertexColorBuffer;               //Farbpuffer fuer die Levelwuerfelflaechen
+        var faceDeadVertexColorBuffer;
        
         var laserVertexColorBuffer;              //Farbpuffer fuer den Laser
         var laserVertexPositionBuffer;           //Puffer fuer den Laser
+        var laserVertexIndexBuffer;
 
         var cubeVertexPositionBuffer;                               
         var cubeVertexColorBuffer;               //Farbpuffer fuer den Levelwuerfel
-        var snakeVertexColorBuffer;              //Farbpuffer fuer die Schlange
-        var headVertexColorBuffer;               //Farbpuffer fuer den Kopf
-        var futterVertexColorBuffer;             //Farbpuffer fuer das Futter
-        var futterDeadVertexColorBuffer;             //Farbpuffer fuer das Futter
         var cubeVertexIndexBuffer;
-        var laserVertexIndexBuffer;
+
+        var snakeVertexColorBuffer;              //Farbpuffer fuer die Schlange
+        var snakeDeadVertexColorBuffer;          // '' tote ''
+        var headVertexColorBuffer;               //Farbpuffer fuer den Kopf
+        
+        var futterVertexColorBuffer;             //Farbpuffer fuer das Futter
+        var futterDeadVertexColorBuffer;         //Farbpuffer fuer das Futter
+
+        var shadowVertexColorBuffer;             //Farbpuffer fuer den Schatten
 
         function initBuffers() {
-            //  Quadrat-Flaeche
+            initVertexBuffers();
+            initColorBuffers();
+        }
+
+        function initVertexBuffers()
+        {
+        //  Quadrat-Flaeche
             faceVertexPositionBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, faceVertexPositionBuffer);
-            vertices = [
+            var vertices = [
                  0.5,  0.5, 0.0,
                 -0.5,  0.5, 0.0,
                  0.5, -0.5, 0.0,
@@ -916,8 +928,7 @@
             faceVertexPositionBuffer.itemSize = 3;
             faceVertexPositionBuffer.numItems = 4;
             
-            //  Laser - Objekt
-            
+        //  Laser - Objekt
             laserVertexPositionBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, laserVertexPositionBuffer);
             vertices = [
@@ -944,31 +955,30 @@
                  0.5, 0.0, -0.5,
                  0.5, 0.0, 0.5,
                 -0.5, 0.0, 0.5
-
             ];
 
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
             laserVertexPositionBuffer.itemSize = 3;
             laserVertexPositionBuffer.numItems = 16;
+
+            laserVertexIndexBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, laserVertexIndexBuffer);
             
+            // Dieses Array definiert jede Flaeche als zwei Dreiecke ueber die Indizes
+            // im Vertex-Array, um die Position jedes Dreiecks festzulegen.
+            var laserVertexIndices = [
+                0, 1, 2,        0, 2, 3,        // Front face
+                4, 5, 6,        4, 6, 7,        // Back face
+                8, 9, 10,       8, 10, 11,      // Top face
+                12, 13, 14,     12, 14, 15      // Bottom face
+            ];
             
-            /* ANFANG Farben fuer Grundflaeche */
-            faceVertexColorBuffer = gl.createBuffer();
-            gl.bindBuffer(gl.ARRAY_BUFFER, faceVertexColorBuffer);
-            colors =                    //  AI-Blau
-                [0.0, 0.29, 0.5, 1];   // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
+            // Sende nun das Element-Array zum GL
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(laserVertexIndices), gl.STATIC_DRAW);
+            laserVertexIndexBuffer.itemSize = 1;
+            laserVertexIndexBuffer.numItems = 24;
 
-            var unpackedColors = [];
-            for (var j = 0; j < 4; j++) {
-                unpackedColors = unpackedColors.concat(colors);
-            }
-
-            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(unpackedColors), gl.STATIC_DRAW);
-            faceVertexColorBuffer.itemSize = 4;
-            faceVertexColorBuffer.numItems = 4;     
-            /* ENDE Farben fuer Grundflaeche */
-
-            //  Wuerfel
+        //  Wuerfel
             cubeVertexPositionBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexPositionBuffer);
             vertices = [
@@ -1012,10 +1022,46 @@
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
             cubeVertexPositionBuffer.itemSize = 3;
             cubeVertexPositionBuffer.numItems = 24;
-            
-            
-        /* ANFANG Farben fuer Grundwuerfel */
 
+            cubeVertexIndexBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer);
+            
+            // Dieses Array definiert jede Flaeche als zwei Dreiecke ueber die Indizes
+            // im Vertex-Array, um die Position jedes Dreiecks festzulegen.
+            var cubeVertexIndices = [
+                0, 1, 2,        0, 2, 3,        // Front face
+                4, 5, 6,        4, 6, 7,        // Back face
+                8, 9, 10,       8, 10, 11,      // Top face
+                12, 13, 14,     12, 14, 15,     // Bottom face
+                16, 17, 18,     16, 18, 19,     // Right face
+                20, 21, 22,     20, 22, 23      // Left face
+            ];
+            
+            // Sende nun das Element-Array zum GL
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubeVertexIndices), gl.STATIC_DRAW);
+            cubeVertexIndexBuffer.itemSize = 1;
+            cubeVertexIndexBuffer.numItems = 36;
+        }
+
+        function initColorBuffers()
+        {
+        /* ANFANG Farben fuer Grundflaeche */
+            faceVertexColorBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, faceVertexColorBuffer);
+            var colors =                    //  AI-Blau
+                [0.0, 0.29, 0.5, 1];   // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
+
+            var unpackedColors = [];
+            for (var j = 0; j < 4; j++) {
+                unpackedColors = unpackedColors.concat(colors);
+            }
+
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(unpackedColors), gl.STATIC_DRAW);
+            faceVertexColorBuffer.itemSize = 4;
+            faceVertexColorBuffer.numItems = 4;     
+        /* ENDE Farben fuer Grundflaeche */
+
+        /* ANFANG Farben fuer Grundwuerfel */
             cubeVertexColorBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexColorBuffer);
             colors = [
@@ -1038,14 +1084,12 @@
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(unpackedColors), gl.STATIC_DRAW);
             cubeVertexColorBuffer.itemSize = 4;
             cubeVertexColorBuffer.numItems = 24;
-            
-            /* ENDE Farben fuer Grundwuerfel */
+        /* ENDE Farben fuer Grundwuerfel */
 
-            /* ANFANG Farben fuer Schlange */
-
+        /* ANFANG Farben fuer Schlange */
             snakeVertexColorBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, snakeVertexColorBuffer);
-            snakeColors = [             //  Hochschul-Gruen
+            var snakeColors = [             //  Hochschul-Gruen
                 [0.4, 0.8, 0.2, 0.8],   // Front face             // Rot, Gruen, Blau, Deckkraft
                 [0.4, 0.8, 0.2, 0.85],  // Back face
                 [0.4, 0.8, 0.2, 0.75],  // Top face
@@ -1065,14 +1109,12 @@
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(snakeUnpackedColors), gl.STATIC_DRAW);
             snakeVertexColorBuffer.itemSize = 4;
             snakeVertexColorBuffer.numItems = 24;
-            
-            /* ENDE Farben fuer Schlange */
+        /* ENDE Farben fuer Schlange */
 
-            /* ANFANG Farben fuer Schlangenkopf */
-
+        /* ANFANG Farben fuer Schlangenkopf */
             headVertexColorBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, headVertexColorBuffer);
-            headColors = [             //  helleres Hochschul-Gruen
+            var headColors = [             //  helleres Hochschul-Gruen
                 [0.5, 1, 0.25, 0.55],  // Front face             // Rot, Gruen, Blau, Deckkraft
                 [0.5, 1, 0.25, 0.6],   // Back face
                 [0.5, 1, 0.25, 0.5],   // Top face
@@ -1092,14 +1134,12 @@
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(headUnpackedColors), gl.STATIC_DRAW);
             headVertexColorBuffer.itemSize = 4;
             headVertexColorBuffer.numItems = 24;
-            
-            /* ENDE Farben fuer Schlangenkopf */
+        /* ENDE Farben fuer Schlangenkopf */
                         
-            /* ANFANG Farben fuer Futter */
-
+        /* ANFANG Farben fuer Futter */
             futterVertexColorBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, futterVertexColorBuffer);
-            futterColors = [
+            var futterColors = [
                 [0.9, 0.0, 0.0, 0.8],    // Front face             // Rot, Gruen, Blau, Deckkraft
                 [0.9, 0.0, 0.0, 0.85],   // Back face             
                 [0.9, 0.0, 0.0, 0.75],   // Top face
@@ -1119,54 +1159,11 @@
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(futterUnpackedColors), gl.STATIC_DRAW);
             futterVertexColorBuffer.itemSize = 4;
             futterVertexColorBuffer.numItems = 24;
-            
-            /* ENDE Farben fuer Futter */
-
-            cubeVertexIndexBuffer = gl.createBuffer();
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer);
-            
-            // Dieser Array definiert jede Flaeche als zwei Dreiecke ueber die Indizes
-            // im Vertex-Array, um die Position jedes Dreiecks festzulegen.
-  
-            var cubeVertexIndices = [
-                0, 1, 2,        0, 2, 3,        // Front face
-                4, 5, 6,        4, 6, 7,        // Back face
-                8, 9, 10,       8, 10, 11,      // Top face
-                12, 13, 14,     12, 14, 15,     // Bottom face
-                16, 17, 18,     16, 18, 19,     // Right face
-                20, 21, 22,     20, 22, 23      // Left face
-            ];
-            
-            // Sende nun das Element-Array zum GL
-              
-            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(cubeVertexIndices), gl.STATIC_DRAW);
-            cubeVertexIndexBuffer.itemSize = 1;
-            cubeVertexIndexBuffer.numItems = 36;
-            
-            // Laser Puffer
-            
-            laserVertexIndexBuffer = gl.createBuffer();
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, laserVertexIndexBuffer);
-            
-            // Dieser Array definiert jede Flaeche als zwei Dreiecke ueber die Indizes
-            // im Vertex-Array, um die Position jedes Dreiecks festzulegen.
-  
-            var laserVertexIndices = [
-                0, 1, 2,        0, 2, 3,        // Front face
-                4, 5, 6,        4, 6, 7,        // Back face
-                8, 9, 10,       8, 10, 11,      // Top face
-                12, 13, 14,     12, 14, 15,     // Bottom face
-            ];
-            
-            // Sende nun das Element-Array zum GL
-              
-            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(laserVertexIndices), gl.STATIC_DRAW);
-            laserVertexIndexBuffer.itemSize = 1;
-            laserVertexIndexBuffer.numItems = 24;
+        /* ENDE Farben fuer Futter */
             
             
-            // Sterbeanimation   
-            // Farben fuer Grundflaeche im Sterbefall     
+    // Sterbefall
+        // Farben fuer Grundflaeche im Sterbefall     
             faceDeadVertexColorBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, faceDeadVertexColorBuffer);
             colors =                    //  Rot
@@ -1181,7 +1178,7 @@
             faceDeadVertexColorBuffer.itemSize = 4;
             faceDeadVertexColorBuffer.numItems = 4;
 
-            // Farben fuer Schlange im Sterbefall 
+        // Farben fuer Schlange im Sterbefall 
             snakeDeadVertexColorBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, snakeDeadVertexColorBuffer);
             snakeColors = [             //  Schwarz
@@ -1229,11 +1226,10 @@
             futterDeadVertexColorBuffer.itemSize = 4;
             futterDeadVertexColorBuffer.numItems = 24;
             
-            // Farben fuer Laser
-
+        // Farben fuer Laser
             laserVertexColorBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, laserVertexColorBuffer);
-            laserColors = [
+            var laserColors = [
                 [1.0, 0.0, 0.0, 0.5],   // Front face             // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
                 [1.0, 0.0, 0.0, 0.6],   // Back face             
                 [1.0, 0.0, 0.0, 0.7],   // Top face
@@ -1254,8 +1250,31 @@
             laserVertexColorBuffer.itemSize = 4;
             laserVertexColorBuffer.numItems = 4;
             
-        }
+        // Farben fuer Schlange im Sterbefall 
+            shadowVertexColorBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, shadowVertexColorBuffer);
+            var shadowColors = [      //  schattiges dunkelblau
+                [0.0, 0.13, 0.25, 1],   // Front face             // Rot, Gruen, Blau, Deckkraft (durchsichtig 0.0 - 1.0 sichtbar)
+                [0.0, 0.13, 0.25, 1],   // Back face
+                [0.0, 0.13, 0.25, 1],   // Top face
+                [0.0, 0.13, 0.25, 1],   // Bottom face
+                [0.0, 0.13, 0.25, 1],   // Right face
+                [0.0, 0.13, 0.25, 1]    // Left face
+            ];
 
+            var shadowUnpackedColors = [];
+            for (var i in shadowColors) {
+                var color = shadowColors[i];
+                for (var j = 0; j < 4; j++) {
+                    shadowUnpackedColors = shadowUnpackedColors.concat(color);
+                }
+            }
+
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(shadowUnpackedColors), gl.STATIC_DRAW);
+            shadowVertexColorBuffer.itemSize = 4;
+            shadowVertexColorBuffer.numItems = 24;
+        }
+        
         ////////////////////////////////////////////////////////////////////////
         //                          drawScene()                               //
         ////////////////////////////////////////////////////////////////////////
@@ -1268,7 +1287,7 @@
             gl.enable(gl.CULL_FACE);
             
             // Blending wird disabled, gilt sonst fuer alles
-            gl.disable(gl.BLEND)
+            gl.disable(gl.BLEND);
             gl.enable(gl.DEPTH_TEST);
 
             /* Blickwinkel, Hoehen-/Breitenverhaeltnis, Objekte wird zwischen 0.1 und 100 Einheiten gerendert */
@@ -1471,11 +1490,11 @@
                 mvPopMatrix();
                 
                 /// HILFSLINIEN
-                if(gitternetzAn) 
+                if(!verloren && gitternetzAn) 
                 {
 
-                    di=0.03;
-                    for(h=0;h<=10; h++){       
+                    var di = 0.03;
+                    for(var h = 0; h <= 10; h++){       
 
                     //rechts vertikal
                     mvPushMatrix();
@@ -1630,15 +1649,15 @@
                                 if(welt[dimX][dimY][dimZ] === futter)
                                 {
                                     //  Erst FUTTERSCHATTEN
-                                    if(schattenAn)
+                                    if(!verloren && schattenAn)
                                     {
                                         // Blending fuer Schatten deaktiviert, weil schwarz und sonst unsichtbar
                                         gl.disable(gl.BLEND);
                                         gl.enable(gl.DEPTH_TEST);
 
                                         // Farb Puffer fuer Schlangenschatten == schwarz == Kantenfarbe
-                                        gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexColorBuffer);
-                                        gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, cubeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                                        gl.bindBuffer(gl.ARRAY_BUFFER, shadowVertexColorBuffer);
+                                        gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, shadowVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
                                         var skalierungX = 1;
                                         var skalierungY = 1;
@@ -1724,15 +1743,15 @@
                 /////////////////////  SCHLANGENSCHATTEN  //////////////////////
 
                     
-                    if(schattenAn)
+                    if(!verloren && schattenAn)
                     {
                         // Blending fuer Schatten deaktiviert, weil schwarz und sonst unsichtbar
                         gl.disable(gl.BLEND);
                         gl.enable(gl.DEPTH_TEST);
                         
                         // Farb Puffer fuer Schlangenschatten == schwarz == Kantenfarbe
-                        gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexColorBuffer);
-                        gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, cubeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                        gl.bindBuffer(gl.ARRAY_BUFFER, shadowVertexColorBuffer);
+                        gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, shadowVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
                         var skalierung = 1;
                         var skalierungX = 1;
@@ -2298,7 +2317,7 @@
         });
         
         $('#btNeuesSpiel').click(function(){
-            Check = confirm("Wollen Sie wirklich ein neues Spiel beginnen?");
+            var Check = confirm("Wollen Sie wirklich ein neues Spiel beginnen?");
             if (Check == true) {
               neuesSpiel();
             }
@@ -2377,9 +2396,9 @@
     </head>
 
     <body>
-        <!--    Hinweis, dass JS deaktiviert ist.
-                Wird von JS entfernt, wenn es funzt   -->
         <div id="JavaScriptHinweis">
+            <!--    Hinweis, dass JS deaktiviert ist.
+                    Wird von JS entfernt, wenn es funzt   -->
             <div>
                 <div>
                     JavaScript ist deaktiviert.<br />
