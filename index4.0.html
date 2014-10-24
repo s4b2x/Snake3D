@@ -93,6 +93,7 @@
         
         var transparenzAn = false;
         var schattenAn = false;
+        var gitternetzAn = false;
         
         var cheatAn = false;
         
@@ -633,6 +634,10 @@
             {
                 case 27: /* Escape */
                     $('#btStop').click();
+                    break;
+                    
+                case 81: /* Q */
+                    $('#hudMaske').click();
                     break;
                     
                 case 90: /* Z */
@@ -1465,107 +1470,109 @@
                     gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
                 mvPopMatrix();
                 
-                                
                 /// HILFSLINIEN
-                
-                di=0.03;
-                for(h=0;h<=10; h++){       
-                    
-                //rechts vertikal
-                mvPushMatrix();
-                    mat4.translate(mvMatrix, [spielfeldGroesse.x, spielfeldGroesse.y / 2, spielfeldGroesse.z-h]);
-                    mat4.scale(mvMatrix, [di, spielfeldGroesse.y, di]);
-                    setMatrixUniforms();
-                    gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-                mvPopMatrix();
-                
-                //rechts horizontal
-                mvPushMatrix();
-                    mat4.translate(mvMatrix, [spielfeldGroesse.x, h , spielfeldGroesse.z / 2]);
-                    mat4.scale(mvMatrix, [di, di, spielfeldGroesse.z]);
-                    setMatrixUniforms();
-                    gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-                mvPopMatrix();   
-                                
-                //oben horizantal, auf einen zulaufend
-                mvPushMatrix();
-                    mat4.translate(mvMatrix, [h, spielfeldGroesse.y , spielfeldGroesse.z / 2]);
-                    mat4.scale(mvMatrix, [di, di, spielfeldGroesse.z]);
-                    setMatrixUniforms();
-                    gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-                mvPopMatrix();
-                
-                // links horizontal
-                mvPushMatrix();
-                    mat4.translate(mvMatrix, [0, spielfeldGroesse.y-h , spielfeldGroesse.z / 2]);
-                    mat4.scale(mvMatrix, [di, di, spielfeldGroesse.z]);
-                    setMatrixUniforms();
-                    gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-                mvPopMatrix();
-                
-                // unten vertikal, auf einen zulaufend
-                mvPushMatrix();
-                    mat4.translate(mvMatrix, [h, 0, spielfeldGroesse.z / 2]);
-                    mat4.scale(mvMatrix, [di, di, spielfeldGroesse.z]);
-                    setMatrixUniforms();
-                    gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-                mvPopMatrix();
-                
-                // unten horizontal
-                mvPushMatrix();
-                    mat4.translate(mvMatrix, [spielfeldGroesse.x / 2, 0 , h]);
-                    mat4.scale(mvMatrix, [spielfeldGroesse.x, di, di]);
-                    setMatrixUniforms();
-                    gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-                mvPopMatrix();
-                
-                //hinten horizontal
-                mvPushMatrix();
-                    mat4.translate(mvMatrix, [spielfeldGroesse.x / 2, h , 0]);
-                    mat4.scale(mvMatrix, [spielfeldGroesse.x, di, di]);
-                    setMatrixUniforms();
-                    gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-                mvPopMatrix();
-                
-                //links vertikal                
-                mvPushMatrix();
-                    mat4.translate(mvMatrix, [0, spielfeldGroesse.y / 2 , h]);
-                    mat4.scale(mvMatrix, [di, spielfeldGroesse.y, di]);
-                    setMatrixUniforms();
-                    gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-                mvPopMatrix();  
-                                
-                //hinten vertikal
-                mvPushMatrix();
-                    mat4.translate(mvMatrix, [h, spielfeldGroesse.y / 2 , 0]);
-                    mat4.scale(mvMatrix, [di, spielfeldGroesse.y, di]);
-                    setMatrixUniforms();
-                    gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-                mvPopMatrix();
-                
-                //vorne horizontal        
-                mvPushMatrix();
-                    mat4.translate(mvMatrix, [spielfeldGroesse.x / 2, h , spielfeldGroesse.z]);
-                    mat4.scale(mvMatrix, [spielfeldGroesse.x, di, di]);
-                    setMatrixUniforms();
-                    gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-                mvPopMatrix();   
+                if(gitternetzAn) 
+                {
 
-                //  vorne vertikal
-                mvPushMatrix();
-                    mat4.translate(mvMatrix, [h, spielfeldGroesse.y / 2 , spielfeldGroesse.z]);
-                    mat4.scale(mvMatrix, [di, spielfeldGroesse.y, di]);
-                    setMatrixUniforms();
-                    gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-                mvPopMatrix();
-                
-                //oben horizontal
-                mvPushMatrix();
-                    mat4.translate(mvMatrix, [spielfeldGroesse.x / 2, spielfeldGroesse.y , spielfeldGroesse.z-h]);
-                    mat4.scale(mvMatrix, [spielfeldGroesse.x, di, di]);
-                    setMatrixUniforms();
-                    gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-                mvPopMatrix();
+                    di=0.03;
+                    for(h=0;h<=10; h++){       
+
+                    //rechts vertikal
+                    mvPushMatrix();
+                        mat4.translate(mvMatrix, [spielfeldGroesse.x, spielfeldGroesse.y / 2, spielfeldGroesse.z-h]);
+                        mat4.scale(mvMatrix, [di, spielfeldGroesse.y, di]);
+                        setMatrixUniforms();
+                        gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                    mvPopMatrix();
+
+                    //rechts horizontal
+                    mvPushMatrix();
+                        mat4.translate(mvMatrix, [spielfeldGroesse.x, h , spielfeldGroesse.z / 2]);
+                        mat4.scale(mvMatrix, [di, di, spielfeldGroesse.z]);
+                        setMatrixUniforms();
+                        gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                    mvPopMatrix();   
+
+                    //oben horizantal, auf einen zulaufend
+                    mvPushMatrix();
+                        mat4.translate(mvMatrix, [h, spielfeldGroesse.y , spielfeldGroesse.z / 2]);
+                        mat4.scale(mvMatrix, [di, di, spielfeldGroesse.z]);
+                        setMatrixUniforms();
+                        gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                    mvPopMatrix();
+
+                    // links horizontal
+                    mvPushMatrix();
+                        mat4.translate(mvMatrix, [0, spielfeldGroesse.y-h , spielfeldGroesse.z / 2]);
+                        mat4.scale(mvMatrix, [di, di, spielfeldGroesse.z]);
+                        setMatrixUniforms();
+                        gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                    mvPopMatrix();
+
+                    // unten vertikal, auf einen zulaufend
+                    mvPushMatrix();
+                        mat4.translate(mvMatrix, [h, 0, spielfeldGroesse.z / 2]);
+                        mat4.scale(mvMatrix, [di, di, spielfeldGroesse.z]);
+                        setMatrixUniforms();
+                        gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                    mvPopMatrix();
+
+                    // unten horizontal
+                    mvPushMatrix();
+                        mat4.translate(mvMatrix, [spielfeldGroesse.x / 2, 0 , h]);
+                        mat4.scale(mvMatrix, [spielfeldGroesse.x, di, di]);
+                        setMatrixUniforms();
+                        gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                    mvPopMatrix();
+
+                    //hinten horizontal
+                    mvPushMatrix();
+                        mat4.translate(mvMatrix, [spielfeldGroesse.x / 2, h , 0]);
+                        mat4.scale(mvMatrix, [spielfeldGroesse.x, di, di]);
+                        setMatrixUniforms();
+                        gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                    mvPopMatrix();
+
+                    //links vertikal                
+                    mvPushMatrix();
+                        mat4.translate(mvMatrix, [0, spielfeldGroesse.y / 2 , h]);
+                        mat4.scale(mvMatrix, [di, spielfeldGroesse.y, di]);
+                        setMatrixUniforms();
+                        gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                    mvPopMatrix();  
+
+                    //hinten vertikal
+                    mvPushMatrix();
+                        mat4.translate(mvMatrix, [h, spielfeldGroesse.y / 2 , 0]);
+                        mat4.scale(mvMatrix, [di, spielfeldGroesse.y, di]);
+                        setMatrixUniforms();
+                        gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                    mvPopMatrix();
+
+                    //vorne horizontal        
+                    mvPushMatrix();
+                        mat4.translate(mvMatrix, [spielfeldGroesse.x / 2, h , spielfeldGroesse.z]);
+                        mat4.scale(mvMatrix, [spielfeldGroesse.x, di, di]);
+                        setMatrixUniforms();
+                        gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                    mvPopMatrix();   
+
+                    //  vorne vertikal
+                    mvPushMatrix();
+                        mat4.translate(mvMatrix, [h, spielfeldGroesse.y / 2 , spielfeldGroesse.z]);
+                        mat4.scale(mvMatrix, [di, spielfeldGroesse.y, di]);
+                        setMatrixUniforms();
+                        gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                    mvPopMatrix();
+
+                    //oben horizontal
+                    mvPushMatrix();
+                        mat4.translate(mvMatrix, [spielfeldGroesse.x / 2, spielfeldGroesse.y , spielfeldGroesse.z-h]);
+                        mat4.scale(mvMatrix, [spielfeldGroesse.x, di, di]);
+                        setMatrixUniforms();
+                        gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+                    mvPopMatrix();
+                    }
                 }
                 
                 
@@ -2330,6 +2337,10 @@
         $('#cbSchatten').click(function(){
             schattenAn = !schattenAn;
         });
+        $('#cbGitternetz').click(function(){
+            gitternetzAn = !gitternetzAn;
+        });
+        
         
         $('#hudMaske').css('width', $('#hud').css('width'));
         $('#hudMaske').css('height', $('#hud').css('height'));
@@ -2471,10 +2482,11 @@
                         <tr><td>&rArr;</td><td>D</td>   <td class="linksb">Richtung rechts</td></tr>
                         <tr><td colspan="2">linke Maustaste 
                                  gedr&uuml;ckt ziehen</td>   <td class="linksb">Welt drehen</td></tr>
-                        <tr><td colspan="2">  H </td>   <td class="linksb">Schatten ein-/ausschalten</td></tr>
-                        <tr><td colspan="2">  Z </td>   <td class="linksb">Zunge ein-/ausschalten</td></tr>
                         <tr><td colspan="2">  T </td>   <td class="linksb">Transparenz ein-/ausschalten</td></tr>
+                        <tr><td colspan="2">  Z </td>   <td class="linksb">Zunge ein-/ausschalten</td></tr>
                         <tr><td colspan="2">  G </td>   <td class="linksb">Gitternetz ein-/ausschalten</td></tr>
+                        <tr><td colspan="2">  H </td>   <td class="linksb">Schatten ein-/ausschalten</td></tr>
+                        <tr><td colspan="2">  Q </td>   <td class="linksb">Infoleiste ein-/ausschalten</td></tr>
                         <tr><td colspan="2">Esc </td>   <td class="linksb">Men&uuml; ein-/ausblenden</td></tr>
                         <tr><td colspan="2"> F5 </td>   <td class="linksb">Aktualisierung der <br />
                                                                Fenstergr&ouml;&szlig;e</td></tr>
