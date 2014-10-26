@@ -908,6 +908,9 @@
         var futterVertexColorBuffer;             //Farbpuffer fuer das Futter
         var futterDeadVertexColorBuffer;         //Farbpuffer fuer das Futter
 
+        var banner1VertexColorBuffer;
+        var banner2VertexColorBuffer;
+        
         var shadowVertexColorBuffer;             //Farbpuffer fuer den Schatten
 
         function initBuffers() {
@@ -1125,6 +1128,14 @@
             futterDeadVertexColorBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, futterDeadVertexColorBuffer);  
             setColor(futterDeadVertexColorBuffer, 0.0, 0.0, 0.0, 0.0, 24);
+            
+            banner1VertexColorBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, banner1VertexColorBuffer);  
+            setColor(banner1VertexColorBuffer, 0.4, 0.8, 0.2, 1.0, 24);
+            
+            banner2VertexColorBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, banner2VertexColorBuffer);  
+            setColor(banner2VertexColorBuffer, 0.5, 1, 0.25, 0.75, 24);
             
             shadowVertexColorBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, shadowVertexColorBuffer);  
@@ -1513,14 +1524,14 @@
                             if(dimZ === -30 || dimZ === -31)
                             {
                                 // Farb Puffer fuer Schlangenkoerper
-                                gl.bindBuffer(gl.ARRAY_BUFFER, snakeVertexColorBuffer);
-                                gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, snakeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                                gl.bindBuffer(gl.ARRAY_BUFFER, banner1VertexColorBuffer);
+                                gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, banner1VertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
                             }
                             else
                             {
                                 // Farb Puffer fuer Schlangenkoerper
-                                gl.bindBuffer(gl.ARRAY_BUFFER, headVertexColorBuffer);
-                                gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, headVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                                gl.bindBuffer(gl.ARRAY_BUFFER, banner2VertexColorBuffer);
+                                gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, banner2VertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
                             }
 
                             mvPushMatrix();
