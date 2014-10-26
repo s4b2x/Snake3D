@@ -2254,10 +2254,17 @@
         });
         
         $('#btNeuesSpiel').click(function(){
-            var Check = confirm("Wollen Sie wirklich ein neues Spiel beginnen?");
-            if (Check == true) {
-              neuesSpiel();
+            if(!verloren) {
+                var Check = confirm("Wollen Sie wirklich ein neues Spiel beginnen?");
+                if (Check == true) {
+                  neuesSpiel();
+                }
             }
+            else 
+            {
+                neuesSpiel();
+            }
+
             $('#btStop').click();
             $('#impressum').hide();
             $('#steuerung').hide();
