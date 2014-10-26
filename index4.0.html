@@ -655,6 +655,26 @@
                 case 71: /* G */
                     $('#cbGitternetz').click();
                     break;
+                    
+                case 70: /* F */
+                    farbIndex = (farbIndex + 1) % 4;
+                    switch(farbIndex)
+                    {
+                        case 0:
+                            $('#farbauswahl').val('Hochschule');
+                            break;
+                        case 1:
+                            $('#farbauswahl').val('Simpsons');
+                            break;
+                        case 2:
+                            $('#farbauswahl').val('Schlumpfhausen');
+                            break;
+                        case 3:
+                            $('#farbauswahl').val('Tron');
+                            break;
+                    }
+                    $('#farbauswahl').change();
+                    break;
             }
             
             if(darfLenken && !pause)
@@ -2288,18 +2308,20 @@
          *                                    
          *   Hochschule:        komplett gruen      Futter: PG-Rot
          *   Simpson:           gelb, weis, blau    Futter: Schweinchenpink oder Donutglasurpink 
-         *   Schlumpf:          weis, blau, weis    Futter: Schlumpfbeerenrot
+         *   Schlumpfhausen:    weis, blau, weis    Futter: Schlumpfbeerenrot
          *   Tron:              tuerkis             Futter: Tronorange                   
          */
         
         $('#ddHochschule').attr('selected','selected');
         
+        var farbIndex = 0;
+        
         $('#farbauswahl').change(function(){
-            var auswahl = $('#farbauswahl option:selected').text();
-           // alert(auswahl);
+            var auswahl = $('#farbauswahl').val();
             switch(auswahl)
             {
                 case 'Hochschule':
+                    farbIndex = 0;
                     setColor(headVertexColorBuffer,     0.5, 1,   0.25, 1.0, 24);
                     setColor(snakeVertexColorBuffer,    0.4, 0.8, 0.2, 1.0, 24);
                     setColor(tailVertexColorBuffer,     0.4, 0.9, 0.2, 1.0, 24);
@@ -2312,6 +2334,7 @@
                     break;
                     
                 case 'Simpsons':
+                    farbIndex = 1;
                     setColor(headVertexColorBuffer,     1.0, 1.0, 0.0, 1.0, 24);
                     setColor(snakeVertexColorBuffer,    0.9, 0.9, 0.9, 1.0, 24);
                     setColor(tailVertexColorBuffer,     0.0, 0.0, 0.9, 1.0, 24);
@@ -2323,7 +2346,8 @@
                     setColor(cubeVertexColorBuffer,     0.0, 0.0, 0.0, 2.0, 24);
                     break;
                     
-                case 'Schlumpf':
+                case 'Schlumpfhausen':
+                    farbIndex = 2;
                     setColor(headVertexColorBuffer,     0.9, 0.9, 0.9, 1.0, 24);
                     setColor(snakeVertexColorBuffer,    0.004, 0.7, 0.9, 1.0, 24);
                     setColor(tailVertexColorBuffer,     0.9, 0.9, 0.9, 1.0, 24);
@@ -2336,6 +2360,7 @@
                     break;
                     
                 case 'Tron':
+                    farbIndex = 3;
                     setColor(headVertexColorBuffer,     0.0, 0.8, 0.8, 1.0, 24);
                     setColor(snakeVertexColorBuffer,    0.0, 0.8, 0.8, 1.0, 24);
                     setColor(tailVertexColorBuffer,     0.0, 0.8, 0.8, 1.0, 24);
@@ -2447,8 +2472,8 @@
                             <td class="linksb">
                                 <select id="farbauswahl" name="farbauswahl" size="1">  
                                     <option id="ddHochschule">Hochschule</option>
-                                    <option id="ddSimpson">Simpsons</option>
-                                    <option id="ddSchlumpf">Schlumpf</option>
+                                    <option id="ddSimpsons">Simpsons</option>
+                                    <option id="ddSchlumpfhausen">Schlumpfhausen</option>
                                     <option id="ddTron">Tron</option>
                                 </select>   
                             </td>
@@ -2473,6 +2498,7 @@
                         <tr><td colspan="2">  G </td>   <td class="linksb">Gitternetz ein-/ausschalten</td></tr>
                         <tr><td colspan="2">  H </td>   <td class="linksb">Schatten ein-/ausschalten</td></tr>
                         <tr><td colspan="2">  Q </td>   <td class="linksb">Infoleiste ein-/ausschalten</td></tr>
+                        <tr><td colspan="2">  F </td>   <td class="linksb">Farbschemen durchwechseln</td></tr>
                         <tr><td colspan="2">Esc </td>   <td class="linksb">Men&uuml; ein-/ausblenden</td></tr>
                         <tr><td colspan="2"> F5 </td>   <td class="linksb">Aktualisierung der <br />
                                                                Fenstergr&ouml;&szlig;e</td></tr>
