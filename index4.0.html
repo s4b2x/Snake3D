@@ -886,8 +886,6 @@
             return degrees * Math.PI / 180;
         }
         
-        var itemSize = 4;
-        
         var faceVertexPositionBuffer;                               
         var faceVertexColorBuffer;               //Farbpuffer fuer die Levelwuerfelflaechen
         var faceDeadVertexColorBuffer;
@@ -903,6 +901,7 @@
         var snakeVertexColorBuffer;              //Farbpuffer fuer die Schlange
         var snakeDeadVertexColorBuffer;          // '' tote ''
         var headVertexColorBuffer;               //Farbpuffer fuer den Kopf
+        var tailVertexColorBuffer;               //Farbpuffer fuer den Schwanz
         
         var futterVertexColorBuffer;             //Farbpuffer fuer das Futter
         var futterDeadVertexColorBuffer;         //Farbpuffer fuer das Futter
@@ -1097,7 +1096,7 @@
         {
             faceVertexColorBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, faceVertexColorBuffer);            
-            setColor(faceVertexColorBuffer, 0.0, 0.29, 0.5, 1.0, 4);    // hier musstes reinschreiben
+            setColor(faceVertexColorBuffer, 0.0, 0.29, 0.5, 1.0, 4);
             
             faceDeadVertexColorBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, faceDeadVertexColorBuffer);  
@@ -1121,7 +1120,11 @@
             
             headVertexColorBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, headVertexColorBuffer);  
-            setColor(headVertexColorBuffer, 0.5, 1, 0.25, 0.75, 24);
+            setColor(headVertexColorBuffer, 0.5, 1, 0.25, 1.0, 24);
+            
+            tailVertexColorBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, tailVertexColorBuffer);  
+            setColor(tailVertexColorBuffer, 0.4, 0.9, 0.2, 1.0, 24);
             
             futterVertexColorBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, futterVertexColorBuffer);  
@@ -1261,7 +1264,7 @@
                 gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, cubeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
                 
            
-                var di = 0.06;
+                var di = 0.03;
                 for(var h = -4; h <= 4; h++)
                 {
                     
@@ -1740,32 +1743,11 @@
                         gl.disable(gl.BLEND);
                         gl.enable(gl.DEPTH_TEST);
                     }
-                    
-                    if(!verloren)
-                    {
-                        //if(!transparenzAn)
-                        {
-                            // Farb Puffer fuer Schlangenkoerper
-                            gl.bindBuffer(gl.ARRAY_BUFFER, snakeVertexColorBuffer);
-                            gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, snakeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
-                        }
-                        /*else
-                        {
-                            // Farb Puffer fuer Schlangenkoerper
-                            gl.bindBuffer(gl.ARRAY_BUFFER, headVertexColorBuffer);
-                            gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, headVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
-                        }*/
-                    }
-                    else
-                    {
-                        //  Im Todesfall
-                        // Farb Puffer fuer Schlangenkoerper == schwarz
-                        gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexColorBuffer);
-                        gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, cubeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
-                    }
-                    
+                                        
                     skalierung = 1;
-                    for (var i = tailPos; ; i = (i + 1) % schlangenMaxLaenge)
+                    var farbzaehler = 1;
+                                      
+                    for (var i = tailPos; ; i = (i + 1) % schlangenMaxLaenge, farbzaehler++)
                     {
                         var dimX = schlangenKoordinaten[i].x;
                         var dimY = schlangenKoordinaten[i].y;
@@ -1774,18 +1756,44 @@
                         mvPushMatrix();
                             mat4.translate(mvMatrix, [dimX, dimY, dimZ]);
                             //  Effekt bei Kopf
-                            if(i === headPos)
+                            if(!verloren)
                             {
-                                mat4.rotate(mvMatrix,
-                                            degToRad(rotationDegree), 
-                                           [Math.sin(degToRad(rotationAxis)), 
-                                            Math.sin(degToRad(0.9*rotationAxis+120)), 
-                                            Math.sin(degToRad(1.1*rotationAxis-120))]);
+                                if(i === headPos)
+                                {
+                                    // Farb Puffer fuer Schlangen-Kopf
+                                    gl.bindBuffer(gl.ARRAY_BUFFER, headVertexColorBuffer);
+                                    gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, headVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                                    mat4.rotate(mvMatrix,
+                                                degToRad(rotationDegree), 
+                                               [Math.sin(degToRad(rotationAxis)), 
+                                                Math.sin(degToRad(0.9*rotationAxis+120)), 
+                                                Math.sin(degToRad(1.1*rotationAxis-120))]);
+                                }
+                                else if(farbzaehler <= (punkte + 3) / 2)
+                                {
+                                    // Farb Puffer fuer Schlangen-Schwanz
+                                    gl.bindBuffer(gl.ARRAY_BUFFER, tailVertexColorBuffer);
+                                    gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, tailVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                                }
+                                else
+                                {
+                                    // Farb Puffer fuer Schlangenkoerper
+                                    gl.bindBuffer(gl.ARRAY_BUFFER, snakeVertexColorBuffer);
+                                    gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, snakeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                                }
+                            }    
+                            else 
+                            {    
+                                // Im Todesfall
+                                // Farb Puffer fuer Schlangenkoerper == schwarz
+                                gl.bindBuffer(gl.ARRAY_BUFFER, snakeDeadVertexColorBuffer);
+                                gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, snakeDeadVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);                               
                             }
+                            
                             mat4.scale(mvMatrix, [skalierung, skalierung, skalierung]);
                             setMatrixUniforms();
                             gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-
+                            
                             ////  Ansatz einer prozeduralen Textur
                             /*
                             mvPushMatrix();
@@ -2278,44 +2286,68 @@
         
         /* Rot, Gruen, Blau, Alpha, NumItems
          *                                    
-         *   Hochschule:         komplett gruen
-         *   Homer Simpson:      gelb, weiß, blau
-         *   Marge Simpson:      blau, gelb, hellgruen
-         *   Bart Simpson:       gelb, rot, blau
-         *   Lisa Simpson:       gelb, orange
-         *   Schlumpf:           weis, blau, weis  
-         *                           
+         *   Hochschule:        komplett gruen      Futter: PG-Rot
+         *   Simpson:           gelb, weis, blau    Futter: Schweinchenpink oder Donutglasurpink 
+         *   Schlumpf:          weis, blau, weis    Futter: Schlumpfbeerenrot
+         *   Tron:              tuerkis             Futter: Tronorange                   
          */
         
-               
-        $('#ddHochschule').click(function(){
-            alert("Hochschule");
-            setColor(headVertexColorBuffer,     0.5, 1.0, 0.25, 0.75, 24);
-            setColor(snakeVertexColorBuffer,    0.4, 0.8, 0.2, 1.0, 24);
-            setColor(futterVertexColorBuffer,   0.9, 0.0, 0.0, 1.0, 24);        
+        $('#ddHochschule').attr('selected','selected');
+        
+        $('#farbauswahl').change(function(){
+            var auswahl = $('#farbauswahl option:selected').text();
+           // alert(auswahl);
+            switch(auswahl)
+            {
+                case 'Hochschule':
+                    setColor(headVertexColorBuffer,     0.5, 1,   0.25, 1.0, 24);
+                    setColor(snakeVertexColorBuffer,    0.4, 0.8, 0.2, 1.0, 24);
+                    setColor(tailVertexColorBuffer,     0.4, 0.9, 0.2, 1.0, 24);
+                    setColor(futterVertexColorBuffer,   0.9, 0.0, 0.0, 1.0, 24);
+                    
+                    setColor(shadowVertexColorBuffer,   0.0, 0.13, 0.25, 2.0, 24);
+
+                    setColor(faceVertexColorBuffer,     0.0, 0.29, 0.5, 1.0, 4);
+                    setColor(cubeVertexColorBuffer,     0.0, 0.0, 0.0, 2.0, 24);
+                    break;
+                    
+                case 'Simpsons':
+                    setColor(headVertexColorBuffer,     1.0, 1.0, 0.0, 1.0, 24);
+                    setColor(snakeVertexColorBuffer,    0.9, 0.9, 0.9, 1.0, 24);
+                    setColor(tailVertexColorBuffer,     0.0, 0.0, 0.9, 1.0, 24);
+                    setColor(futterVertexColorBuffer,   0.9, 0.55, 0.8, 1.0, 24);
+                    
+                    setColor(shadowVertexColorBuffer,   0.0, 0.075, 0.18, 2.0, 24);
+                    
+                    setColor(faceVertexColorBuffer,     0.0, 0.15, 0.35, 1.0, 4);
+                    setColor(cubeVertexColorBuffer,     0.0, 0.0, 0.0, 2.0, 24);
+                    break;
+                    
+                case 'Schlumpf':
+                    setColor(headVertexColorBuffer,     0.9, 0.9, 0.9, 1.0, 24);
+                    setColor(snakeVertexColorBuffer,    0.004, 0.7, 0.9, 1.0, 24);
+                    setColor(tailVertexColorBuffer,     0.9, 0.9, 0.9, 1.0, 24);
+                    setColor(futterVertexColorBuffer,   0.9, 0.0, 0.0, 1.0, 24);
+                    
+                    setColor(shadowVertexColorBuffer,   0.15, 0.34, 0.1, 2.0, 24);
+                    
+                    setColor(faceVertexColorBuffer,     0.3, 0.68, 0.2, 1.0,  4);
+                    setColor(cubeVertexColorBuffer,     0.42, 0.2, 0.17, 2.0, 24);
+                    break;
+                    
+                case 'Tron':
+                    setColor(headVertexColorBuffer,     0.0, 0.8, 0.8, 1.0, 24);
+                    setColor(snakeVertexColorBuffer,    0.0, 0.8, 0.8, 1.0, 24);
+                    setColor(tailVertexColorBuffer,     0.0, 0.8, 0.8, 1.0, 24);
+                    setColor(futterVertexColorBuffer,   0.9, 0.4, 0.0, 1.0, 24);
+                    
+                    setColor(shadowVertexColorBuffer,   0.1, 0.1, 0.1, 2.0, 24);
+                    
+                    setColor(faceVertexColorBuffer,     0.0, 0.0, 0.0, 1.0, 4);
+                    setColor(cubeVertexColorBuffer,     0.0, 1.0, 1.0, 1.0, 24);
+                    break;
+              }
         });
-        
-        $('#ddHSimpson').click(function(){
-            alert("Homer Simpson");
-            setColor(headVertexColorBuffer,     1.0, 1.0, 0.0, 1.0, 24);
-            setColor(snakeVertexColorBuffer,    1.0, 1.0, 1.0, 0.0, 24);
-            setColor(futterVertexColorBuffer,   0.9, 0.55, 0.8, 1.0, 24);        
-        }); 
-        
-        $('#ddMSimpson').click(function(){
-            alert("Marge Simpson");
-            setColor(headVertexColorBuffer,     1.0, 0.0, 0.0, 1.0, 24);
-            setColor(snakeVertexColorBuffer,    1.0, 1.0, 0.0, 1.0, 24);
-            setColor(futterVertexColorBuffer,   0.0, 0.0, 1.0, 1.0, 24);        
-        }); 
-        
-        $('#ddSchlumpf').click(function(){
-            alert("Schlumpf");
-            setColor(headVertexColorBuffer,     0.0, 1.0, 0.0, 1.0, 24);
-            setColor(snakeVertexColorBuffer,    0.0, 0.0, 1.0, 1.0, 24);
-            setColor(futterVertexColorBuffer,   0.0, 0.0, 0.0, 0.0, 24);        
-        }); 
-   
         
         $('#hudMaske').css('width', $('#hud').css('width'));
         $('#hudMaske').css('height', $('#hud').css('height'));
@@ -2410,27 +2442,14 @@
                                 <input type="checkbox" id="cbGitternetz" value="gitternetz"> <br>
                             </td>
                         </tr>
-                        <!--
-                        <tr>
-                            <td>Sprache</td>  
-                            <td class="linksb">
-                                <select name="sprache" size="1">      
-                                    <option>deutsch</option>
-                                    <option>english</option>
-                                </select>   
-                            </td>
-                        </tr>
-                        -->
                         <tr>
                             <td>Farbschema</td>  
                             <td class="linksb">
-                                <select name="sprache" size="1">  
-                                     <option id="ddHochschule">Hochschule</option>
-                                    <option id="ddHSimpson">Homer Simpson</option>
-                                    <option id="ddMSimpson">Marge Simpson</option>
-                                    <option id="ddBSimpson">Bart Simpson</option>
-                                    <option id="ddLSimpson">Lisa Simpson</option>
+                                <select id="farbauswahl" name="farbauswahl" size="1">  
+                                    <option id="ddHochschule">Hochschule</option>
+                                    <option id="ddSimpson">Simpsons</option>
                                     <option id="ddSchlumpf">Schlumpf</option>
+                                    <option id="ddTron">Tron</option>
                                 </select>   
                             </td>
                         </tr>
