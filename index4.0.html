@@ -907,6 +907,9 @@
         var futterVertexColorBuffer;             //Farbpuffer fuer das Futter
         var futterDeadVertexColorBuffer;         //Farbpuffer fuer das Futter
 
+        var banner1VertexColorBuffer;
+        var banner2VertexColorBuffer;
+        
         var shadowVertexColorBuffer;             //Farbpuffer fuer den Schatten
 
         function initBuffers() {
@@ -1128,10 +1131,17 @@
             gl.bindBuffer(gl.ARRAY_BUFFER, futterDeadVertexColorBuffer);  
             setColor(futterDeadVertexColorBuffer, 0.0, 0.0, 0.0, 0.0, 24);
             
+            banner1VertexColorBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, banner1VertexColorBuffer);  
+            setColor(banner1VertexColorBuffer, 0.4, 0.8, 0.2, 1.0, 24);
+            
+            banner2VertexColorBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, banner2VertexColorBuffer);  
+            setColor(banner2VertexColorBuffer, 0.5, 1, 0.25, 0.75, 24);
+            
             shadowVertexColorBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, shadowVertexColorBuffer);  
-            setColor(shadowVertexColorBuffer, 0.0, 0.13, 0.25, 1.0, 24);        
-            
+            setColor(shadowVertexColorBuffer, 0.0, 0.13, 0.25, 2.0, 24);
         }
 
         
@@ -1252,15 +1262,15 @@
                 
            
                 var di = 0.06;
-                for(var h = -5; h <= 5; h++)
-                {       
+                for(var h = -4; h <= 4; h++)
+                {
                     
                 //rechts vertikal
                 mvPushMatrix();
                     mat4.rotate(mvMatrix, degToRad(-90),  [0, 1, 0]);
                     mvPushMatrix();
                     mat4.translate(mvMatrix, [h, 0, -spielfeldGroesse.z/2-0.09]);
-                        mat4.scale(mvMatrix, [di, spielfeldGroesse.y, di]);
+                        mat4.scale(mvMatrix, [di, spielfeldGroesse.y+0.2, di]);
                         setMatrixUniforms();
                         gl.drawArrays(gl.TRIANGLE_STRIP, 0, faceVertexPositionBuffer.numItems);
                     mvPopMatrix();
@@ -1271,7 +1281,7 @@
                     mat4.rotate(mvMatrix, degToRad(-90),  [0, 1, 0]);
                     mvPushMatrix();
                     mat4.translate(mvMatrix, [0, h, -spielfeldGroesse.z/2-0.09]);
-                        mat4.scale(mvMatrix, [spielfeldGroesse.x, di, di]);
+                        mat4.scale(mvMatrix, [spielfeldGroesse.x+0.2, di, di]);
                         setMatrixUniforms();
                         gl.drawArrays(gl.TRIANGLE_STRIP, 0, faceVertexPositionBuffer.numItems);
                     mvPopMatrix();   
@@ -1282,7 +1292,7 @@
                     mat4.rotate(mvMatrix, degToRad(90),  [0, 1, 0]);
                     mvPushMatrix();
                     mat4.translate(mvMatrix, [h, 0, -spielfeldGroesse.z/2-0.09]);
-                        mat4.scale(mvMatrix, [di, spielfeldGroesse.y, di]);
+                        mat4.scale(mvMatrix, [di, spielfeldGroesse.y+0.2, di]);
                         setMatrixUniforms();
                         gl.drawArrays(gl.TRIANGLE_STRIP, 0, faceVertexPositionBuffer.numItems);
                     mvPopMatrix();
@@ -1293,7 +1303,7 @@
                     mat4.rotate(mvMatrix, degToRad(90),  [0, 1, 0]);
                     mvPushMatrix();
                     mat4.translate(mvMatrix, [0, h, -spielfeldGroesse.z/2-0.09]);
-                        mat4.scale(mvMatrix, [spielfeldGroesse.x, di, di]);
+                        mat4.scale(mvMatrix, [spielfeldGroesse.x+0.2, di, di]);
                         setMatrixUniforms();
                         gl.drawArrays(gl.TRIANGLE_STRIP, 0, faceVertexPositionBuffer.numItems);
                     mvPopMatrix();   
@@ -1304,7 +1314,7 @@
                     mat4.rotate(mvMatrix, degToRad(0),  [0, 1, 0]);
                     mvPushMatrix();
                     mat4.translate(mvMatrix, [h, 0, -spielfeldGroesse.z/2-0.09]);
-                        mat4.scale(mvMatrix, [di, spielfeldGroesse.y, di]);
+                        mat4.scale(mvMatrix, [di, spielfeldGroesse.y+0.2, di]);
                         setMatrixUniforms();
                         gl.drawArrays(gl.TRIANGLE_STRIP, 0, faceVertexPositionBuffer.numItems);
                     mvPopMatrix();
@@ -1315,7 +1325,7 @@
                     mat4.rotate(mvMatrix, degToRad(0),  [0, 1, 0]);
                     mvPushMatrix();
                     mat4.translate(mvMatrix, [0, h, -spielfeldGroesse.z/2-0.09]);
-                        mat4.scale(mvMatrix, [spielfeldGroesse.x, di, di]);
+                        mat4.scale(mvMatrix, [spielfeldGroesse.x+0.2, di, di]);
                         setMatrixUniforms();
                         gl.drawArrays(gl.TRIANGLE_STRIP, 0, faceVertexPositionBuffer.numItems);
                     mvPopMatrix();   
@@ -1326,7 +1336,7 @@
                     mat4.rotate(mvMatrix, degToRad(180),  [0, 1, 0]);
                     mvPushMatrix();
                     mat4.translate(mvMatrix, [h, 0, -spielfeldGroesse.z/2-0.09]);
-                        mat4.scale(mvMatrix, [di, spielfeldGroesse.y, di]);
+                        mat4.scale(mvMatrix, [di, spielfeldGroesse.y+0.2, di]);
                         setMatrixUniforms();
                         gl.drawArrays(gl.TRIANGLE_STRIP, 0, faceVertexPositionBuffer.numItems);
                     mvPopMatrix();
@@ -1337,7 +1347,7 @@
                     mat4.rotate(mvMatrix, degToRad(180),  [0, 1, 0]);
                     mvPushMatrix();
                     mat4.translate(mvMatrix, [0, h, -spielfeldGroesse.z/2-0.09]);
-                        mat4.scale(mvMatrix, [spielfeldGroesse.x, di, di]);
+                        mat4.scale(mvMatrix, [spielfeldGroesse.x+0.2, di, di]);
                         setMatrixUniforms();
                         gl.drawArrays(gl.TRIANGLE_STRIP, 0, faceVertexPositionBuffer.numItems);
                     mvPopMatrix();   
@@ -1348,7 +1358,7 @@
                     mat4.rotate(mvMatrix, degToRad(90),  [1, 0, 0]);
                     mvPushMatrix();
                     mat4.translate(mvMatrix, [h, 0, -spielfeldGroesse.z/2-0.09]);
-                        mat4.scale(mvMatrix, [di, spielfeldGroesse.y, di]);
+                        mat4.scale(mvMatrix, [di, spielfeldGroesse.y+0.2, di]);
                         setMatrixUniforms();
                         gl.drawArrays(gl.TRIANGLE_STRIP, 0, faceVertexPositionBuffer.numItems);
                     mvPopMatrix();
@@ -1359,7 +1369,7 @@
                     mat4.rotate(mvMatrix, degToRad(90),  [1, 0, 0]);
                     mvPushMatrix();
                     mat4.translate(mvMatrix, [0, h, -spielfeldGroesse.z/2-0.09]);
-                        mat4.scale(mvMatrix, [spielfeldGroesse.x, di, di]);
+                        mat4.scale(mvMatrix, [spielfeldGroesse.x+0.2, di, di]);
                         setMatrixUniforms();
                         gl.drawArrays(gl.TRIANGLE_STRIP, 0, faceVertexPositionBuffer.numItems);
                     mvPopMatrix();   
@@ -1370,7 +1380,7 @@
                     mat4.rotate(mvMatrix, degToRad(-90),  [1, 0, 0]);
                     mvPushMatrix();
                     mat4.translate(mvMatrix, [h, 0, -spielfeldGroesse.z/2-0.09]);
-                        mat4.scale(mvMatrix, [di, spielfeldGroesse.y, di]);
+                        mat4.scale(mvMatrix, [di, spielfeldGroesse.y+0.2, di]);
                         setMatrixUniforms();
                        gl.drawArrays(gl.TRIANGLE_STRIP, 0, faceVertexPositionBuffer.numItems);
                     mvPopMatrix();
@@ -1381,7 +1391,7 @@
                     mat4.rotate(mvMatrix, degToRad(-90),  [1, 0, 0]);
                     mvPushMatrix();
                     mat4.translate(mvMatrix, [0, h, -spielfeldGroesse.z/2-0.09]);
-                        mat4.scale(mvMatrix, [spielfeldGroesse.x, di, di]);
+                        mat4.scale(mvMatrix, [spielfeldGroesse.x+0.2, di, di]);
                         setMatrixUniforms();
                         gl.drawArrays(gl.TRIANGLE_STRIP, 0, faceVertexPositionBuffer.numItems);
                     mvPopMatrix();   
@@ -1516,14 +1526,14 @@
                             if(dimZ === -30 || dimZ === -31)
                             {
                                 // Farb Puffer fuer Schlangenkoerper
-                                gl.bindBuffer(gl.ARRAY_BUFFER, snakeVertexColorBuffer);
-                                gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, snakeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                                gl.bindBuffer(gl.ARRAY_BUFFER, banner1VertexColorBuffer);
+                                gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, banner1VertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
                             }
                             else
                             {
                                 // Farb Puffer fuer Schlangenkoerper
-                                gl.bindBuffer(gl.ARRAY_BUFFER, headVertexColorBuffer);
-                                gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, headVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+                                gl.bindBuffer(gl.ARRAY_BUFFER, banner2VertexColorBuffer);
+                                gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, banner2VertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
                             }
 
                             mvPushMatrix();
@@ -1733,18 +1743,18 @@
                     
                     if(!verloren)
                     {
-                        if(!transparenzAn)
+                        //if(!transparenzAn)
                         {
                             // Farb Puffer fuer Schlangenkoerper
                             gl.bindBuffer(gl.ARRAY_BUFFER, snakeVertexColorBuffer);
                             gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, snakeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
                         }
-                        else
+                        /*else
                         {
                             // Farb Puffer fuer Schlangenkoerper
                             gl.bindBuffer(gl.ARRAY_BUFFER, headVertexColorBuffer);
                             gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, headVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
-                        }
+                        }*/
                     }
                     else
                     {
