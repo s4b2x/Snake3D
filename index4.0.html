@@ -455,7 +455,6 @@
         {
             if(hilfeCheck != false && schrittanzahl == 50 && aktLaengeSchlange == 3) 
             {
-                setColor(snakeVertexColorBuffer, 1, 0, 0, 1, 24);
                 hilfeCheck = confirm("Brauchen Sie Hilfe bei der Steuerung?");
                 if (hilfeCheck == true) 
                 {
@@ -1047,6 +1046,9 @@
         }
 
         function setColor(colorBuffer, r, g, b, alpha, numItems){ 
+            
+            gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer); 
+            
             var colors;
             if(numItems === 4)
             {
@@ -1104,7 +1106,7 @@
             
             cubeVertexColorBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexColorBuffer);  
-            setColor(cubeVertexColorBuffer, 0.0, 0.0, 0.0, 1.0, 24);
+            setColor(cubeVertexColorBuffer, 0.0, 0.0, 0.0, 2.0, 24);
             
             snakeVertexColorBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, snakeVertexColorBuffer);  
@@ -1128,7 +1130,8 @@
             
             shadowVertexColorBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, shadowVertexColorBuffer);  
-            setColor(shadowVertexColorBuffer, 0.0, 0.13, 0.25, 1.0, 24);
+            setColor(shadowVertexColorBuffer, 0.0, 0.13, 0.25, 1.0, 24);        
+            
         }
 
         
@@ -2263,6 +2266,46 @@
             gitternetzAn = !gitternetzAn;
         });
         
+        /* Rot, Gruen, Blau, Alpha, NumItems
+         *                                    
+         *   Hochschule:         komplett gruen
+         *   Homer Simpson:      gelb, weiﬂ, blau
+         *   Marge Simpson:      blau, gelb, hellgruen
+         *   Bart Simpson:       gelb, rot, blau
+         *   Lisa Simpson:       gelb, orange
+         *   Schlumpf:           weis, blau, weis  
+         *                           
+         */
+        
+               
+        $('#ddHochschule').click(function(){
+            alert("Hochschule");
+            setColor(headVertexColorBuffer,     0.5, 1.0, 0.25, 0.75, 24);
+            setColor(snakeVertexColorBuffer,    0.4, 0.8, 0.2, 1.0, 24);
+            setColor(futterVertexColorBuffer,   0.9, 0.0, 0.0, 1.0, 24);        
+        });
+        
+        $('#ddHSimpson').click(function(){
+            alert("Homer Simpson");
+            setColor(headVertexColorBuffer,     1.0, 1.0, 0.0, 1.0, 24);
+            setColor(snakeVertexColorBuffer,    1.0, 1.0, 1.0, 0.0, 24);
+            setColor(futterVertexColorBuffer,   0.9, 0.55, 0.8, 1.0, 24);        
+        }); 
+        
+        $('#ddMSimpson').click(function(){
+            alert("Marge Simpson");
+            setColor(headVertexColorBuffer,     1.0, 0.0, 0.0, 1.0, 24);
+            setColor(snakeVertexColorBuffer,    1.0, 1.0, 0.0, 1.0, 24);
+            setColor(futterVertexColorBuffer,   0.0, 0.0, 1.0, 1.0, 24);        
+        }); 
+        
+        $('#ddSchlumpf').click(function(){
+            alert("Schlumpf");
+            setColor(headVertexColorBuffer,     0.0, 1.0, 0.0, 1.0, 24);
+            setColor(snakeVertexColorBuffer,    0.0, 0.0, 1.0, 1.0, 24);
+            setColor(futterVertexColorBuffer,   0.0, 0.0, 0.0, 0.0, 24);        
+        }); 
+   
         
         $('#hudMaske').css('width', $('#hud').css('width'));
         $('#hudMaske').css('height', $('#hud').css('height'));
@@ -2372,20 +2415,12 @@
                             <td>Farbschema</td>  
                             <td class="linksb">
                                 <select name="sprache" size="1">  
-                                    <!-- 
-                                    Hochschule:         komplett gruen
-                                    Homer Simpson:      gelb, weiﬂ, blau
-                                    Marge Simpson:      blau, gelb, hellgruen
-                                    Bart Simpson:       gelb, rot, blau
-                                    Lisa Simpson:       gelb, orange
-                                    Schlumpf:           weis, blau, weis  
-                                    -->
-                                    <option>Hochschule</option>
-                                    <option>Homer Simpson</option>
-                                    <option>Marge Simpson</option>
-                                    <option>Bart Simpson</option>
-                                    <option>Lisa Simpson</option>
-                                    <option>Schlumpf</option>
+                                     <option id="ddHochschule">Hochschule</option>
+                                    <option id="ddHSimpson">Homer Simpson</option>
+                                    <option id="ddMSimpson">Marge Simpson</option>
+                                    <option id="ddBSimpson">Bart Simpson</option>
+                                    <option id="ddLSimpson">Lisa Simpson</option>
+                                    <option id="ddSchlumpf">Schlumpf</option>
                                 </select>   
                             </td>
                         </tr>
