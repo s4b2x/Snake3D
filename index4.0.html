@@ -1284,7 +1284,7 @@
                 gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, cubeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
                 
            
-                var di = 0.03;
+                var di = 0.05;
                 for(var h = -4; h <= 4; h++)
                 {
                     
@@ -1431,8 +1431,16 @@
             gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, cubeVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
             /* Farb Puffer */
-            gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexColorBuffer);
-            gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, cubeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            if(!verloren)
+            {
+                gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexColorBuffer);
+                gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, cubeVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            }
+            else
+            {
+                gl.bindBuffer(gl.ARRAY_BUFFER, snakeDeadVertexColorBuffer);
+                gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, snakeDeadVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            }
 
             /* Element Puffer */
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer);
@@ -2074,7 +2082,7 @@
 
             // Es geht nur weiter, wenn WebGl verfuegbar ist.
             if (gl) {
-              gl.clearColor(0.0, 0.0, 0.0, 0.0);  // Setzt die Farbe auf Schwarz, vollstaendig sichtbar
+              gl.clearColor(0.0, 0.0, 0.0, 0.0);  // Setzt die Farbe auf Weiss
               gl.clearDepth(1.0);                 // Loesche alles, um die neue Farbe sichtbar zu machen
               gl.enable(gl.DEPTH_TEST);           // Aktiviere Tiefentest
               gl.depthFunc(gl.LEQUAL);            // Naehere Objekte verdecken entferntere Objekte
@@ -2371,11 +2379,11 @@
                     setColor(headVertexColorBuffer,     0.0, 0.8, 0.8, 1.0, 24);
                     setColor(snakeVertexColorBuffer,    0.0, 0.8, 0.8, 1.0, 24);
                     setColor(tailVertexColorBuffer,     0.0, 0.8, 0.8, 1.0, 24);
-                    setColor(futterVertexColorBuffer,   0.9, 0.4, 0.0, 1.0, 24);
+                    setColor(futterVertexColorBuffer,   1.0, 0.75, 0.0, 1.0, 24);
                     
-                    setColor(shadowVertexColorBuffer,   0.1, 0.1, 0.1, 2.0, 24);
+                    setColor(shadowVertexColorBuffer,   0.75, 1.0, 1.0, 2.0, 24);    //0.1, 0.1, 0.1, 2.0, 24);
                     
-                    setColor(faceVertexColorBuffer,     0.0, 0.0, 0.0, 1.0, 4);
+                    setColor(faceVertexColorBuffer,     0.0, 0.0, 0.0, 2.0, 4);
                     setColor(cubeVertexColorBuffer,     0.0, 1.0, 1.0, 1.0, 24);
                     break;
               }
@@ -2508,7 +2516,8 @@
                         <tr><td colspan="2">  F </td>   <td class="linksb">Farbschemen durchwechseln</td></tr>
                         <tr><td colspan="2">Esc </td>   <td class="linksb">Men&uuml; ein-/ausblenden</td></tr>
                         <tr><td colspan="2"> F5 </td>   <td class="linksb">Aktualisierung der <br />
-                                                               Fenstergr&ouml;&szlig;e</td></tr>
+                                Fenstergr&ouml;&szlig;e<br />
+                            Achtung, setzt alles zur&uuml;ck!</td></tr>
                     </table>
 
                     <ul style="list-style-type:disc">
