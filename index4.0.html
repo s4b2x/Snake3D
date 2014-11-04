@@ -51,8 +51,7 @@
     <!-- Nicht bearbeiten - ENDE Initialisierung der Shader -->
 
     <script type="text/javascript">
-        $(document).ready(function() {
-        
+        $(document).ready(function jqMain() {
         //  Hinweis auf deaktiviertes JS entfernen
         $('#JavaScriptHinweis').remove();
 
@@ -163,7 +162,7 @@
             $('schwierigkeitsgradSlider').val(1);
         }    
         
-        /* fuegt die anfaengliche Snake ein, die 3 Felder gross ist */
+        // fuegt die anfaengliche Snake ein, die 3 Felder gross ist
         function schlangeEinfuegen() {
             schlangenKoordinaten[2] = new koordinate(2, 0, 0);
             schlangenKoordinaten[1] = new koordinate(1, 0, 0);
@@ -455,7 +454,7 @@
         {
             if(hilfeCheck != false && schrittanzahl == 50 && aktLaengeSchlange == 3) 
             {
-                hilfeCheck = confirm("Brauchen Sie Hilfe bei der Steuerung?");
+                hilfeCheck = confirm("Brauchst Du Hilfe bei der Steuerung?");
                 if (hilfeCheck == true) 
                 {
                     $('#btStop').click();
@@ -625,38 +624,38 @@
         }
            
         
-    /* ANFANG Steuerung */
-    /* Java Key Code: http://www.mediaevent.de/javascript/Extras-Javascript-Keycodes.html */
+    // ANFANG Steuerung
+    // Java Key Code: http://www.mediaevent.de/javascript/Extras-Javascript-Keycodes.html
 
         function keyDown(event) 
         {
             switch (event.keyCode) 
             {
-                case 27: /* Escape */
+                case 27: // Escape
                     $('#btStop').click();
                     break;
                     
-                case 81: /* Q */
+                case 81: // Q
                     $('#hudMaske').click();
                     break;
                     
-                case 90: /* Z */
+                case 90: // Z
                     $('#cbLaser').click();
                     break;
                     
-                case 84: /* T */
+                case 84: // T
                     $('#cbTransparenz').click();
                     break;
                     
-                case 72: /* H */
+                case 72: // H
                     $('#cbSchatten').click();
                     break;
                     
-                case 71: /* G */
+                case 71: // G
                     $('#cbGitternetz').click();
                     break;
                     
-                case 70: /* F */
+                case 70: // F
                     farbIndex = (farbIndex + 1) % 4;
                     switch(farbIndex)
                     {
@@ -681,8 +680,8 @@
             {
                 switch (event.keyCode) 
                 {
-                    case 39: /* rechts */
-                    case 68: /* D */
+                    case 39: // rechts
+                    case 68: // D
 //                    alert('rechts');
                         if(richtung !== links && richtung !== rechts)
                         {
@@ -691,8 +690,8 @@
                         }
                         break;
     
-                    case 37: /* links */
-                    case 65: /* A */
+                    case 37: // links
+                    case 65: // A
     //                    alert('links');
                         if(richtung !== rechts && richtung !== links)
                         {
@@ -701,8 +700,8 @@
                         }
                         break;
     
-                    case 38: /* oben */
-                    case 87: /* W */
+                    case 38: // oben 
+                    case 87: // W 
     //                    alert('oben');
                         if(richtung !== unten && richtung !== oben)
                         {
@@ -711,8 +710,8 @@
                         }
                         break;   
     
-                    case 40: /* unten */
-                    case 83: /* S */
+                    case 40: // unten 
+                    case 83: // S 
     //                    alert('unten');
                         if(richtung !== oben && richtung !== unten)
                         { 
@@ -720,63 +719,63 @@
                             darfLenken = false;
                         }
                         break; 
-                    /*  Steuerung nach hinten und vorne, nicht mehr notwenig
-                    case 34: // Bild Ab
-                    case 88: // X
-    //                    alert('vorne');
-                        if(richtung !== hinten && richtung !== vorne)
-                        { 
-                            richtung = vorne;
-                            darfLenken = false;
-                        }
-                        break;      
-    
-                    case 33: // Bild Auf
-                    case 69: // E
-    //                    alert('hinten');
-                        if(richtung !== vorne && richtung !== hinten)
-                        { 
-                            richtung = hinten;
-                            darfLenken = false;
-                        }
-                        break; */     
+                    //  Steuerung nach hinten und vorne, nicht mehr notwenig
+//                    case 34: // Bild Ab
+//                    case 88: // X
+//    //                    alert('vorne');
+//                        if(richtung !== hinten && richtung !== vorne)
+//                        { 
+//                            richtung = vorne;
+//                            darfLenken = false;
+//                        }
+//                        break;      
+//    
+//                    case 33: // Bild Auf
+//                    case 69: // E
+//    //                    alert('hinten');
+//                        if(richtung !== vorne && richtung !== hinten)
+//                        { 
+//                            richtung = hinten;
+//                            darfLenken = false;
+//                        }
+//                        break;   
                 }
             }
             
             switch (event.keyCode) 
                {
-                case 49: /*1 in Leiste*/
-                case 97: /*1 Numpad*/
+                case 49: //1 in Leiste
+                case 97: //1 Numpad
                     drehungX = 0;
                     drehungY = 0;
                     break;
                     
-                case 50: /*2 in Leiste*/
-                case 98: /*2 Numpad*/
+                case 50: //2 in Leiste
+                case 98: //2 Numpad
                     drehungX = 00;
                     drehungY = 90;
                     break;
                     
-                case 51: /*3 in Leiste*/
-                case 99: /*3 Numpad*/
+                case 51: //3 in Leiste
+                case 99: //3 Numpad
                     drehungX = 00;
                     drehungY = 180;
                     break;
                     
-                case 52: /*4 in Leiste*/
-                case 100:/*4 Numpad*/
+                case 52: //4 in Leiste
+                case 100://4 Numpad
                     drehungX = 00;
                     drehungY = 270;
                     break;
                 
-                case 53: /*5 in Leiste*/
-                case 101:/*5 Numpad*/
+                case 53: //5 in Leiste
+                case 101://5 Numpad
                     drehungX = 90;
                     drehungY = 00;
                     break;
                 
-                case 54: /*6 in Leiste*/
-                case 102: /*6 Numpad*/
+                case 54: //6 in Leiste
+                case 102: //6 Numpad
                     drehungX = 270;
                     drehungY = 00;
                     break;
@@ -784,11 +783,11 @@
        };
 
 
-        /* Die Taste wird gerade gedrueckt */
+        // Die Taste wird gerade gedrueckt 
         document.addEventListener('keydown', keyDown, false);
         
 
-    /* ENDE Steuerung */
+    // ENDE Steuerung 
      
 
     var gl;
@@ -1183,30 +1182,30 @@
             gl.disable(gl.BLEND);
             gl.enable(gl.DEPTH_TEST);
 
-            /* Blickwinkel, Hoehen-/Breitenverhaeltnis, Objekte wird zwischen 0.1 und 100 Einheiten gerendert */
+            // Blickwinkel, Hoehen-/Breitenverhaeltnis, Objekte wird zwischen 0.1 und 100 Einheiten gerendert 
             mat4.perspective(45, gl.viewportWidth / gl.viewportHeight, 0.1, 100.0, pMatrix);
 
             mat4.identity(mvMatrix);
             
 
-            /* Gesamtbild */
+            // Gesamtbild 
 
             mat4.translate(mvMatrix, [0.0, 0.0, -kameraAbstand]);          // Verschiebung des Gesamtbildes (x, y, z) Achse
             
-            /* Coole Perspektive: (Rotation des Gesamtbildes um die x-Achse) */
+            // Coole Perspektive: (Rotation des Gesamtbildes um die x-Achse) 
             //mat4.rotate(mvMatrix, degToRad(10), [1, 0, 0]);    
             
-            /* Drehung des Wuerfels um die X-Achse */
+            // Drehung des Wuerfels um die X-Achse 
             mat4.rotate(mvMatrix, degToRad(drehungX),  [1, 0, 0]);
-            /* Drehung des Wuerfels um die Y-Achse */
+            // Drehung des Wuerfels um die Y-Achse 
             mat4.rotate(mvMatrix, degToRad(drehungY),  [0, 1, 0]);
 
             ////////  FLAECHEN
-            /* Puffer des Quadrats wird mit dem Kontext verbunden */
+            // Puffer des Quadrats wird mit dem Kontext verbunden 
             gl.bindBuffer(gl.ARRAY_BUFFER, faceVertexPositionBuffer);
             gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, faceVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-            /* Farb Puffer */
+            // Farb Puffer 
             if(!verloren)
             {
                 gl.bindBuffer(gl.ARRAY_BUFFER, faceVertexColorBuffer);
@@ -1426,11 +1425,11 @@
             
             ////////  WUERFEL
             
-            /* Puffer des Wuerfels wird mit dem Kontext verbunden */
+            // Puffer des Wuerfels wird mit dem Kontext verbunden 
             gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexPositionBuffer);
             gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, cubeVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-            /* Farb Puffer */
+            // Farb Puffer 
             if(!verloren)
             {
                 gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexColorBuffer);
@@ -1442,10 +1441,10 @@
                 gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, snakeDeadVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
             }
 
-            /* Element Puffer */
+            // Element Puffer 
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, cubeVertexIndexBuffer);
 
-            /* Gesamten Rest in den Spielfeldursprung verschieben */
+            // Gesamten Rest in den Spielfeldursprung verschieben 
             mvPushMatrix();
                 mat4.translate(mvMatrix, [-spielfeldGroesse.x / 2, -spielfeldGroesse.y / 2, -spielfeldGroesse.z / 2]);
 
@@ -1823,41 +1822,41 @@
                             gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
                             
                             ////  Ansatz einer prozeduralen Textur
-                            /*
-                            mvPushMatrix();
-
-                                gl.bindBuffer(gl.ARRAY_BUFFER, headVertexColorBuffer);
-                                gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, headVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-                                var texturWinkel = [  0,
-                                                    180,
-                                                     90,
-                                                    -90,
-                                                     90,
-                                                    -90];
-                                var texturAchsen = [[1, 0, 0],
-                                                    [0, 1, 0],
-                                                    [0, 1, 0],
-                                                    [0, 1, 0],
-                                                    [0, 0, 1],
-                                                    [0, 0, 1]];
-
-                                for(var i = 0; i < 6; i++)
-                                {
-                                    mvPushMatrix();
-                                        mat4.rotate(mvMatrix, degToRad(texturWinkel[i]), texturAchsen[i]);
-                                        mvPushMatrix();
-                                            mat4.rotate(mvMatrix, degToRad(45), [1, 0, 0]);
-                                            mat4.translate(mvMatrix, [0.5,0,0]);
-                                            mat4.scale(mvMatrix, [0.05, Math.sqrt(2)/2, Math.sqrt(2)/2]);
-
-                                            setMatrixUniforms();
-                                            gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
-                                        mvPopMatrix();
-                                    mvPopMatrix();
-                                }
-                            mvPopMatrix();
-                            */
+//                            //
+//                            mvPushMatrix();
+//
+//                                gl.bindBuffer(gl.ARRAY_BUFFER, headVertexColorBuffer);
+//                                gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, headVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
+//
+//                                var texturWinkel = [  0,
+//                                                    180,
+//                                                     90,
+//                                                    -90,
+//                                                     90,
+//                                                    -90];
+//                                var texturAchsen = [[1, 0, 0],
+//                                                    [0, 1, 0],
+//                                                    [0, 1, 0],
+//                                                    [0, 1, 0],
+//                                                    [0, 0, 1],
+//                                                    [0, 0, 1]];
+//
+//                                for(var i = 0; i < 6; i++)
+//                                {
+//                                    mvPushMatrix();
+//                                        mat4.rotate(mvMatrix, degToRad(texturWinkel[i]), texturAchsen[i]);
+//                                        mvPushMatrix();
+//                                            mat4.rotate(mvMatrix, degToRad(45), [1, 0, 0]);
+//                                            mat4.translate(mvMatrix, [0.5,0,0]);
+//                                            mat4.scale(mvMatrix, [0.05, Math.sqrt(2)/2, Math.sqrt(2)/2]);
+//
+//                                            setMatrixUniforms();
+//                                            gl.drawElements(gl.TRIANGLES, cubeVertexIndexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+//                                        mvPopMatrix();
+//                                    mvPopMatrix();
+//                                }
+//                            mvPopMatrix();
+                            
                         mvPopMatrix();
                         skalierung += 1/(aktLaengeSchlange*5);
                         
@@ -2263,7 +2262,7 @@
         
         $('#btNeuesSpiel').click(function(){
             if(!verloren) {
-                var Check = confirm("Wollen Sie wirklich ein neues Spiel beginnen?");
+                var Check = confirm("Willst Du wirklich ein neues Spiel beginnen?");
                 if (Check == true) {
                   neuesSpiel();
                 }
@@ -2319,13 +2318,12 @@
             gitternetzAn = !gitternetzAn;
         });
         
-        /* Rot, Gruen, Blau, Alpha, NumItems
-         *                                    
-         *   Hochschule:        komplett gruen      Futter: PG-Rot
-         *   Simpson:           gelb, weis, blau    Futter: Schweinchenpink oder Donutglasurpink 
-         *   Schlumpfhausen:    weis, blau, weis    Futter: Schlumpfbeerenrot
-         *   Tron:              tuerkis             Futter: Tronorange                   
-         */
+        // Rot, Gruen, Blau, Alpha, NumItems
+        //
+        //   Hochschule:        komplett gruen      Futter: PG-Rot
+        //   Simpson:           gelb, weis, blau    Futter: Schweinchenpink oder Donutglasurpink 
+        //   Schlumpfhausen:    weis, blau, weis    Futter: Schlumpfbeerenrot
+        //   Tron:              tuerkis             Futter: Tronorange
         
         $('#ddHochschule').attr('selected','selected');
         
@@ -2423,14 +2421,14 @@
             <div>
                 <div>
                     JavaScript ist deaktiviert.<br />
-                    Bitte aktivieren Sie JavaScript in Ihren Browser-Einstellungen.
+                    Bitte aktiviere JavaScript in Deinen Browser-Einstellungen.
                 </div>
             </div>
         </div>
 
         <canvas id="snakecanvas">
-            Ihr Browser unterst&uuml;tzt das Canvas-Element nicht.<br />
-            Bitte updaten Sie Ihren Browser auf die aktuelle Version.
+            Dein Browser unterst&uuml;tzt das Canvas-Element nicht.<br />
+            Bitte update Deinen Browser auf die aktuelle Version.
         </canvas>
         
         <span id = "schwierigkeitsgrad">
