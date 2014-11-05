@@ -1,17 +1,200 @@
 <!DOCTYPE html>
-
 <html>
-    <head>
-        <title>Snake 3D</title>
-        <meta http-equiv="refresh" content="3; URL=index4.0.html">
+<head>
+    <title>Snake 3D</title>
+
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','http://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-55370383-1', 'auto');
+        ga('send', 'pageview');
+    </script>
+    
+    <script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
+    <script type="text/javascript" src="webgl-utils.js"></script>
+    <script type="text/javascript" src="jquery-1.11.1.min.js"></script>
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+
+    <style type="text/css">
+        @import url("snake.css");
+    </style>	
+
+    <!-- Nicht bearbeiten - ANFANG Initialisierung der Shader -->
+    <script id="shader-fs" type="x-shader/x-fragment">
+        precision mediump float;
+
+        varying vec4 vColor;
+
+        void main(void) {
+            gl_FragColor = vColor;
+        }
+    </script>
+
+    <script id="shader-vs" type="x-shader/x-vertex">
+        attribute vec3 aVertexPosition;
+        attribute vec4 aVertexColor;
+
+        uniform mat4 uMVMatrix;
+        uniform mat4 uPMatrix;
+
+        varying vec4 vColor;
+        
+        
+        void main(void) {
+            gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+            vColor = aVertexColor;
+        }
+    </script>
+    <!-- Nicht bearbeiten - ENDE Initialisierung der Shader -->
+
+    <script type="text/javascript" src="snake.js"></script>
     </head>
 
     <body>
-        <p>
-            <a href="index4.0.html">
-                Wenn Sie nicht automatisch weitergeleitet werden, klicken Sie bitte hier.
-            </a>
-        </p>
-    </body>
+        <div id="JavaScriptHinweis">
+            <!--    Hinweis, dass JS deaktiviert ist.
+                    Wird von JS entfernt, wenn es funzt   -->
+            <div>
+                <div>
+                    JavaScript ist deaktiviert.<br />
+                    Bitte aktiviere JavaScript in Deinen Browser-Einstellungen.
+                </div>
+            </div>
+        </div>
+
+        <canvas id="snakecanvas">
+            Dein Browser unterst&uuml;tzt das Canvas-Element nicht.<br />
+            Bitte update Deinen Browser auf die aktuelle Version.
+        </canvas>
+        
+        <span id = "schwierigkeitsgrad">
+            Schwierigkeitsgrad ausw&auml;hlen: <br /><input id="schwierigkeitsgradSlider" type="range" min="1" max="5" value="1" step="1" onchange="level(value)"/>   
+        </span> 
+        
+        <div id="menue">
+            <button id="btStop" onclick="">Men&uuml;</button>&nbsp;&nbsp;&nbsp;
+
+            <div id="inhalt" style="display: none">
+
+                <button id="btNeuesSpiel" onclick="">Neues Spiel</button> 
+
+                <button id="btHighscore" onclick="">Highscore</button>
+                <button id="btSteuerung" onclick="">Steuerung</button>
+                <button id="btImpressum" onclick="">Impressum</button>
+                <button id="btOptionen" onclick="">Optionen</button>
+
+                <!-- Laser: <input type="checkbox" name="laserButton" onclick="laser();"> 
+                <button id="btTransparenz" onclick="">Transparenz</button>
+                <button id="btLaser" onclick="">Laser</button>
+                -->
+
+                 <div id="optionen" style="display: none">
+                    <h2>Optionen</h2>
+                    
+                    <table border="0">
+                        <tr>
+                            <td>Schatten</td>  
+                            <td>
+                                <input type="checkbox" id="cbSchatten" value="schatten"> <br>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Transparenz</td>  
+                            <td>
+                                <input type="checkbox" id="cbTransparenz" value="transparenz"> <br>
+                            </td>
+                        </tr>   
+                        <tr>
+                            <td>Zunge</td>  
+                            <td>
+                                <input type="checkbox" id="cbLaser" value="laser"> <br>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Gitternetz</td>  
+                            <td>
+                                <input type="checkbox" id="cbGitternetz" value="gitternetz"> <br>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Farbschema</td>  
+                            <td class="linksb">
+                                <select id="farbauswahl" name="farbauswahl" size="1">  
+                                    <option id="ddHochschule">Hochschule</option>
+                                    <option id="ddSimpsons">Simpsons</option>
+                                    <option id="ddSchlumpfhausen">Schlumpfhausen</option>
+                                    <option id="ddTron">Tron</option>
+                                </select>   
+                            </td>
+                        </tr>
+    
+                    </table>
+                    
+                 </div>
+                
+                <div id="steuerung" style="display: none">
+                    <h2>Steuerung</h2>
+                        
+                    <table border="0">
+                        <tr><td>&uArr;</td><td>W</td>   <td class="linksb">Richtung oben </td></tr>
+                        <tr><td>&dArr;</td><td>S</td>   <td class="linksb">Richtung unten</td></tr>
+                        <tr><td>&lArr;</td><td>A</td>   <td class="linksb">Richtung links</td></tr>
+                        <tr><td>&rArr;</td><td>D</td>   <td class="linksb">Richtung rechts</td></tr>
+                        <tr><td colspan="2">linke Maustaste 
+                                 gedr&uuml;ckt ziehen</td>   <td class="linksb">Welt drehen</td></tr>
+                        <tr><td colspan="2">  T </td>   <td class="linksb">Transparenz ein-/ausschalten</td></tr>
+                        <tr><td colspan="2">  Z </td>   <td class="linksb">Zunge ein-/ausschalten</td></tr>
+                        <tr><td colspan="2">  G </td>   <td class="linksb">Gitternetz ein-/ausschalten</td></tr>
+                        <tr><td colspan="2">  H </td>   <td class="linksb">Schatten ein-/ausschalten</td></tr>
+                        <tr><td colspan="2">  Q </td>   <td class="linksb">Infoleiste ein-/ausschalten</td></tr>
+                        <tr><td colspan="2">  F </td>   <td class="linksb">Farbschemen durchwechseln</td></tr>
+                        <tr><td colspan="2">Esc </td>   <td class="linksb">Men&uuml; ein-/ausblenden</td></tr>
+                        <tr><td colspan="2"> F5 </td>   <td class="linksb">Aktualisierung der <br />
+                                Fenstergr&ouml;&szlig;e<br />
+                            Achtung, setzt alles zur&uuml;ck!</td></tr>
+                    </table>
+
+                    <ul style="list-style-type:disc">
+                        <li><p>Ansicht &auml;ndern:<br>
+                            Mit linker Maustaste klicken und gedr&uuml;ckt halten.</p></li>
+                        <li><p>Die Steuerung &auml;ndert sich mit der Ansicht,<br>
+                                z.B. l&auml;uft die Schlange IMMER nach links <br>
+                                wenn man die linke Pfeiltaste dr&uuml;ckt.</p></li>
+                    </ul>
+                </div>
+                
+                <div id="divHighscore" style="display: none">
+                    <h2>Highscore</h2>
+                    <p id="highscoreOffline" style="display: none">(lokale Ausf&uuml;hrung)<br />
+                        <a href="http://www.sebix.de/snake">Klicke hier</a> f&uuml;r den globalen Highscore!
+                    </p>
+                    <table id="highscore">
+                        <tr>
+                            <td>#</td>
+                            <td>Name</td>
+                            <td>Punkte</td>
+                            <td>Schwierigkeitsgrad</td>
+                            <td>Datum</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div id="impressum" style="display: none">
+                    <h2>Impressum</h2>
+                    <img src="impressum.svg" width="600" alt="Impressum" />
+                </div>
+                
+ 
+        </div>
+    </div>
+                
+        <!-- Hier wird die HUD oben links eingefuegt -->
+        <div id="hudTitel" style="display: none;">H<br />U<br />D</div>
+        <div id="hud"></div>
+        <div id="hudMaske"></div>
+   </body>
 
 </html>
